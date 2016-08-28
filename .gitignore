@@ -9,6 +9,8 @@ ThirdParty/CubicFineParticle/Libraries/*
 *.xcworkspace
 *.sln
 *.pro*
+*.VC.*
+.vc/*
 ThirdParty/CubicFineParticle/src/bin
 ThirdParty/CubicFineParticle/src/lib
 ThirdParty/CubicFineParticle/src/build

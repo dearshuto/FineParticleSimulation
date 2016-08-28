@@ -5,6 +5,14 @@ import shutil
 import os
 import glob
 
+shutil.rmtree(os.getcwd() + '/CubicFineParticle/Libraries')
+os.mkdir(os.getcwd() + '/CubicFineParticle/Libraries')
+
+
+if not os.path.exists(os.getcwd() + '/BulletPhysics'):
+	os.makedirs(os.getcwd() + '/BulletPhysics/Includes')
+	os.makedirs(os.getcwd() + '/BulletPhysics/Libraries')
+	
 
 # my code
 path = 'CubicFineParticle/src/'

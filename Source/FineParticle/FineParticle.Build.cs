@@ -47,7 +47,7 @@ public class FineParticle : ModuleRules
         {
             isLibrarySupported = true;
 
-            string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "x64" : "x86";
+            string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "" : "";
             string LibrariesPath = Path.Combine(ThirdPartyPath, "CubicFineParticle", "Libraries");
 
             PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "cubic_fine_particle" + PlatformString + ".lib"));
@@ -82,12 +82,12 @@ public class FineParticle : ModuleRules
         {
             isLibrarySupported = true;
 
-            string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "x64" : "x86";
+            string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "" : "";
             string LibrariesPath = Path.Combine(ThirdPartyPath, "BulletPhysics", "Libraries");
 
-            PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "BulletCollision" + PlatformString + ".a"));
-            PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "BulletDynamics" + PlatformString + ".a"));
-            PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "LinearMath" + PlatformString + ".a"));
+            PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "BulletCollision" + PlatformString + ".lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "BulletDynamics" + PlatformString + ".lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "LinearMath" + PlatformString + ".lib"));
         }
 
         if (Target.Platform == UnrealTargetPlatform.Mac)
