@@ -1,0 +1,3 @@
+[submodule "ThirdParty/CubicFineParticle/src/vendor/bullet"]
+	path = ThirdParty/CubicFineParticle/src/vendor/bullet
+	url = https://github.com/bulletphysics/bullet3.git
