@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 #include "simulation/fine_particle_world.hpp"
 #include "simulation/particle.hpp"
 #include "povray/povray_output.hpp"
