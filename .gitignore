@@ -1,0 +1,8 @@
+Binaries*
+DerivedDataCache/*
+DerivedData/*
+Intermediate/*
+Saved/*
+*.xcworkspace
+*.sln
+*.pro*
