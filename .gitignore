@@ -3,6 +3,12 @@ DerivedDataCache/*
 DerivedData/*
 Intermediate/*
 Saved/*
+ThirdParty/BulletPhysics/*
+ThirdParty/CubicFineParticle/Includes/*
+ThirdParty/CubicFineParticle/Libraries/*
 *.xcworkspace
 *.sln
 *.pro*
+ThirdParty/CubicFineParticle/src/bin
+ThirdParty/CubicFineParticle/src/lib
+ThirdParty/CubicFineParticle/src/build
