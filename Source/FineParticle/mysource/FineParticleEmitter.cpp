@@ -17,6 +17,11 @@ void AFineParticleEmitter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+    auto particle = GetWorld()->SpawnActor<AParticleStaticMeshActor>();
+    particle->SetActorLocation(FVector(0, 0, 80));
+    particle->SetMobility(EComponentMobility::Movable);
+    
+    m_particles.Push(particle);
 }
 
 // Called every frame

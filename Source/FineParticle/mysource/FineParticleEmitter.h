@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ParticleStaticMeshActor.h"
 #include "GameFramework/Actor.h"
 #include "FineParticleEmitter.generated.h"
 
@@ -21,5 +22,5 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	
-	
+    TArray<AParticleStaticMeshActor*> m_particles;
 };
