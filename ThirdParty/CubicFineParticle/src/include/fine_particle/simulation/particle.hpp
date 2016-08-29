@@ -19,9 +19,9 @@ namespace fj {
     
     enum class CollisionFiltering : uint16_t
     {
-        kRigid = 0,
-        kOverlap = 1,
-        kParticle = 2,
+        kRigid = 1,
+        kOverlap = 2,
+        kParticle = 4,
     };
     
     class FineParticleWorld;
@@ -89,7 +89,7 @@ public:
     static std::unique_ptr<btBoxShape> BoxShape;
 
 private:
-    btGhostObject m_overlap;
+    btPairCachingGhostObject m_overlap;
     
     std::unique_ptr<btMotionState> m_motionState;
 };

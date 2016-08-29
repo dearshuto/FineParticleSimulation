@@ -52,7 +52,7 @@ void fj::Particle::setOverlapInWorld(fj::FineParticleWorld* world)
 
 bool fj::Particle::isCollapse()const
 {
-    m_overlap.getOverlappingObject(0);
+
     return false;
 }
 
