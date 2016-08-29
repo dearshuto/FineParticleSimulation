@@ -34,6 +34,6 @@ private:
     
     fj::FineParticleWorld m_world;
     
-    std::unique_ptr<btStaticPlaneShape> m_plane;
+    std::unique_ptr<btCollisionShape> m_plane;
     std::unique_ptr<btMotionState> m_planeMotionState;
 };

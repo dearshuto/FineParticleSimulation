@@ -20,10 +20,10 @@ void AFineParticleEmitter::BeginPlay()
     
     constexpr btScalar mass(0.);
     const btVector3 localInertia(0,0,0);
-    m_plane.reset( new btStaticPlaneShape( btVector3(0, 0, 1), btScalar(0.)) );
+    m_plane.reset( new btBoxShape( btVector3(btScalar(1000), btScalar(10000), btScalar(10))) );
     btTransform transform;
     transform.setIdentity();
-    transform.setOrigin(btVector3(0, 0, 30));
+    transform.setOrigin(btVector3(0, 0, -10));
     m_planeMotionState.reset( new btDefaultMotionState(transform) );
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, m_planeMotionState.get(), m_plane.get(),localInertia);
     std::unique_ptr<btRigidBody> plane(new btRigidBody(rbInfo));
@@ -56,8 +56,8 @@ void AFineParticleEmitter::synchronizeRenderParticlePosition()
 
 void AFineParticleEmitter::CreateParticle(const FVector& position)
 {
-    auto particle = fj::Particle::generateParticle(position.X, position.Y, position.Z);
-    m_world.addParticle( std::move(particle), int(fj::CollisionFiltering::kParticle), int(fj::CollisionFiltering::kRigid) | int(fj::CollisionFiltering::kParticle)) ;
+    std::unique_ptr<fj::Particle> particle = std::move(fj::Particle::generateParticle(position.X, position.Y, position.Z));
+    m_world.addParticle( std::move(particle), static_cast<int>(fj::CollisionFiltering::kParticle), fj::Particle::GetCollisionFilteringFlag() );
     
     auto visibleParticle = GetWorld()->SpawnActor<AParticleStaticMeshActor>();
     visibleParticle->SetActorLocation( position );
