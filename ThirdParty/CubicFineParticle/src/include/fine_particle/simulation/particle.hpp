@@ -17,13 +17,14 @@
 
 namespace fj {
     
-    enum class CollisionFiltering : uint8_t
+    enum class CollisionFiltering : uint16_t
     {
-        kRigid = 1 << 0,
-        kOverlap = 1 << 1,
-        kParticle = 1 << 2,
+        kRigid = 0,
+        kOverlap = 1,
+        kParticle = 2,
     };
     
+    class FineParticleWorld;
     class Particle;
 }
 
@@ -42,7 +43,19 @@ public:
     
     static std::unique_ptr<fj::Particle> generateParticle(const double x, const double y, const double z);
     
+    static uint16_t GetCollisionFilteringFlag()
+    {
+        return static_cast<uint16_t>(fj::CollisionFiltering::kRigid) | static_cast<uint16_t>(fj::CollisionFiltering::kOverlap);
+    }
+    
+    void setOverlapInWorld( fj::FineParticleWorld* world);
+    
     bool isCollapse()const;
+    
+    /**
+     * 毎フレーム更新が必要な処理
+     */
+    void update(btScalar timestep);
     
     /**
      * btCollisionObjectをfj::Particleにアップキャストする.
@@ -62,6 +75,10 @@ public:
         return nullptr;
     }
 
+    int overlappingSize()const;
+    
+    const fj::Particle& getOverlappingParticle(const int index)const;
+    
 private:
     void init();
 public:
@@ -71,9 +88,8 @@ public:
     
     static std::unique_ptr<btBoxShape> BoxShape;
 
-    btGhostObject Overlap;
 private:
-
+    btGhostObject m_overlap;
     
     std::unique_ptr<btMotionState> m_motionState;
 };
