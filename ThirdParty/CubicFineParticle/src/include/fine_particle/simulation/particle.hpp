@@ -75,6 +75,11 @@ public:
         return nullptr;
     }
 
+    btScalar getRadius()const
+    {
+        return static_cast<const btSphereShape*>(getCollisionShape())->getRadius();
+    }
+    
     int overlappingSize()const;
     
     const fj::Particle& getOverlappingParticle(const int index)const;

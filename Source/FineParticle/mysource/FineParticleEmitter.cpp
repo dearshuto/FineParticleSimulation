@@ -29,6 +29,7 @@ void AFineParticleEmitter::BeginPlay()
     std::unique_ptr<btRigidBody> plane(new btRigidBody(rbInfo));
     
     m_world.addRigidBody(std::move(plane), int(fj::CollisionFiltering::kRigid), int(fj::CollisionFiltering::kRigid) | int(fj::CollisionFiltering::kParticle));
+    
 }
 
 // Called every frame
@@ -36,7 +37,8 @@ void AFineParticleEmitter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
     
-    m_world.stepSimulation(DeltaTime);
+    m_world.accumlateParticleForce(1.0/60.0);
+    m_world.stepSimulation(1.0/60.0);
     synchronizeRenderParticlePosition();
 }
 
@@ -50,6 +52,8 @@ void AFineParticleEmitter::synchronizeRenderParticlePosition()
         const auto& kPosition = trans.getOrigin();
         
         m_particles[i]->SetActorLocation( FVector(kPosition.x(), kPosition.y(), kPosition.z()) );
+        
+//        UE_LOG(LogTemp, Warning, TEXT("%d Position : %f, %f, %f"), i, kPosition.x(), kPosition.y(), kPosition.z());
     }
     
 }
@@ -57,7 +61,7 @@ void AFineParticleEmitter::synchronizeRenderParticlePosition()
 void AFineParticleEmitter::CreateParticle(const FVector& position)
 {
     std::unique_ptr<fj::Particle> particle = std::move(fj::Particle::generateParticle(position.X, position.Y, position.Z));
-    m_world.addParticle( std::move(particle), static_cast<int>(fj::CollisionFiltering::kParticle), fj::Particle::GetCollisionFilteringFlag() );
+    m_world.addParticle( std::move(particle), static_cast<int>(fj::CollisionFiltering::kParticle), /*int(fj::CollisionFiltering::kParticle) |*/ fj::Particle::GetCollisionFilteringFlag() );
     
     auto visibleParticle = GetWorld()->SpawnActor<AParticleStaticMeshActor>();
     visibleParticle->SetActorLocation( position );

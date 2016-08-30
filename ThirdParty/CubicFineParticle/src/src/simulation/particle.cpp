@@ -10,13 +10,13 @@
 #include "simulation/fine_particle_world.hpp"
 #include "simulation/particle.hpp"
 
-std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(0.5) );
-std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(50.0) );
+std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(1.0) );
+std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(2.0) );
 std::unique_ptr<btBoxShape> fj::Particle::BoxShape( new btBoxShape(btVector3(1, 1, 1)) );
 
 std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const double x, const double y, const double z)
 {
-    constexpr btScalar mass(0.5);
+    constexpr btScalar mass(0.1);
     const btVector3 localInertia(0,0,0);
     btTransform transform;
     transform.setIdentity();

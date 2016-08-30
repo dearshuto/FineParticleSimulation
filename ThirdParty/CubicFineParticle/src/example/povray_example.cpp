@@ -40,8 +40,8 @@ int main(int argc, char** argv)
     // レンダリング
     fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
     
-    for (int i = 0; i < 2; i++){
-        for (int k = 0; k < 1; k++){
+    for (int i = 0; i < 1; i++){
+        for (int k = 0; k < 2; k++){
             for (int j = 0; j < 1; j++)
             {
                 std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle(i, 10 + j, k) );
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     }
     
  
-    const int kStep = (argc < 2) ? 10 : std::atoi(argv[1]);
+    const int kStep = (argc < 2) ? 1000 : std::atoi(argv[1]);
     for (int i = 0; i < kStep; i++)
     {
         world->stepSimulation(1.0/60.0);

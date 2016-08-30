@@ -44,6 +44,8 @@ public:
     
     int stepSimulation(btScalar timestep);
     
+    void accumlateParticleForce(btScalar timestep);
+    
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
      */
