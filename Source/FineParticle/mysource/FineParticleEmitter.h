@@ -3,6 +3,9 @@
 #pragma once
 
 #include "ParticleStaticMeshActor.h"
+#include "fine_particle/simulation/fine_particle_world.hpp"
+#include "fine_particle/simulation/particle.hpp"
+
 #include "GameFramework/Actor.h"
 #include "FineParticleEmitter.generated.h"
 
@@ -21,6 +24,16 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	
+    UFUNCTION(BlueprintCallable, Category = "Actor")
+    void CreateParticle(const FVector& Position);
+    
+private:
+    void synchronizeRenderParticlePosition();
+    
     TArray<AParticleStaticMeshActor*> m_particles;
+    
+    fj::FineParticleWorld m_world;
+    
+    std::unique_ptr<btCollisionShape> m_plane;
+    std::unique_ptr<btMotionState> m_planeMotionState;
 };

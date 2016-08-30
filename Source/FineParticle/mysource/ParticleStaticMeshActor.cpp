@@ -14,7 +14,7 @@ AParticleStaticMeshActor::AParticleStaticMeshActor()
     {
         // 直径100の球体なので, 直径1で中心が原点に来るようにしておく
         SphereVisual->SetStaticMesh(SphereVisualAsset.Object);
-        SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, -0.5f));
-        SphereVisual->SetWorldScale3D(FVector(0.1f));
+        SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, -1.f));
+        SphereVisual->SetWorldScale3D(FVector(0.02f));
     }
 }
