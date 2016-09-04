@@ -6,8 +6,8 @@
 //
 //
 
-#include "simulation/particle.hpp"
-#include "simulation/joint.hpp"
+#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/simulation/joint.hpp"
 
 void fj::Joint::applyForceToConnectedParticle()
 {

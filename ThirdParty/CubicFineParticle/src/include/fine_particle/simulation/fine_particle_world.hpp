@@ -13,8 +13,9 @@
 #include <vector>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
-
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+
+#include "fine_particle/simulation/particle.hpp"
 
 namespace fj {
     class Particle;
@@ -26,7 +27,8 @@ class fj::FineParticleWorld
     typedef btDiscreteDynamicsWorld Super;
 public:
     FineParticleWorld()
-    : m_collisionConfiguration( new btDefaultCollisionConfiguration() )
+    : kSpringK(0.5)
+    , m_collisionConfiguration( new btDefaultCollisionConfiguration() )
     , m_dispatcher( new btCollisionDispatcher( m_collisionConfiguration.get() ) )
     , m_pairCache( new btDbvtBroadphase() )
     , m_constraintSolver( new btSequentialImpulseConstraintSolver() )
@@ -44,23 +46,27 @@ public:
     
     int stepSimulation(btScalar timestep);
     
-    void accumlateParticleForce(btScalar timestep);
-    
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
      */
-    void addRigidBody(std::unique_ptr<btRigidBody> body, short group, short mask);
+    void addRigidBody(std::unique_ptr<btRigidBody> body, fj::CollisionGroup group, fj::CollisionFiltering mask);
     
     /**
      * この関数を使って登録した剛体はユーザが責任を持ってメモリを解放してください
      */
-    void addCollisionObject(btCollisionObject* body, short group, short mask);
+    void addCollisionObject(btCollisionObject* body, fj::CollisionGroup group, fj::CollisionFiltering mask);
     
-    void addParticle(std::unique_ptr<fj::Particle> body, short group, short mask);
+    void addParticle(std::unique_ptr<fj::Particle> body, fj::CollisionGroup group, fj::CollisionFiltering mask);
     
     void setGravity(const btVector3& gravity);
     
 private:
+    
+    void updateParticleCollisionShapePosition(const btScalar timestep);
+    
+    void accumulateCollisionForce(const btScalar timestep);
+    
+    void accumulateVandeerWaalsForce(const btScalar timestep);
     
     void applyJointForce();
     
@@ -71,6 +77,9 @@ public:
     {
         return std::cref(m_particles);
     }
+    
+    double kSpringK;
+    
 private:
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
     std::vector<std::unique_ptr<btRigidBody>> m_rigidBody;
