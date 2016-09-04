@@ -55,21 +55,21 @@ void fj::FineParticleWorld::stepDEM(btScalar timestep)
 
 }
 
-void fj::FineParticleWorld::addCollisionObject(btCollisionObject *body, short group, short mask)
+void fj::FineParticleWorld::addCollisionObject(btCollisionObject *body, fj::CollisionGroup group, fj::CollisionFiltering mask)
 {
-    m_world->addCollisionObject(body, group, mask);
+    m_world->addCollisionObject(body, static_cast<uint16_t>(group), static_cast<uint16_t>(mask) );
 }
 
-void fj::FineParticleWorld::addRigidBody(std::unique_ptr<btRigidBody> body, short group, short mask)
+void fj::FineParticleWorld::addRigidBody(std::unique_ptr<btRigidBody> body, fj::CollisionGroup group, fj::CollisionFiltering mask)
 {
-    m_world->addRigidBody(body.get(), group, mask);
+    m_world->addRigidBody(body.get(), static_cast<uint16_t>(group), static_cast<uint16_t>(mask) );
     m_rigidBody.push_back( std::move(body) );
 }
 
-void fj::FineParticleWorld::addParticle(std::unique_ptr<fj::Particle> body, short group, short mask)
+void fj::FineParticleWorld::addParticle(std::unique_ptr<fj::Particle> body, fj::CollisionGroup group, fj::CollisionFiltering mask)
 {
     body->setOverlapInWorld(this);
-    m_world->addRigidBody(body.get(), group, mask);
+    m_world->addRigidBody(body.get(), static_cast<uint16_t>(group), static_cast<uint16_t>(mask) );
     m_particles.push_back( std::move(body) );
 }
 

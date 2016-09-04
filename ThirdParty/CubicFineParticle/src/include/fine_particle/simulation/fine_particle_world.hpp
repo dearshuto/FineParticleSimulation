@@ -13,8 +13,9 @@
 #include <vector>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
-
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+
+#include "simulation/particle.hpp"
 
 namespace fj {
     class Particle;
@@ -49,14 +50,14 @@ public:
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
      */
-    void addRigidBody(std::unique_ptr<btRigidBody> body, short group, short mask);
+    void addRigidBody(std::unique_ptr<btRigidBody> body, fj::CollisionGroup group, fj::CollisionFiltering mask);
     
     /**
      * この関数を使って登録した剛体はユーザが責任を持ってメモリを解放してください
      */
-    void addCollisionObject(btCollisionObject* body, short group, short mask);
+    void addCollisionObject(btCollisionObject* body, fj::CollisionGroup group, fj::CollisionFiltering mask);
     
-    void addParticle(std::unique_ptr<fj::Particle> body, short group, short mask);
+    void addParticle(std::unique_ptr<fj::Particle> body, fj::CollisionGroup group, fj::CollisionFiltering mask);
     
     void setGravity(const btVector3& gravity);
     

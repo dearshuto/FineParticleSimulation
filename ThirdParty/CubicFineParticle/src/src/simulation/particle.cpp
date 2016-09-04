@@ -10,8 +10,8 @@
 #include "simulation/fine_particle_world.hpp"
 #include "simulation/particle.hpp"
 
-std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(1.0) );
-std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(2.0) );
+std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(0.5) );
+std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(10.0) );
 std::unique_ptr<btBoxShape> fj::Particle::BoxShape( new btBoxShape(btVector3(1, 1, 1)) );
 
 std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const double x, const double y, const double z)
@@ -35,6 +35,7 @@ void fj::Particle::init()
     // アップキャストするために自分の情報をもたせておく
     m_internalType = btCollisionObject::CO_RIGID_BODY | btCollisionObject::CO_USER_TYPE;
     m_overlap.setCollisionShape(OverlapShape.get());
+    m_effectRange.setCollisionShape(OverlapShape.get());
 }
 
 void fj::Particle::update(btScalar timestep)
@@ -47,7 +48,8 @@ void fj::Particle::update(btScalar timestep)
 void fj::Particle::setOverlapInWorld(fj::FineParticleWorld* world)
 {
     m_overlap.setCollisionFlags( getCollisionFlags() |  btCollisionObject::CF_NO_CONTACT_RESPONSE );
-    world->addCollisionObject(&m_overlap, int(fj::CollisionFiltering::kOverlap),  int(fj::CollisionFiltering::kParticle) );
+    world->addCollisionObject(&m_overlap, fj::CollisionGroup::kOverlap, fj::CollisionFiltering::kOverlap );
+    world->addCollisionObject(&m_effectRange, fj::CollisionGroup::kEffectRange,  fj::CollisionFiltering::kEffectRange );
 }
 
 bool fj::Particle::isCollapse()const
