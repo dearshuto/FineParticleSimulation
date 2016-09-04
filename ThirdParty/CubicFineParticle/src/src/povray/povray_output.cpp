@@ -9,9 +9,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "simulation/fine_particle_world.hpp"
-#include "simulation/particle.hpp"
-#include "povray/povray_output.hpp"
+#include "fine_particle/simulation/fine_particle_world.hpp"
+#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/povray/povray_output.hpp"
 
 bool fj::POVrayOutput::saveToFile(const std::string &filename)const
 {

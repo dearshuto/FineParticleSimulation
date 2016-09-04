@@ -7,11 +7,11 @@
 //
 
 #include <iostream>
-#include "simulation/fine_particle_world.hpp"
-#include "simulation/particle.hpp"
+#include "fine_particle/simulation/fine_particle_world.hpp"
+#include "fine_particle/simulation/particle.hpp"
 
 std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(0.5) );
-std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(10.0) );
+std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(10.) );
 std::unique_ptr<btBoxShape> fj::Particle::BoxShape( new btBoxShape(btVector3(1, 1, 1)) );
 
 std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const double x, const double y, const double z)
@@ -34,11 +34,11 @@ void fj::Particle::init()
 {
     // アップキャストするために自分の情報をもたせておく
     m_internalType = btCollisionObject::CO_RIGID_BODY | btCollisionObject::CO_USER_TYPE;
-    m_overlap.setCollisionShape(OverlapShape.get());
+    m_overlap.setCollisionShape(SphereShape.get());
     m_effectRange.setCollisionShape(OverlapShape.get());
 }
 
-void fj::Particle::update(btScalar timestep)
+void fj::Particle::updateCollisionShapePosition(btScalar timestep)
 {
     btTransform trans;
     getMotionState()->getWorldTransform(trans);
@@ -49,6 +49,8 @@ void fj::Particle::setOverlapInWorld(fj::FineParticleWorld* world)
 {
     m_overlap.setCollisionFlags( getCollisionFlags() |  btCollisionObject::CF_NO_CONTACT_RESPONSE );
     world->addCollisionObject(&m_overlap, fj::CollisionGroup::kOverlap, fj::CollisionFiltering::kOverlap );
+    
+    m_effectRange.setCollisionFlags( getCollisionFlags() |  btCollisionObject::CF_NO_CONTACT_RESPONSE );
     world->addCollisionObject(&m_effectRange, fj::CollisionGroup::kEffectRange,  fj::CollisionFiltering::kEffectRange );
 }
 
@@ -60,12 +62,11 @@ bool fj::Particle::isCollapse()const
 
 int fj::Particle::overlappingSize()const
 {
+    return m_effectRange.getOverlappingPairs().size();
     return m_overlap.getOverlappingPairs().size();
 }
 
-const fj::Particle& fj::Particle::getOverlappingParticle(const int index)const
+const btCollisionObject* fj::Particle::getEffectObject(const int index)const
 {
-    // Overlapingはフィルタリングをかけてあるはず
-    const fj::Particle* particle = static_cast<const fj::Particle*>( m_overlap.getOverlappingObject(index) );
-    return std::cref(*particle);
+    return m_effectRange.getOverlappingObject(index);
 }

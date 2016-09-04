@@ -60,9 +60,9 @@ namespace fj {
                           | static_cast<uint16_t>(CollisionGroup::kEffectRange)),
         
         /**
-         * 粒子のオーバーラップを検出するだけなので, kRigidParticleだけでOK
+         * 粒子のオーバーラップを検出するだけなので, kOverlapだけでOK
          */
-        kOverlap = static_cast<uint16_t>(CollisionGroup::kRigidParticle),
+        kOverlap = static_cast<uint16_t>(CollisionGroup::kOverlap),
         
         /**
          * ファンデルワールス力が働く物体を検知する
@@ -79,11 +79,43 @@ namespace fj {
 class fj::Particle : public btRigidBody
 {
 public:
+    class ParticlesOverlapDetector : public btGhostObject
+    {
+        static constexpr int kPartitcleOverlapDetectorCollisionType = 128;
+    public:
+        ParticlesOverlapDetector() = delete;
+        
+        ParticlesOverlapDetector(fj::Particle*const parent)
+        : Parent(parent)
+        {
+            // btCollisionObject::CollisionObjectTypesが64までしかないので128を勝手に使っちゃう
+            m_internalType = btCollisionObject::CO_GHOST_OBJECT | kPartitcleOverlapDetectorCollisionType;
+        }
+        ~ParticlesOverlapDetector() = default;
+        
+        static fj::Particle::ParticlesOverlapDetector* upcast(btCollisionObject* colObj)
+        {
+            if (colObj->getInternalType() & kPartitcleOverlapDetectorCollisionType)
+                return (fj::Particle::ParticlesOverlapDetector*)colObj;
+            return nullptr;
+        }
+        
+        static const fj::Particle::ParticlesOverlapDetector* upcast(const btCollisionObject* colObj)
+        {
+            if (colObj->getInternalType() & kPartitcleOverlapDetectorCollisionType)
+                return (const fj::Particle::ParticlesOverlapDetector*)colObj;
+            return nullptr;
+        }
+
+        fj::Particle*const Parent;
+    };
+public:
     Particle() = delete;
     ~Particle() = default;
     
     Particle(const btRigidBodyConstructionInfo& info, std::unique_ptr<btMotionState> motionState)
     : btRigidBody(info)
+    , m_overlap( this )
     , m_motionState( std::move(motionState) )
     {
         init();
@@ -98,7 +130,7 @@ public:
     /**
      * 毎フレーム更新が必要な処理
      */
-    void update(btScalar timestep);
+    void updateCollisionShapePosition(btScalar timestep);
     
     /**
      * btCollisionObjectをfj::Particleにアップキャストする.
@@ -125,7 +157,7 @@ public:
     
     int overlappingSize()const;
     
-    const fj::Particle& getOverlappingParticle(const int index)const;
+    const btCollisionObject* getEffectObject(const int index)const;
     
 private:
     void init();
@@ -137,7 +169,7 @@ public:
     static std::unique_ptr<btBoxShape> BoxShape;
 
 private:
-    btPairCachingGhostObject m_overlap;
+    ParticlesOverlapDetector m_overlap;
     
     /**
      * 接触してなくても影響が及ぶ粒子を検出するためのダミーオブジェクト

@@ -9,9 +9,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
-#include "simulation/fine_particle_world.hpp"
-#include "simulation/particle.hpp"
-#include "povray/povray_output.hpp"
+#include "fine_particle/simulation/fine_particle_world.hpp"
+#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/povray/povray_output.hpp"
 
 int main(int argc, char** argv)
 {
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     std::unique_ptr<btRigidBody> body(new btRigidBody(rbInfo0));
     body->setRollingFriction(1);
     body->setFriction(1);
-    world->addRigidBody( std::move(body), int(fj::CollisionFiltering::kRigid), static_cast<int>(fj::CollisionFiltering::kRigid) | int(fj::CollisionFiltering::kParticle));
+    world->addRigidBody( std::move(body), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
     
     // レンダリング
     fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
@@ -44,8 +44,8 @@ int main(int argc, char** argv)
         for (int k = 0; k < 2; k++){
             for (int j = 0; j < 1; j++)
             {
-                std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle(i, 10 + j, k) );
-                world->addParticle(std::move(particle), static_cast<int>(fj::CollisionFiltering::kParticle), fj::Particle::GetCollisionFilteringFlag());
+                std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle(i, 3 + j, k) );
+                world->addParticle(std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle);
             }
         }
     }

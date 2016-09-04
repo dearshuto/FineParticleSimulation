@@ -1,4 +1,4 @@
-﻿PROJECT(CubicFineParticleSimulation)
+PROJECT(CubicFineParticleSimulation)
 cmake_minimum_required(VERSION 3.0)
 
 
@@ -28,9 +28,9 @@ SOURCE_GROUP(povray FILES ${povray_files})
 
 # インクルードフォルダを相対パスの検索対象に設定する
 IF(WIN32)
-add_definitions("/I${CMAKE_SOURCE_DIR}/include/fine_particle")
+add_definitions("/I${CMAKE_SOURCE_DIR}/include")
 ELSE()
-add_definitions("-I ${CMAKE_SOURCE_DIR}/include/fine_particle")
+add_definitions("-I ${CMAKE_SOURCE_DIR}/include")
 ENDIF()
 
 add_library(cubic_fine_particle STATIC

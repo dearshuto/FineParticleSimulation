@@ -15,7 +15,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
-#include "simulation/particle.hpp"
+#include "fine_particle/simulation/particle.hpp"
 
 namespace fj {
     class Particle;
@@ -27,7 +27,8 @@ class fj::FineParticleWorld
     typedef btDiscreteDynamicsWorld Super;
 public:
     FineParticleWorld()
-    : m_collisionConfiguration( new btDefaultCollisionConfiguration() )
+    : kSpringK(0.5)
+    , m_collisionConfiguration( new btDefaultCollisionConfiguration() )
     , m_dispatcher( new btCollisionDispatcher( m_collisionConfiguration.get() ) )
     , m_pairCache( new btDbvtBroadphase() )
     , m_constraintSolver( new btSequentialImpulseConstraintSolver() )
@@ -45,8 +46,6 @@ public:
     
     int stepSimulation(btScalar timestep);
     
-    void accumlateParticleForce(btScalar timestep);
-    
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
      */
@@ -63,6 +62,12 @@ public:
     
 private:
     
+    void updateParticleCollisionShapePosition(const btScalar timestep);
+    
+    void accumulateCollisionForce(const btScalar timestep);
+    
+    void accumulateVandeerWaalsForce(const btScalar timestep);
+    
     void applyJointForce();
     
     void stepDEM(btScalar timestep);
@@ -72,6 +77,9 @@ public:
     {
         return std::cref(m_particles);
     }
+    
+    double kSpringK;
+    
 private:
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
     std::vector<std::unique_ptr<btRigidBody>> m_rigidBody;

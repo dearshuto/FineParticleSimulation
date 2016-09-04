@@ -7,26 +7,52 @@
 //
 
 #include <cmath>
+#include <iostream>
 #include <BulletCollision/CollisionDispatch/btSimulationIslandManager.h>
-#include "simulation/particle.hpp"
-#include "simulation/fine_particle_world.hpp"
+#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/simulation/fine_particle_world.hpp"
 
-void fj::FineParticleWorld::accumlateParticleForce(btScalar timestep)
+int fj::FineParticleWorld::stepSimulation(btScalar timestep)
 {
-    for (const auto& particle : m_particles)
+    updateParticleCollisionShapePosition(timestep);
+    
+    accumulateCollisionForce(timestep);
+    
+    accumulateVandeerWaalsForce(timestep);
+    
+    return m_world->stepSimulation(timestep);
+}
+
+
+void fj::FineParticleWorld::updateParticleCollisionShapePosition(const btScalar timestep)
+{
+    for (auto& particle : m_particles)
     {
-        particle->update(timestep);
+        particle->updateCollisionShapePosition(timestep);
+    }
+}
+
+void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
+{
+    // 粒子同士が衝突することによって発生する力を計算する
+    
+    typedef fj::Particle::ParticlesOverlapDetector ParticlesOverlapDetector;
+    
+    for (int i = 0; i < m_dispatcher->getNumManifolds(); i++)
+    {
+        const btPersistentManifold* manifold = m_dispatcher->getManifoldByIndexInternal(i);
         
-        for (int i = 0; i < particle->overlappingSize(); i++)
+        const ParticlesOverlapDetector* particle1 = ParticlesOverlapDetector::upcast(manifold->getBody0());
+        const ParticlesOverlapDetector* particle2 = ParticlesOverlapDetector::upcast(manifold->getBody1());
+        
+        if (particle1 && particle2)
         {
-            const fj::Particle& kOverlap = particle->getOverlappingParticle(i);
-            btTransform targetPosition, neighborPosition;
-            particle->getMotionState()->getWorldTransform(targetPosition);
-            kOverlap.getMotionState()->getWorldTransform(neighborPosition);
+            const btTransform& kTransform1 = particle1->getWorldTransform();
+            const btTransform& kTransform2 = particle2->getWorldTransform();
             
-            const btVector3 kComeUpVector = targetPosition.getOrigin() - neighborPosition.getOrigin();
+            const btVector3 kComeUpVector = kTransform1.getOrigin() - kTransform2.getOrigin();
             const btScalar kNorm = kComeUpVector.norm();
-            const btScalar kDistance = (particle->getRadius() + kOverlap.getRadius()) - kNorm;
+            const btScalar kDistance = /*(particle->getRadius() + kOverlap.getRadius())*/0.5*2.0 - kNorm;
             
             if ( !std::isfinite(kDistance) || (kNorm == btScalar(0.0)) )
             {
@@ -34,15 +60,40 @@ void fj::FineParticleWorld::accumlateParticleForce(btScalar timestep)
             }
             
             if (kDistance > 0)
-                particle->applyCentralImpulse(0.1 * kDistance * kComeUpVector.normalized());
+            {
+                particle1->Parent->applyCentralImpulse(kSpringK * kDistance * kComeUpVector.normalized());
+                particle2->Parent->applyCentralImpulse(kSpringK * kDistance * kComeUpVector.normalized());
+            }
+            
+        }
+        else
+        {
+            
         }
     }
     
 }
 
-int fj::FineParticleWorld::stepSimulation(btScalar timestep)
+void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
 {
-    return m_world->stepSimulation(timestep);
+    for (const auto& particle : m_particles)
+    {
+        for (int i = 0; i < particle->overlappingSize(); i++)
+        {
+            const fj::Particle* kOverlapParticle = fj::Particle::upcast( particle->getEffectObject(i) );
+
+            if (kOverlapParticle)
+            {
+                // coming soon...
+            }
+            else
+            {
+                continue;
+            }
+            
+        }
+    }
+    
 }
 
 void fj::FineParticleWorld::applyJointForce()
