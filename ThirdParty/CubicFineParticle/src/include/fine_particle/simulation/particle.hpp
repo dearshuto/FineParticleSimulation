@@ -81,6 +81,9 @@ namespace fj {
 class fj::Particle : public btRigidBody
 {
 public:
+    typedef btRigidBody Super;
+    typedef std::vector<btVector3> ContactForceContainer;
+    
     class ParticlesOverlapDetector : public btGhostObject
     {
         static constexpr int kPartitcleOverlapDetectorCollisionType = 128;
@@ -116,6 +119,13 @@ public:
         
         fj::Particle*const Parent;
     };
+    
+    struct WarrenSpringParameter
+    {
+        double SheerIndex; //剪断指数→粉体崩壊曲線の曲率に対応する
+        double Adhesion; // 粘着力→大きいほど崩壊しにくくなる. 粉体崩壊曲線のτ切片に対応する.
+        double Collapsibility; //垂直応力を大きくしたときの崩壊のしやすさ。粉体崩壊曲線の傾きに対応する.
+    };
 public:
     Particle() = delete;
     ~Particle() = default;
@@ -134,6 +144,12 @@ public:
     void setOverlapInWorld( fj::FineParticleWorld* world);
     
     bool isCollapse()const;
+    
+    void addContactForce(const btVector3& constctForce);
+    
+    void applyContactForce();
+    
+    void clearContactForce();
     
     /**
      * 毎フレーム更新が必要な処理
@@ -192,6 +208,8 @@ private:
     std::unique_ptr<btMotionState> m_motionState;
     
     fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
+    
+    ContactForceContainer m_contactForceContainer;
 };
 
 #endif /* particle_hpp */

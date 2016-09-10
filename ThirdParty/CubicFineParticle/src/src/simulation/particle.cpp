@@ -6,6 +6,7 @@
 //
 //
 
+#include <numeric>
 #include <iostream>
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle.hpp"
@@ -56,14 +57,62 @@ void fj::Particle::setOverlapInWorld(fj::FineParticleWorld* world)
 
 bool fj::Particle::isCollapse()const
 {
-    auto kFaceNormals = fj::DiscritizedParticleShape::GetDiscritizedParticleShapeNormal(getDiscretizedShapeType());
+    // 粒子の回転情報を取得
+    btTransform transform;
+    Super::getMotionState()->getWorldTransform(transform);
+    const btMatrix3x3& kRotationMatrix = transform.getBasis();
     
-    for (const auto& kNormam : kFaceNormals)
+    // 粒子の形状を取得。法線があれば垂直抗力を算出できるね。
+    auto faceNormals = fj::DiscritizedParticleShape::GetDiscritizedParticleShapeNormal(getDiscretizedShapeType());
+    
+    // 法線を回転させる
+    for (auto& normal :  faceNormals)
     {
-        // Transform normals and run collapse detection
+        normal = kRotationMatrix * normal;
     }
     
+    // 各法線方向にかかる垂直抗力を算出
+    
+    // 各面にかかる垂直応力を保持するための変数
+    // normal stress は和訳すると垂直応力
+    std::vector<btScalar> normalStress;
+    normalStress.reserve(faceNormals.size());
+    
+    for (const auto& kNormal : faceNormals)
+    {
+        for (const btVector3& kNormalStress : m_contactForceContainer)
+        {
+            normalStress.push_back(
+                                   std::max( static_cast<btScalar>(0), kNormalStress.dot(-kNormal))
+                                   );
+        }
+    }
+    
+    const auto& kMinMax = std::minmax(std::begin(normalStress), std::end(normalStress));
+    const auto kMin = kMinMax.first;
+    const auto kMax = kMinMax.second;
+    
+//    こんな処理を追加したい
+//    MohrStressCircle msCircle;
+//    msCircle.hasIntersectionPoint(Warren-Spring parameter);
+    
     return true;
+}
+
+void fj::Particle::addContactForce(const btVector3& contactForce)
+{
+    m_contactForceContainer.push_back(contactForce);
+}
+
+void fj::Particle::applyContactForce()
+{
+    const btVector3 kContactForceSum = std::accumulate(std::begin(m_contactForceContainer), std::end(m_contactForceContainer), btVector3(0, 0, 0)/*初期値*/);
+    applyCentralForce(kContactForceSum);
+}
+
+void fj::Particle::clearContactForce()
+{
+    m_contactForceContainer.clear();
 }
 
 int fj::Particle::overlappingSize()const

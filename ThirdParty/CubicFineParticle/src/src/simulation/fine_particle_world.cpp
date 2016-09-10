@@ -63,8 +63,9 @@ void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
             
             if (kDistance > 0)
             {
-                particle1->Parent->applyCentralForce(kSpringK * kDistance * kDirection21.normalized() );
-                particle2->Parent->applyCentralForce(kSpringK * kDistance * kDirection12.normalized() );
+                // ばね
+                particle1->Parent->addContactForce(kSpringK * kDistance * kDirection21.normalized() );
+                particle2->Parent->addContactForce(kSpringK * kDistance * kDirection12.normalized() );
 
             }
             
@@ -77,8 +78,9 @@ void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
             }
             else
             {
-                particle1->Parent->applyCentralForce(-kSpringK / 2.0 * kRelativeVelocity21.normalized());
-                particle1->Parent->applyCentralForce(-kSpringK / 2.0 * kRelativeVelocity12.normalized());
+                // ダッシュポッド
+                particle1->Parent->addContactForce(-kSpringK / 2.0 * kRelativeVelocity21.normalized());
+                particle1->Parent->addContactForce(-kSpringK / 2.0 * kRelativeVelocity12.normalized());
             }
             
         }
@@ -129,7 +131,7 @@ void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
             
         }
     }
-
+    
 }
 
 void fj::FineParticleWorld::BulletWorldWrapper::synchronizeMotionStates()
@@ -140,10 +142,15 @@ void fj::FineParticleWorld::BulletWorldWrapper::synchronizeMotionStates()
     for (auto& particle : kParentWorld.m_particles)
     {
         // 崩壊条件を満たしてない場合, 力をなくしてしまえば動かない
-        if ( !particle->isCollapse() )
+        if ( particle->isCollapse() )
+        {
+            particle->applyContactForce();
+        }
+        else
         {
             particle->clearForces();
         }
+        particle->clearContactForce();
     }
 
     btDiscreteDynamicsWorld::synchronizeMotionStates();
