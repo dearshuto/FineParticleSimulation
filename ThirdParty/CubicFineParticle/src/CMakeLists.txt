@@ -10,11 +10,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/bullet/src)
 add_subdirectory(vendor/bullet)
 
-## CGAL 
-#include_directories(${CMAKE_SOURCE_DIR}/vendor/bullet/src)
-add_subdirectory(vendor/cgal)
-
-
 FILE(GLOB_RECURSE simulation_files
 	${CMAKE_SOURCE_DIR}/include/fine_particle/simulation/*.hpp
 	${CMAKE_SOURCE_DIR}/src/simulation/*.cpp
