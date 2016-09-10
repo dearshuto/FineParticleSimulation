@@ -6,6 +6,7 @@
 //
 //
 
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -33,7 +34,7 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
     POV += "#include\"Colors.inc\"";
     POV += "camera {";
     POV += "   perspective";
-    POV += "    location <-20,10,0>";
+    POV += "    location <-30,30,0>";
     POV += "    angle 60";
     POV += "     up <0,1,0>";
     POV += "    look_at <0,0,3>";
@@ -73,7 +74,7 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
 
         POV += std::string("<") + std::to_string(position.x()) + "," + std::to_string(position.y()) + "," + std::to_string(position.z()) + std::string(">");
         
-        POV += ",2";//radius
+        POV += "," + std::to_string(particle->getRadius());
         POV += "    texture{ pigment{ color rgb<1.0, 1.0, 1.0> }}";
         POV += "}";
     }

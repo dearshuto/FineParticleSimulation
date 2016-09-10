@@ -27,6 +27,17 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Actor")
     void CreateParticle(const FVector& Position);
     
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Edit")
+    float SpringK;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Edit")
+    float SimulationTimeStep;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Edit")
+    int SimulationCycle;
+
+    
 private:
     void synchronizeRenderParticlePosition();
     
