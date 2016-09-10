@@ -13,7 +13,7 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
-
+#include "discritized_particle_shape.hpp"
 
 namespace fj {
     
@@ -120,15 +120,16 @@ public:
     Particle() = delete;
     ~Particle() = default;
     
-    Particle(const btRigidBodyConstructionInfo& info, std::unique_ptr<btMotionState> motionState)
+    Particle(const fj::DiscritizedParticleShape::ShapeType shapeType, const btRigidBodyConstructionInfo& info, std::unique_ptr<btMotionState> motionState)
     : btRigidBody(info)
     , m_overlap( this )
     , m_motionState( std::move(motionState) )
+    , m_discretizedShapeType(shapeType)
     {
         init();
     }
     
-    static std::unique_ptr<fj::Particle> generateParticle(const double x, const double y, const double z);
+    static std::unique_ptr<fj::Particle> generateParticle(const fj::DiscritizedParticleShape::ShapeType type, const btVector3& position);
         
     void setOverlapInWorld( fj::FineParticleWorld* world);
     
@@ -166,6 +167,11 @@ public:
     
     const btCollisionObject* getEffectObject(const int index)const;
     
+    fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
+    {
+        return m_discretizedShapeType;
+    }
+    
 private:
     void init();
 public:
@@ -184,6 +190,8 @@ private:
     btGhostObject m_effectRange;
     
     std::unique_ptr<btMotionState> m_motionState;
+    
+    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
 };
 
 #endif /* particle_hpp */

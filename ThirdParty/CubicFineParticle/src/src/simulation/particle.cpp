@@ -14,16 +14,16 @@ std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(0.5)
 std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(10.) );
 std::unique_ptr<btBoxShape> fj::Particle::BoxShape( new btBoxShape(btVector3(1, 1, 1)) );
 
-std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const double x, const double y, const double z)
+std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const fj::DiscritizedParticleShape::ShapeType type, const btVector3& position)
 {
     constexpr btScalar mass(0.1);
     const btVector3 localInertia(0,0,0);
     btTransform transform;
     transform.setIdentity();
-    transform.setOrigin(btVector3(x, y, z));
+    transform.setOrigin(position);
     std::unique_ptr<btDefaultMotionState> myMotionState(new btDefaultMotionState(transform));
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState.get(), fj::Particle::BoxShape.get(),localInertia);
-    std::unique_ptr<fj::Particle> particle(new fj::Particle(rbInfo, std::move(myMotionState)));
+    std::unique_ptr<fj::Particle> particle(new fj::Particle(type, rbInfo, std::move(myMotionState)));
     particle->setRollingFriction(1);
     particle->setFriction(1);
 
@@ -56,6 +56,12 @@ void fj::Particle::setOverlapInWorld(fj::FineParticleWorld* world)
 
 bool fj::Particle::isCollapse()const
 {
+    auto kFaceNormals = fj::DiscritizedParticleShape::GetDiscritizedParticleShapeNormal(getDiscretizedShapeType());
+    
+    for (const auto& kNormam : kFaceNormals)
+    {
+        // Transform normals and run collapse detection
+    }
     
     return true;
 }

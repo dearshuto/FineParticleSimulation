@@ -129,7 +129,7 @@ void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
             
         }
     }
-    
+
 }
 
 void fj::FineParticleWorld::BulletWorldWrapper::synchronizeMotionStates()
