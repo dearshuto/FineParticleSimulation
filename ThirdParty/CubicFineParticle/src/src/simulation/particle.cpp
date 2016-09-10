@@ -56,8 +56,8 @@ void fj::Particle::setOverlapInWorld(fj::FineParticleWorld* world)
 
 bool fj::Particle::isCollapse()const
 {
-
-    return false;
+    
+    return true;
 }
 
 int fj::Particle::overlappingSize()const

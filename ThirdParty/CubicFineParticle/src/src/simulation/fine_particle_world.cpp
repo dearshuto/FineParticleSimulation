@@ -35,6 +35,7 @@ void fj::FineParticleWorld::updateParticleCollisionShapePosition(const btScalar 
 void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
 {
     // 粒子同士が衝突することによって発生する力を計算する
+    // TODO: 最適化できるよ
     
     typedef fj::Particle::ParticlesOverlapDetector ParticlesOverlapDetector;
     
@@ -50,9 +51,10 @@ void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
             const btTransform& kTransform1 = particle1->getWorldTransform();
             const btTransform& kTransform2 = particle2->getWorldTransform();
             
-            const btVector3 kComeUpVector = kTransform1.getOrigin() - kTransform2.getOrigin();
-            const btScalar kNorm = kComeUpVector.norm();
-            const btScalar kDistance = /*(particle->getRadius() + kOverlap.getRadius())*/0.5*2.0 - kNorm;
+            const btVector3 kDirection12 = kTransform2.getOrigin() - kTransform1.getOrigin();
+            const btVector3 kDirection21 = -kDirection12;
+            const btScalar kNorm = kDirection12.norm();
+            const btScalar kDistance = (particle1->getRadius() + particle1->getRadius()) - kNorm;
             
             if ( !std::isfinite(kDistance) || (kNorm == btScalar(0.0)) )
             {
@@ -61,8 +63,22 @@ void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
             
             if (kDistance > 0)
             {
-                particle1->Parent->applyCentralImpulse(kSpringK * kDistance * kComeUpVector.normalized());
-                particle2->Parent->applyCentralImpulse(kSpringK * kDistance * kComeUpVector.normalized());
+                particle1->Parent->applyCentralForce(kSpringK * kDistance * kDirection21.normalized() );
+                particle2->Parent->applyCentralForce(kSpringK * kDistance * kDirection12.normalized() );
+
+            }
+            
+            const btVector3 kRelativeVelocity12 = particle2->Parent->getLinearVelocity() - particle1->Parent->getLinearVelocity();
+            const btVector3 kRelativeVelocity21 = -kRelativeVelocity12;
+            
+            if (kRelativeVelocity12.isZero())
+            {
+                continue;
+            }
+            else
+            {
+                particle1->Parent->applyCentralForce(-kSpringK / 2.0 * kRelativeVelocity21.normalized());
+                particle1->Parent->applyCentralForce(-kSpringK / 2.0 * kRelativeVelocity12.normalized());
             }
             
         }
@@ -78,13 +94,33 @@ void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
 {
     for (const auto& particle : m_particles)
     {
+        btTransform transform;
+        particle->getMotionState()->getWorldTransform(transform);
+        const btVector3& kPosition = transform.getOrigin();
+        
         for (int i = 0; i < particle->overlappingSize(); i++)
         {
             const fj::Particle* kOverlapParticle = fj::Particle::upcast( particle->getEffectObject(i) );
-
+            
             if (kOverlapParticle)
             {
-                // coming soon...
+                const btVector3& kOverlapPosition = kOverlapParticle->getWorldTransform().getOrigin();
+                
+                // 近傍粒子から受けるファンデルワールス力の方向
+                const btVector3& kDirection = kPosition - kOverlapPosition;
+                
+                // 粒子の中心間距離
+                const btScalar kDistance = (kPosition - kOverlapPosition).norm();
+                
+                // 粒子の表面間距離
+                const btScalar kH = std::max(btScalar(0.000004), kDistance - (particle->getRadius() + kOverlapParticle->getRadius()));
+                
+                // 換算粒径
+                const btScalar kD = (particle->getRadius() * kOverlapParticle->getRadius()) / (particle->getRadius() + kOverlapParticle->getRadius());
+                
+                const btVector3 kF = (HamakerConstant * kD / (24 * std::pow(kH, 2.0)) ) * kDirection;
+                
+                particle->applyCentralForce(kF);
             }
             else
             {
@@ -96,14 +132,21 @@ void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
     
 }
 
-void fj::FineParticleWorld::applyJointForce()
+void fj::FineParticleWorld::BulletWorldWrapper::synchronizeMotionStates()
 {
+    // 位置更新する段階ではすべての力の計算は終わっている
+    // 粒子にかかっている力をもとに崩壊条件を判定する
     
-}
+    for (auto& particle : kParentWorld.m_particles)
+    {
+        // 崩壊条件を満たしてない場合, 力をなくしてしまえば動かない
+        if ( !particle->isCollapse() )
+        {
+            particle->clearForces();
+        }
+    }
 
-void fj::FineParticleWorld::stepDEM(btScalar timestep)
-{
-
+    btDiscreteDynamicsWorld::synchronizeMotionStates();
 }
 
 void fj::FineParticleWorld::addCollisionObject(btCollisionObject *body, fj::CollisionGroup group, fj::CollisionFiltering mask)

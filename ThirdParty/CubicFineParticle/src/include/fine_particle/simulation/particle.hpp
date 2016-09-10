@@ -57,7 +57,9 @@ namespace fj {
          */
         kRigidParticle = (static_cast<uint16_t>(CollisionGroup::kRigid)
                           | static_cast<uint16_t>(CollisionGroup::kOverlap)
-                          | static_cast<uint16_t>(CollisionGroup::kEffectRange)),
+                          | static_cast<uint16_t>(CollisionGroup::kEffectRange)
+//                          | static_cast<uint16_t>(CollisionGroup::kRigidParticle)
+                          ),
         
         /**
          * 粒子のオーバーラップを検出するだけなので, kOverlapだけでOK
@@ -107,6 +109,11 @@ public:
             return nullptr;
         }
 
+        btScalar getRadius()const
+        {
+            return static_cast<const btSphereShape*>(getCollisionShape())->getRadius();
+        }
+        
         fj::Particle*const Parent;
     };
 public:

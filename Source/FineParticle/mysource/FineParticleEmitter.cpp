@@ -6,6 +6,9 @@
 
 // Sets default values
 AFineParticleEmitter::AFineParticleEmitter()
+: SpringK(0.1)
+, SimulationTimeStep(1.0/60.)
+, SimulationCycle(100)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,8 +31,8 @@ void AFineParticleEmitter::BeginPlay()
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, m_planeMotionState.get(), m_plane.get(),localInertia);
     std::unique_ptr<btRigidBody> plane(new btRigidBody(rbInfo));
     
-    m_world.addRigidBody(std::move(plane), int(fj::CollisionFiltering::kRigid), int(fj::CollisionFiltering::kRigid) | int(fj::CollisionFiltering::kParticle));
-    
+    m_world.addRigidBody(std::move(plane), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
+    m_world.kSpringK = this->SpringK;
 }
 
 // Called every frame
@@ -37,8 +40,11 @@ void AFineParticleEmitter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
     
-    m_world.accumlateParticleForce(1.0/60.0);
-    m_world.stepSimulation(1.0/60.0);
+    for (int i = 0; i < SimulationCycle; i++)
+    {
+        m_world.stepSimulation(SimulationTimeStep);
+    }
+    
     synchronizeRenderParticlePosition();
 }
 
@@ -61,7 +67,7 @@ void AFineParticleEmitter::synchronizeRenderParticlePosition()
 void AFineParticleEmitter::CreateParticle(const FVector& position)
 {
     std::unique_ptr<fj::Particle> particle = std::move(fj::Particle::generateParticle(position.X, position.Y, position.Z));
-    m_world.addParticle( std::move(particle), static_cast<int>(fj::CollisionFiltering::kParticle), /*int(fj::CollisionFiltering::kParticle) |*/ fj::Particle::GetCollisionFilteringFlag() );
+    m_world.addParticle( std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle );
     
     auto visibleParticle = GetWorld()->SpawnActor<AParticleStaticMeshActor>();
     visibleParticle->SetActorLocation( position );

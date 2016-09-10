@@ -24,18 +24,37 @@ namespace fj {
 
 class fj::FineParticleWorld
 {
-    typedef btDiscreteDynamicsWorld Super;
+    class BulletWorldWrapper : public btDiscreteDynamicsWorld
+    {
+    public:
+        BulletWorldWrapper(btDispatcher* dispatcher
+                           ,btBroadphaseInterface* pairCache
+                           ,btConstraintSolver* constraintSolver
+                           ,btCollisionConfiguration* collisionConfiguration
+                           , const FineParticleWorld& parent)
+        : btDiscreteDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration)
+        , kParentWorld(parent)
+        {
+            
+        }
+
+        void	synchronizeMotionStates() override;
+    private:
+        const FineParticleWorld& kParentWorld;
+    };
 public:
     FineParticleWorld()
-    : kSpringK(0.5)
+    : kSpringK(1)
+    , HamakerConstant(0)
     , m_collisionConfiguration( new btDefaultCollisionConfiguration() )
     , m_dispatcher( new btCollisionDispatcher( m_collisionConfiguration.get() ) )
     , m_pairCache( new btDbvtBroadphase() )
     , m_constraintSolver( new btSequentialImpulseConstraintSolver() )
-    , m_world( new btDiscreteDynamicsWorld( m_dispatcher.get()
+    , m_world( new BulletWorldWrapper( m_dispatcher.get()
               , m_pairCache.get()
               , m_constraintSolver.get()
-              , m_collisionConfiguration.get())
+              , m_collisionConfiguration.get()
+              ,*this)
               )
     
     {
@@ -68,10 +87,6 @@ private:
     
     void accumulateVandeerWaalsForce(const btScalar timestep);
     
-    void applyJointForce();
-    
-    void stepDEM(btScalar timestep);
-    
 public:
     const std::vector<std::unique_ptr<fj::Particle>>& getParticles()const
     {
@@ -80,6 +95,7 @@ public:
     
     double kSpringK;
     
+    double HamakerConstant;
 private:
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
     std::vector<std::unique_ptr<btRigidBody>> m_rigidBody;
@@ -88,7 +104,7 @@ private:
     std::unique_ptr<btDispatcher> m_dispatcher;
     std::unique_ptr<btBroadphaseInterface> m_pairCache;
     std::unique_ptr<btConstraintSolver> m_constraintSolver;
-    std::unique_ptr<btDynamicsWorld> m_world;
+    std::unique_ptr<BulletWorldWrapper> m_world;
 };
 
 #endif /* fine_particle_world_hpp */
