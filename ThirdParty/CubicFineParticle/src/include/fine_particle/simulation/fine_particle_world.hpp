@@ -15,7 +15,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
-#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/simulation/particle/particle.hpp"
 
 namespace fj {
     class Particle;

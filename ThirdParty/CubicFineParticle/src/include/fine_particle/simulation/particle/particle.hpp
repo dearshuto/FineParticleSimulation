@@ -13,6 +13,8 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include "fine_particle/simulation/mohr_stress_circle.hpp"
+#include "discritized_particle_shape.hpp"
 
 
 namespace fj {
@@ -81,6 +83,11 @@ namespace fj {
 class fj::Particle : public btRigidBody
 {
 public:
+    typedef btRigidBody Super;
+    typedef std::vector<btVector3> ContactForceContainer;
+    
+    class ParticleUpdater;
+    
     class ParticlesOverlapDetector : public btGhostObject
     {
         static constexpr int kPartitcleOverlapDetectorCollisionType = 128;
@@ -116,23 +123,31 @@ public:
         
         fj::Particle*const Parent;
     };
+    
 public:
     Particle() = delete;
     ~Particle() = default;
     
-    Particle(const btRigidBodyConstructionInfo& info, std::unique_ptr<btMotionState> motionState)
+    Particle(const fj::DiscritizedParticleShape::ShapeType shapeType, const btRigidBodyConstructionInfo& info, std::unique_ptr<btMotionState> motionState)
     : btRigidBody(info)
     , m_overlap( this )
     , m_motionState( std::move(motionState) )
+    , m_discretizedShapeType(shapeType)
     {
         init();
     }
     
-    static std::unique_ptr<fj::Particle> generateParticle(const double x, const double y, const double z);
+    static std::unique_ptr<fj::Particle> generateParticle(const fj::DiscritizedParticleShape::ShapeType type, const btVector3& position);
         
     void setOverlapInWorld( fj::FineParticleWorld* world);
     
     bool isCollapse()const;
+    
+    void addContactForce(const btVector3& constctForce);
+    
+    void applyContactForce();
+    
+    void clearContactForce();
     
     /**
      * 毎フレーム更新が必要な処理
@@ -166,6 +181,11 @@ public:
     
     const btCollisionObject* getEffectObject(const int index)const;
     
+    fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
+    {
+        return m_discretizedShapeType;
+    }
+    
 private:
     void init();
 public:
@@ -184,6 +204,14 @@ private:
     btGhostObject m_effectRange;
     
     std::unique_ptr<btMotionState> m_motionState;
+    
+    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
+    
+    ContactForceContainer m_contactForceContainer;
+    
+    fj::WarrenSpringParameter m_warrenSpringParameter;
+    
+    std::weak_ptr<ParticleUpdater> m_updater;
 };
 
 #endif /* particle_hpp */
