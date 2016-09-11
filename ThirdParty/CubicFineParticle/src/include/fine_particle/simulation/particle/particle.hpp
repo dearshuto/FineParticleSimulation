@@ -13,8 +13,9 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include "fine_particle/simulation/mohr_stress_circle.hpp"
 #include "discritized_particle_shape.hpp"
-#include "mohr_stress_circle.hpp"
+
 
 namespace fj {
     
@@ -84,6 +85,8 @@ class fj::Particle : public btRigidBody
 public:
     typedef btRigidBody Super;
     typedef std::vector<btVector3> ContactForceContainer;
+    
+    class ParticleUpdater;
     
     class ParticlesOverlapDetector : public btGhostObject
     {
@@ -207,6 +210,8 @@ private:
     ContactForceContainer m_contactForceContainer;
     
     fj::WarrenSpringParameter m_warrenSpringParameter;
+    
+    std::weak_ptr<ParticleUpdater> m_updater;
 };
 
 #endif /* particle_hpp */

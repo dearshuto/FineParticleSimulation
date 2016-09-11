@@ -9,7 +9,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
-#include "fine_particle/simulation/discritized_particle_shape.hpp"
+#include "fine_particle/simulation/particle/discritized_particle_shape.hpp"
 
 std::vector<btVector3> fj::DiscritizedParticleShape::GetDiscritizedParticleShapeNormal(const fj::DiscritizedParticleShape::ShapeType type)
 {

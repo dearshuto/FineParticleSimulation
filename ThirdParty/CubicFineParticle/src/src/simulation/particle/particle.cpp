@@ -9,7 +9,7 @@
 #include <numeric>
 #include <iostream>
 #include "fine_particle/simulation/fine_particle_world.hpp"
-#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/mohr_stress_circle.hpp"
 
 std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(0.5) );

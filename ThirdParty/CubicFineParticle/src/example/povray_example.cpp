@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <string>
 #include "fine_particle/simulation/fine_particle_world.hpp"
-#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/povray/povray_output.hpp"
 
 int main(int argc, char** argv)
@@ -44,7 +44,7 @@ int main(int argc, char** argv)
         for (int k = 0; k < 1; k++){
             for (int j = 0; j < 2; j++)
             {
-                std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle(i, 5 + j, k) );
+                std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, btVector3(i, 5 + j, k)) );
                 world->addParticle(std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle);
             }
         }

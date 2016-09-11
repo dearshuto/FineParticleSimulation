@@ -9,7 +9,7 @@
 #include <cmath>
 #include <iostream>
 #include <BulletCollision/CollisionDispatch/btSimulationIslandManager.h>
-#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/fine_particle_world.hpp"
 
 int fj::FineParticleWorld::stepSimulation(btScalar timestep)
