@@ -86,7 +86,7 @@ public:
     typedef btRigidBody Super;
     typedef std::vector<btVector3> ContactForceContainer;
     
-    class ParticleUpdater;
+    class CollapseDetector;
     
     class ParticlesOverlapDetector : public btGhostObject
     {
@@ -186,6 +186,20 @@ public:
         return m_discretizedShapeType;
     }
     
+    const ContactForceContainer& getContactForceContainer()const
+    {
+        return m_contactForceContainer;
+    }
+    
+    const fj::WarrenSpringParameter& getWarrenSpringParameter()const
+    {
+        return m_warrenSpringParameter;
+    }
+    
+    void setCollapseDetector(const std::weak_ptr<CollapseDetector>& collapseDetector)
+    {
+        m_collapseDetector = collapseDetector;
+    }
 private:
     void init();
 public:
@@ -211,7 +225,7 @@ private:
     
     fj::WarrenSpringParameter m_warrenSpringParameter;
     
-    std::weak_ptr<ParticleUpdater> m_updater;
+    std::weak_ptr<CollapseDetector> m_collapseDetector;
 };
 
 #endif /* particle_hpp */

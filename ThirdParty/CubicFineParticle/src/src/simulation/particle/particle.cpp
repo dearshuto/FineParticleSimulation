@@ -6,11 +6,14 @@
 //
 //
 
-#include <numeric>
+#include <functional>
 #include <iostream>
+#include <numeric>
+
 #include "fine_particle/simulation/fine_particle_world.hpp"
-#include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/mohr_stress_circle.hpp"
+#include "fine_particle/simulation/particle/collapse_detector.hpp"
+#include "fine_particle/simulation/particle/particle.hpp"
 
 std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(0.5) );
 std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(10.) );
@@ -58,35 +61,18 @@ void fj::Particle::setOverlapInWorld(fj::FineParticleWorld* world)
 
 bool fj::Particle::isCollapse()const
 {
-    // 粒子の回転情報を取得
-    btTransform transform;
-    Super::getMotionState()->getWorldTransform(transform);
-    const btMatrix3x3& kRotationMatrix = transform.getBasis();
+    const auto& kCollapseDetector = m_collapseDetector.lock();
     
-    // 粒子の形状を取得。法線があれば垂直抗力を算出できるね。
-    auto faceNormals = fj::DiscritizedParticleShape::GetDiscritizedParticleShapeNormal(getDiscretizedShapeType());
-    
-    // 法線を回転させる
-    for (auto& normal :  faceNormals)
+    if (kCollapseDetector)
     {
-        normal = kRotationMatrix * normal;
+        return kCollapseDetector->shouldCallapse( std::cref(*this) );
+    }
+    else
+    {
+        return true;
     }
     
-    // 各法線方向にかかる垂直抗力を算出
-    fj::MohrStressCircle mohrStressCircle;
-    
-    for (const auto& kNormal : faceNormals)
-    {
-        for (const btVector3& kNormalStress : m_contactForceContainer)
-        {
-            mohrStressCircle.addNormalStress(
-                                   std::max( static_cast<btScalar>(0), kNormalStress.dot(-kNormal))
-                                   );
-        }
-    }
-    
-    mohrStressCircle.rebuildMohrCircle();
-    return mohrStressCircle.hasIntersectionPoint( m_warrenSpringParameter );
+    return true;
 }
 
 void fj::Particle::addContactForce(const btVector3& contactForce)

@@ -16,6 +16,11 @@ void fj::MohrStressCircle::addNormalStress(const double normalStress)
 
 void fj::MohrStressCircle::rebuildMohrCircle()
 {
+    if (m_normalStress.empty())
+    {
+        return;
+    }
+    
     const auto& kMinMax = std::minmax(std::begin(m_normalStress), std::end(m_normalStress));
     const auto kMin = *kMinMax.first;
     const auto kMax = *kMinMax.second;
@@ -24,7 +29,9 @@ void fj::MohrStressCircle::rebuildMohrCircle()
     m_radius = (kMax - kMin) / btScalar(2.);
 }
 
-bool fj::MohrStressCircle::hasIntersectionPoint(const fj::WarrenSpringParameter warrenSpringParameter)
+bool fj::MohrStressCircle::hasIntersectionPoint(const fj::WarrenSpringParameter warrenSpringParameter)const
 {
+    
+    
     return false;
 }
