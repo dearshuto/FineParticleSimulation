@@ -14,6 +14,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include "discritized_particle_shape.hpp"
+#include "mohr_stress_circle.hpp"
 
 namespace fj {
     
@@ -120,12 +121,6 @@ public:
         fj::Particle*const Parent;
     };
     
-    struct WarrenSpringParameter
-    {
-        double SheerIndex; //剪断指数→粉体崩壊曲線の曲率に対応する
-        double Adhesion; // 粘着力→大きいほど崩壊しにくくなる. 粉体崩壊曲線のτ切片に対応する.
-        double Collapsibility; //垂直応力を大きくしたときの崩壊のしやすさ。粉体崩壊曲線の傾きに対応する.
-    };
 public:
     Particle() = delete;
     ~Particle() = default;
@@ -210,6 +205,8 @@ private:
     fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
     
     ContactForceContainer m_contactForceContainer;
+    
+    fj::WarrenSpringParameter m_warrenSpringParameter;
 };
 
 #endif /* particle_hpp */

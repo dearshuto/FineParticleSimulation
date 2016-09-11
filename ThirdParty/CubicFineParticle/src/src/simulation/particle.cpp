@@ -10,6 +10,7 @@
 #include <iostream>
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/simulation/mohr_stress_circle.hpp"
 
 std::unique_ptr<btSphereShape> fj::Particle::SphereShape( new btSphereShape(0.5) );
 std::unique_ptr<btSphereShape> fj::Particle::OverlapShape( new btSphereShape(10.) );
@@ -72,31 +73,20 @@ bool fj::Particle::isCollapse()const
     }
     
     // 各法線方向にかかる垂直抗力を算出
-    
-    // 各面にかかる垂直応力を保持するための変数
-    // normal stress は和訳すると垂直応力
-    std::vector<btScalar> normalStress;
-    normalStress.reserve(faceNormals.size());
+    fj::MohrStressCircle mohrStressCircle;
     
     for (const auto& kNormal : faceNormals)
     {
         for (const btVector3& kNormalStress : m_contactForceContainer)
         {
-            normalStress.push_back(
+            mohrStressCircle.addNormalStress(
                                    std::max( static_cast<btScalar>(0), kNormalStress.dot(-kNormal))
                                    );
         }
     }
     
-    const auto& kMinMax = std::minmax(std::begin(normalStress), std::end(normalStress));
-    const auto kMin = kMinMax.first;
-    const auto kMax = kMinMax.second;
-    
-//    こんな処理を追加したい
-//    MohrStressCircle msCircle;
-//    msCircle.hasIntersectionPoint(Warren-Spring parameter);
-    
-    return true;
+    mohrStressCircle.rebuildMohrCircle();
+    return mohrStressCircle.hasIntersectionPoint( m_warrenSpringParameter );
 }
 
 void fj::Particle::addContactForce(const btVector3& contactForce)
