@@ -1,5 +1,5 @@
 //
-//  povray_example.cpp
+//  collapse_visualization.cpp
 //  CubicFineParticleSimulation
 //
 //  Created by Shuto on 2016/08/25.
@@ -9,9 +9,11 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+
+#include "fine_particle/simulation/particle/collapse_detector.hpp"
+#include "fine_particle/simulation/particle/gnuplot_visualizing_collapse_detector.hpp"
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
-#include "fine_particle/povray/povray_output.hpp"
 
 int main(int argc, char** argv)
 {
@@ -36,35 +38,31 @@ int main(int argc, char** argv)
     body->setRollingFriction(1);
     body->setFriction(1);
     world->addRigidBody( std::move(body), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
-    world->SpringK = 100;
-    // レンダリング
-    fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
+    world->kSpringK = 50;
+    const auto& kCollapseDetector = std::make_shared<fj::Particle::CollapseDetector>();
+    std::shared_ptr<fj::Particle::CollapseDetector> kGNUPLOTDetector = std::make_shared<fj::GnuplotVisualizingCollapseDetector>();
     
-    for (int i = 0; i < 20; i++){
-        for (int k = 0; k < 20; k++){
-            for (int j = 0; j < 20; j++)
+    for (int i = 0; i < 1; i++){
+        for (int k = 0; k < 1; k++){
+            for (int j = 0; j < 2; j++)
             {
-                btVector3 position = btVector3(i, 1.2 + float(j), k);
-                btMatrix3x3 matrix;
-
-                matrix.setEulerZYX(45, 45, 45);
-                position = matrix * position;
-                position += btVector3(0, 1, 0);
+                std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, btVector3(i, 1 + j, k)) );
                 
-                std::unique_ptr<fj::Particle> particle = std::move(
-                                                                   fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position)
-                                                                   );
+                particle->setCollapseDetector(
+                                              std::weak_ptr<fj::Particle::CollapseDetector>(kCollapseDetector)
+                                              );
+                
                 world->addParticle(std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle);
             }
         }
     }
     
+    world->getParticles()[0]->setCollapseDetector(std::weak_ptr<fj::Particle::CollapseDetector>(kGNUPLOTDetector));
  
     const int kStep = (argc < 2) ? 1000 : std::atoi(argv[1]);
     for (int i = 0; i < kStep; i++)
     {
-        world->stepSimulation(/*1.0/3600.0*/0.00001);
-        output.saveToFile(std::to_string(i) + ".pov");
+        world->stepSimulation(1.0/3600.0);
     }
     
     

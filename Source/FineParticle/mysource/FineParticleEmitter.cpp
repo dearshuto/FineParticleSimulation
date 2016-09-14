@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "FineParticle.h"
+#include "fine_particle/simulation/particle/collapse_detector.hpp"
 #include "FineParticleEmitter.h"
 
 
 // Sets default values
 AFineParticleEmitter::AFineParticleEmitter()
-: SpringK(0.1)
-, SimulationTimeStep(1.0/60.)
+: SimulationTimeStep(1.0/60.)
 , SimulationCycle(100)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -32,7 +32,9 @@ void AFineParticleEmitter::BeginPlay()
     std::unique_ptr<btRigidBody> plane(new btRigidBody(rbInfo));
     
     m_world.addRigidBody(std::move(plane), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
-    m_world.kSpringK = this->SpringK;
+
+    
+    m_collapseDetector = std::make_shared<fj::Particle::CollapseDetector>();
 }
 
 // Called every frame
@@ -43,6 +45,7 @@ void AFineParticleEmitter::Tick( float DeltaTime )
     for (int i = 0; i < SimulationCycle; i++)
     {
         m_world.stepSimulation(SimulationTimeStep);
+        
     }
     
     synchronizeRenderParticlePosition();
@@ -66,11 +69,20 @@ void AFineParticleEmitter::synchronizeRenderParticlePosition()
 
 void AFineParticleEmitter::CreateParticle(const FVector& position)
 {
-    std::unique_ptr<fj::Particle> particle = std::move(fj::Particle::generateParticle(position.X, position.Y, position.Z));
-    m_world.addParticle( std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle );
+    const btVector3 kPosition{position.X, position.Y, position.Z};
+    std::unique_ptr<fj::Particle> particle = std::move(fj::Particle::generateParticle(fj::DiscritizedParticleShape::ShapeType::kCube, kPosition) );
+
     
     auto visibleParticle = GetWorld()->SpawnActor<AParticleStaticMeshActor>();
     visibleParticle->SetActorLocation( position );
     visibleParticle->SetMobility(EComponentMobility::Movable);
+    visibleParticle->setRadius( 10 * particle->getRadius() );
+    
     m_particles.Push(visibleParticle);
+    m_world.addParticle( std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle );
+}
+
+void AFineParticleEmitter::SetSimulationSpringK(const float SimulationSpringK)
+{
+    m_world.kSpringK = SimulationSpringK;
 }

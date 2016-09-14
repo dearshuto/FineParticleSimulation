@@ -34,16 +34,16 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
     POV += "#include\"Colors.inc\"";
     POV += "camera {";
     POV += "   perspective";
-    POV += "    location <-30,30,0>";
+    POV += "    location <-50,50,0>";
     POV += "    angle 60";
     POV += "     up <0,1,0>";
-    POV += "    look_at <0,0,3>";
+    POV += "    look_at <0,5,3>";
     POV += "  }";
     
     
     POV += "light_source{";
-    POV += "    <0, 50, 0>";
-    POV += "    color 1.5";
+    POV += "    <-50, 50, 0>";
+    POV += "    color 1.0";
     POV += "}";
     
     POV += "sky_sphere{";
@@ -59,7 +59,7 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
     
     POV += "plane{y,0";
     POV += "    pigment{";
-    POV += "        checker White*1.2, color rgb<0.5,0.9,0.9>*0.5";
+    POV += "        checker White*1.2, color rgb<0.5,0.9,0.9>*10";
     POV += "        scale 0.2";
     POV += "    }";
     POV += "    finish{phong 1 reflection 0.3}";

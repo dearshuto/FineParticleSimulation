@@ -12,15 +12,17 @@
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/fine_particle_world.hpp"
 
-int fj::FineParticleWorld::stepSimulation(btScalar timestep)
+void fj::FineParticleWorld::stepSimulation(btScalar timestep)
 {
     updateParticleCollisionShapePosition(timestep);
     
-    accumulateCollisionForce(timestep);
+    accumulateContactForce(timestep);
     
     accumulateVandeerWaalsForce(timestep);
     
-    return m_world->stepSimulation(timestep);
+    updateParticleCollapse(timestep);
+
+    updateAllObjectTransform(timestep);
 }
 
 
@@ -32,64 +34,83 @@ void fj::FineParticleWorld::updateParticleCollisionShapePosition(const btScalar 
     }
 }
 
-void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
+void fj::FineParticleWorld::accumulateContactForce(const btScalar timestep)
 {
-    // 粒子同士が衝突することによって発生する力を計算する
-    // TODO: 最適化できるよ
-    
+    // Bullet Physicsは衝突を検出した全てのペアを保持している
+    // これらのペアの中からParticleのオーバーラップを検出するオブジェクト同士の衝突に対して処理を施す
+
     typedef fj::Particle::ParticlesOverlapDetector ParticlesOverlapDetector;
     
     for (int i = 0; i < m_dispatcher->getNumManifolds(); i++)
     {
         const btPersistentManifold* manifold = m_dispatcher->getManifoldByIndexInternal(i);
-        
-        const ParticlesOverlapDetector* particle1 = ParticlesOverlapDetector::upcast(manifold->getBody0());
-        const ParticlesOverlapDetector* particle2 = ParticlesOverlapDetector::upcast(manifold->getBody1());
-        
-        if (particle1 && particle2)
-        {
-            const btTransform& kTransform1 = particle1->getWorldTransform();
-            const btTransform& kTransform2 = particle2->getWorldTransform();
-            
-            const btVector3 kDirection12 = kTransform2.getOrigin() - kTransform1.getOrigin();
-            const btVector3 kDirection21 = -kDirection12;
-            const btScalar kNorm = kDirection12.norm();
-            const btScalar kDistance = (particle1->getRadius() + particle1->getRadius()) - kNorm;
-            
-            if ( !std::isfinite(kDistance) || (kNorm == btScalar(0.0)) )
-            {
-                continue;
-            }
-            
-            if (kDistance > 0)
-            {
-                // ばね
-                particle1->Parent->addContactForce(kSpringK * kDistance * kDirection21.normalized() );
-                particle2->Parent->addContactForce(kSpringK * kDistance * kDirection12.normalized() );
+        const ParticlesOverlapDetector* kParticleOverlap1 = ParticlesOverlapDetector::upcast(manifold->getBody0());
+        const ParticlesOverlapDetector* kParticleOverlap2 = ParticlesOverlapDetector::upcast(manifold->getBody1());
 
-            }
-            
-            const btVector3 kRelativeVelocity12 = particle2->Parent->getLinearVelocity() - particle1->Parent->getLinearVelocity();
-            const btVector3 kRelativeVelocity21 = -kRelativeVelocity12;
-            
-            if (kRelativeVelocity12.isZero())
-            {
-                continue;
-            }
-            else
-            {
-                // ダッシュポッド
-                particle1->Parent->addContactForce(-kSpringK / 2.0 * kRelativeVelocity21.normalized());
-                particle1->Parent->addContactForce(-kSpringK / 2.0 * kRelativeVelocity12.normalized());
-            }
-            
-        }
-        else
+        if (kParticleOverlap1 && kParticleOverlap2)
         {
+            fj::Particle* particle1 = kParticleOverlap1->Parent;
+            fj::Particle* particle2 = kParticleOverlap2->Parent;
             
+            applyNormalComponentContactForce(particle1, particle2);
+            applyTangentialComponentContactForce(particle1, particle2);
         }
     }
+
+
+}
+
+void fj::FineParticleWorld::applyNormalComponentContactForce(fj::Particle*const particle1, fj::Particle*const particle2)const
+{
+    constexpr double kPI = 3.141592653589793238462643383279502884;
+    const btTransform& kTransform1 = particle1->getWorldTransform();
+    const btTransform& kTransform2 = particle2->getWorldTransform();
     
+    const btVector3 kDirection12 = kTransform2.getOrigin() - kTransform1.getOrigin();
+    const btVector3 kDirection21 = -kDirection12;
+    const btScalar kNorm = kDirection12.norm();
+    const btScalar kDistance = (particle1->getRadius() + particle1->getRadius()) - kNorm;
+    
+    if ( !std::isfinite(kDistance) || (kNorm == btScalar(0.0)) )
+    {
+        return;
+    }
+    
+    if (kDistance > 0)
+    {
+        // ばね
+        particle1->addContactForce(SpringK * kDistance * kDirection21.normalized() );
+        particle2->addContactForce(SpringK * kDistance * kDirection12.normalized() );
+        
+    }
+
+    
+    // ダッシュポッド
+    const btVector3 kRelativeVelocity12 = particle2->getLinearVelocity() - particle1->getLinearVelocity();
+    const btVector3 kRelativeVelocity21 = -kRelativeVelocity12;
+    const auto kReducedMass = computeReducedMass(std::cref(*particle1), std::cref(*particle2));
+    
+    const auto kEta = -2.0 * std::log(E) * std::sqrt(
+                                                   (kReducedMass * SpringK)
+                                                   / (std::pow(kPI, 2.0) * std::pow(std::log(E), 2.0))
+                                                   );
+    
+    particle1->addContactForce(-kEta * kRelativeVelocity21);
+    particle2->addContactForce(-kEta * kRelativeVelocity12);
+
+}
+
+void fj::FineParticleWorld::applyTangentialComponentContactForce(fj::Particle*const particle1, fj::Particle*const particle2)const
+{
+
+}
+
+btScalar fj::FineParticleWorld::computeReducedMass(const fj::Particle &particle1, const fj::Particle &particle2)const
+{
+    const auto kMass1 = particle1.getMass();
+    const auto kMass2 = particle2.getMass();
+    
+    return (kMass1 * kMass2) / (kMass1 + kMass2);
 }
 
 void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
@@ -134,26 +155,27 @@ void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
     
 }
 
-void fj::FineParticleWorld::BulletWorldWrapper::synchronizeMotionStates()
+void fj::FineParticleWorld::updateParticleCollapse(const btScalar timestep)
 {
-    // 位置更新する段階ではすべての力の計算は終わっている
-    // 粒子にかかっている力をもとに崩壊条件を判定する
-    
-    for (auto& particle : kParentWorld.m_particles)
+    for (auto& particle : m_particles)
     {
-        // 崩壊条件を満たしてない場合, 力をなくしてしまえば動かない
-        if ( particle->isCollapse() )
+        if ( /*particle->isCollapse()*/true )
         {
             particle->applyContactForce();
         }
         else
         {
+            // 崩壊条件を満たしてない場合, 速度を奪ってしまえば位置更新されない
             particle->clearForces();
+            particle->setLinearVelocity(btVector3(0, 0, 0));
         }
         particle->clearContactForce();
     }
+}
 
-    btDiscreteDynamicsWorld::synchronizeMotionStates();
+void fj::FineParticleWorld::updateAllObjectTransform(const btScalar timestep)
+{
+    m_world->stepSimulation(timestep, 1/*max substeps*/, timestep);
 }
 
 void fj::FineParticleWorld::addCollisionObject(btCollisionObject *body, fj::CollisionGroup group, fj::CollisionFiltering mask)
