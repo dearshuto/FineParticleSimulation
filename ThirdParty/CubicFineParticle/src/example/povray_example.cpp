@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include <chrono>
 #include <cstdlib>
 #include <string>
 #include "fine_particle/simulation/fine_particle_world.hpp"
@@ -40,9 +41,10 @@ int main(int argc, char** argv)
     // レンダリング
     fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
     
-    for (int i = 0; i < 10; i++){
-        for (int k = 0; k < 10; k++){
-            for (int j = 0; j < 10; j++)
+	auto initializeStart = std::chrono::system_clock::now();
+    for (int i = 0; i < 15; i++){
+        for (int k = 0; k < 15; k++){
+            for (int j = 0; j < 15; j++)
             {
                 btVector3 position = btVector3(i, 1.2 + float(j), k);
                 btMatrix3x3 matrix;
@@ -58,13 +60,32 @@ int main(int argc, char** argv)
             }
         }
     }
-    
+	auto initializeEnd = std::chrono::system_clock::now();
+	auto initializeTime = initializeEnd - initializeStart;
  
-    const int kStep = (argc < 2) ? 1000 : std::atoi(argv[1]);
+	std::cout << "Initialize = "
+		<< std::chrono::duration_cast<std::chrono::milliseconds>(initializeTime).count() / 1000.0
+		<< "sec."
+		<< std::endl;
+
+
+	auto simulationStart = std::chrono::system_clock::now();
+    auto simulationEnd = std::chrono::system_clock::now();
+	auto simulationTime = simulationEnd - simulationStart;
+	const int kStep = (argc < 2) ? 1000 : std::atoi(argv[1]);
     for (int i = 0; i < kStep; i++)
     {
+		simulationStart = std::chrono::system_clock::now();
         world->stepSimulation(/*1.0/3600.0*/0.00001);
-        output.saveToFile(std::to_string(i) + ".pov");
+		simulationEnd = std::chrono::system_clock::now();
+		simulationTime = simulationEnd - simulationStart;
+
+		std::cout << "Step " << i+1 << "/" << kStep << " = "
+			<< std::chrono::duration_cast<std::chrono::milliseconds>(simulationTime).count() / 1000.0
+			<< "sec."
+			<< std::endl;
+
+		output.saveToFile(std::to_string(i) + ".pov");
     }
     
     
