@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     body->setRollingFriction(1);
     body->setFriction(1);
     world->addRigidBody( std::move(body), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
-
+    world->kSpringK = 50;
     const auto& kCollapseDetector = std::make_shared<fj::Particle::CollapseDetector>();
     std::shared_ptr<fj::Particle::CollapseDetector> kGNUPLOTDetector = std::make_shared<fj::GnuplotVisualizingCollapseDetector>();
     
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
         for (int k = 0; k < 1; k++){
             for (int j = 0; j < 2; j++)
             {
-                std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, btVector3(i, 5 + j, k)) );
+                std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, btVector3(i, 1 + j, k)) );
                 
                 particle->setCollapseDetector(
                                               std::weak_ptr<fj::Particle::CollapseDetector>(kCollapseDetector)

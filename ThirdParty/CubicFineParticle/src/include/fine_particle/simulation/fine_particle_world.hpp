@@ -26,6 +26,7 @@ class fj::FineParticleWorld
 {
     class BulletWorldWrapper : public btDiscreteDynamicsWorld
     {
+        typedef btDiscreteDynamicsWorld Super;
     public:
         BulletWorldWrapper(btDispatcher* dispatcher
                            ,btBroadphaseInterface* pairCache
@@ -39,6 +40,10 @@ class fj::FineParticleWorld
         }
 
         void	synchronizeMotionStates() override;
+        
+        void	internalSingleStepSimulation( btScalar timeStep)override;
+        
+        void	applyGravity()override;
     private:
         const FineParticleWorld& kParentWorld;
     };

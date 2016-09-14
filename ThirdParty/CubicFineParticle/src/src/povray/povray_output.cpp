@@ -42,7 +42,7 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
     
     
     POV += "light_source{";
-    POV += "    <0, 50, 0>";
+    POV += "    <-50, 50, 0>";
     POV += "    color 1.5";
     POV += "}";
     

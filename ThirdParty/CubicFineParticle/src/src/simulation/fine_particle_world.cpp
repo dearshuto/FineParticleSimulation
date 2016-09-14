@@ -20,7 +20,21 @@ int fj::FineParticleWorld::stepSimulation(btScalar timestep)
     
     accumulateVandeerWaalsForce(timestep);
     
-    return m_world->stepSimulation(timestep);
+//    for (auto& particle : m_particles)
+//    {
+//        // 崩壊条件を満たしてない場合, 力をなくしてしまえば動かない
+//        if ( /*particle->isCollapse()*/true )
+//        {
+//            particle->applyContactForce();
+//        }
+//        else
+//        {
+//            particle->clearForces();
+//        }
+//        particle->clearContactForce();
+//    }
+    
+    return m_world->stepSimulation(timestep, 1/*max substeps*/, timestep);
 }
 
 
@@ -38,6 +52,7 @@ void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
     // TODO: 最適化できるよ
     
     typedef fj::Particle::ParticlesOverlapDetector ParticlesOverlapDetector;
+
     
     for (int i = 0; i < m_dispatcher->getNumManifolds(); i++)
     {
@@ -45,7 +60,7 @@ void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
         
         const ParticlesOverlapDetector* particle1 = ParticlesOverlapDetector::upcast(manifold->getBody0());
         const ParticlesOverlapDetector* particle2 = ParticlesOverlapDetector::upcast(manifold->getBody1());
-        
+
         if (particle1 && particle2)
         {
             const btTransform& kTransform1 = particle1->getWorldTransform();
@@ -80,16 +95,14 @@ void fj::FineParticleWorld::accumulateCollisionForce(const btScalar timestep)
             {
                 // ダッシュポッド
                 particle1->Parent->addContactForce(-kSpringK / 2.0 * kRelativeVelocity21.normalized());
-                particle1->Parent->addContactForce(-kSpringK / 2.0 * kRelativeVelocity12.normalized());
+                particle2->Parent->addContactForce(-kSpringK / 2.0 * kRelativeVelocity12.normalized());
             }
             
         }
-        else
-        {
-            
-        }
+
     }
-    
+
+
 }
 
 void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
@@ -134,25 +147,32 @@ void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
     
 }
 
+void fj::FineParticleWorld::BulletWorldWrapper::applyGravity()
+{
+    Super::applyGravity();
+    
+        for (auto& particle : kParentWorld.m_particles)
+        {
+            // 崩壊条件を満たしてない場合, 力をなくしてしまえば動かない
+            if ( /*particle->isCollapse()*/true )
+            {
+                particle->applyContactForce();
+            }
+            else
+            {
+                particle->clearForces();
+            }
+            particle->clearContactForce();
+        }
+}
+
+void fj::FineParticleWorld::BulletWorldWrapper::internalSingleStepSimulation(btScalar timeStep)
+{
+    Super::internalSingleStepSimulation(timeStep);
+}
+
 void fj::FineParticleWorld::BulletWorldWrapper::synchronizeMotionStates()
 {
-    // 位置更新する段階ではすべての力の計算は終わっている
-    // 粒子にかかっている力をもとに崩壊条件を判定する
-    
-    for (auto& particle : kParentWorld.m_particles)
-    {
-        // 崩壊条件を満たしてない場合, 力をなくしてしまえば動かない
-        if ( particle->isCollapse() )
-        {
-            particle->applyContactForce();
-        }
-        else
-        {
-            particle->clearForces();
-        }
-        particle->clearContactForce();
-    }
-
     btDiscreteDynamicsWorld::synchronizeMotionStates();
 }
 

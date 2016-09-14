@@ -18,3 +18,12 @@ AParticleStaticMeshActor::AParticleStaticMeshActor()
         SphereVisual->SetWorldScale3D(FVector(0.02f));
     }
 }
+
+void AParticleStaticMeshActor::setRadius(const float radius)
+{
+    if (GetRootComponent())
+    {
+        GetRootComponent()->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+        GetRootComponent()->SetWorldScale3D( /*radius */ FVector(radius*0.1));
+    }
+}

@@ -33,5 +33,5 @@ bool fj::MohrStressCircle::hasIntersectionPoint(const fj::WarrenSpringParameter 
 {
     
     
-    return false;
+    return true;
 }

@@ -4,7 +4,7 @@
 
 #include "ParticleStaticMeshActor.h"
 #include "fine_particle/simulation/fine_particle_world.hpp"
-#include "fine_particle/simulation/particle.hpp"
+#include "fine_particle/simulation/particle/particle.hpp"
 
 #include "GameFramework/Actor.h"
 #include "FineParticleEmitter.generated.h"
@@ -28,15 +28,14 @@ public:
     void CreateParticle(const FVector& Position);
     
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Edit")
-    float SpringK;
-
+    UFUNCTION(BlueprintCallable, Category = "Actor")
+    void SetSimulationSpringK(const float SimulationSpringK);
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Edit")
     float SimulationTimeStep;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Edit")
     int SimulationCycle;
-
     
 private:
     void synchronizeRenderParticlePosition();
@@ -47,4 +46,5 @@ private:
     
     std::unique_ptr<btCollisionShape> m_plane;
     std::unique_ptr<btMotionState> m_planeMotionState;
+    std::shared_ptr<fj::Particle::CollapseDetector> m_collapseDetector;
 };
