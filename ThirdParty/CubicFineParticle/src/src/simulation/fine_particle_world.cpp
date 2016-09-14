@@ -18,7 +18,7 @@ void fj::FineParticleWorld::stepSimulation(btScalar timestep)
     
     accumulateContactForce(timestep);
     
-    accumulateVandeerWaalsForce(timestep);
+//    accumulateVandeerWaalsForce(timestep);
     
     updateParticleCollapse(timestep);
 
