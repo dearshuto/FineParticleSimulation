@@ -48,6 +48,7 @@ void fj::Particle::updateCollisionShapePosition(btScalar timestep)
     btTransform trans;
     getMotionState()->getWorldTransform(trans);
     m_overlap.setWorldTransform(trans);
+    m_effectRange.setWorldTransform(trans);
 }
 
 void fj::Particle::setOverlapInWorld(fj::FineParticleWorld* world)

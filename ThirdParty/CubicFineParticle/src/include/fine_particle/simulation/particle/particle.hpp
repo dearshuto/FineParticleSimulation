@@ -133,6 +133,7 @@ public:
     , m_overlap( this )
     , m_motionState( std::move(motionState) )
     , m_discretizedShapeType(shapeType)
+    , m_mass(info.m_mass)
     {
         init();
     }
@@ -200,6 +201,11 @@ public:
     {
         m_collapseDetector = collapseDetector;
     }
+    
+    btScalar getMass()const
+    {
+        return m_mass;
+    }
 private:
     void init();
 public:
@@ -226,6 +232,8 @@ private:
     fj::WarrenSpringParameter m_warrenSpringParameter;
     
     std::weak_ptr<CollapseDetector> m_collapseDetector;
+    
+    btScalar m_mass;
 };
 
 #endif /* particle_hpp */

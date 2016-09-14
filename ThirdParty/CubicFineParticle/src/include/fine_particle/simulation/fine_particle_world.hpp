@@ -24,42 +24,20 @@ namespace fj {
 
 class fj::FineParticleWorld
 {
-    class BulletWorldWrapper : public btDiscreteDynamicsWorld
-    {
-        typedef btDiscreteDynamicsWorld Super;
-    public:
-        BulletWorldWrapper(btDispatcher* dispatcher
-                           ,btBroadphaseInterface* pairCache
-                           ,btConstraintSolver* constraintSolver
-                           ,btCollisionConfiguration* collisionConfiguration
-                           , const FineParticleWorld& parent)
-        : btDiscreteDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration)
-        , kParentWorld(parent)
-        {
-            
-        }
-
-        void	synchronizeMotionStates() override;
-        
-        void	internalSingleStepSimulation( btScalar timeStep)override;
-        
-        void	applyGravity()override;
-    private:
-        const FineParticleWorld& kParentWorld;
-    };
+    using TimeStep = btScalar;
 public:
     FineParticleWorld()
-    : kSpringK(1)
+    : SpringK(1)
+    , E(1.0)
     , HamakerConstant(0)
     , m_collisionConfiguration( new btDefaultCollisionConfiguration() )
     , m_dispatcher( new btCollisionDispatcher( m_collisionConfiguration.get() ) )
     , m_pairCache( new btDbvtBroadphase() )
     , m_constraintSolver( new btSequentialImpulseConstraintSolver() )
-    , m_world( new BulletWorldWrapper( m_dispatcher.get()
+    , m_world( new btDiscreteDynamicsWorld( m_dispatcher.get()
               , m_pairCache.get()
               , m_constraintSolver.get()
-              , m_collisionConfiguration.get()
-              ,*this)
+              , m_collisionConfiguration.get())
               )
     
     {
@@ -68,7 +46,7 @@ public:
     
     ~FineParticleWorld() = default;
     
-    int stepSimulation(btScalar timestep);
+    void stepSimulation(btScalar timestep);
     
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
@@ -88,9 +66,20 @@ private:
     
     void updateParticleCollisionShapePosition(const btScalar timestep);
     
-    void accumulateCollisionForce(const btScalar timestep);
+    void accumulateContactForce(const btScalar timestep);
+    
+    void applyNormalComponentContactForce(fj::Particle*const particle1, fj::Particle*const particle2)const;
+    
+    void applyTangentialComponentContactForce(fj::Particle*const particle1, fj::Particle*const particle2)const;
+    
+    /** 換算質量を求める */
+    btScalar computeReducedMass(const fj::Particle& particle1, const fj::Particle& particle2)const;
     
     void accumulateVandeerWaalsForce(const btScalar timestep);
+    
+    void updateParticleCollapse(const btScalar timestep);
+    
+    void updateAllObjectTransform(const btScalar timestep);
     
 public:
     const std::vector<std::unique_ptr<fj::Particle>>& getParticles()const
@@ -98,18 +87,29 @@ public:
         return std::cref(m_particles);
     }
     
-    double kSpringK;
+    /** レオロジーモデルで使用するばね係数 */
+    double SpringK;
+    
+    /** 粒子間の反発力 */
+    double E;
     
     double HamakerConstant;
 private:
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
+    
+    
+    //--Bullet Physicsのフレームワークを利用するためのインスタンス--//
+    
+    /** Bullet Physicsは生ポインタで全ての処理をするので, メモリの管理はユーザ側でしなくてはならない
+     * Bullet Physicsの中でシミュレーション対象となる剛体のメモリ管理用のコンテナ */
     std::vector<std::unique_ptr<btRigidBody>> m_rigidBody;
     
+    /** Bullet Physicsを利用するために最低限必要なインスタンス */
     std::unique_ptr<btCollisionConfiguration> m_collisionConfiguration;
     std::unique_ptr<btDispatcher> m_dispatcher;
     std::unique_ptr<btBroadphaseInterface> m_pairCache;
     std::unique_ptr<btConstraintSolver> m_constraintSolver;
-    std::unique_ptr<BulletWorldWrapper> m_world;
+    std::unique_ptr<btDiscreteDynamicsWorld> m_world;
 };
 
 #endif /* fine_particle_world_hpp */

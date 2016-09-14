@@ -36,22 +36,31 @@ int main(int argc, char** argv)
     body->setRollingFriction(1);
     body->setFriction(1);
     world->addRigidBody( std::move(body), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
-    world->kSpringK = 1;
+    world->SpringK = 100;
     // レンダリング
     fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
     
-    for (int i = 0; i < 1; i++){
-        for (int k = 0; k < 1; k++){
-            for (int j = 0; j < 2; j++)
+    for (int i = 0; i < 20; i++){
+        for (int k = 0; k < 20; k++){
+            for (int j = 0; j < 20; j++)
             {
-                std::unique_ptr<fj::Particle> particle = std::move( fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, btVector3(i, 1.2 + float(j), k)) );
+                btVector3 position = btVector3(i, 1.2 + float(j), k);
+                btMatrix3x3 matrix;
+
+                matrix.setEulerZYX(45, 45, 45);
+                position = matrix * position;
+                position += btVector3(0, 1, 0);
+                
+                std::unique_ptr<fj::Particle> particle = std::move(
+                                                                   fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position)
+                                                                   );
                 world->addParticle(std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle);
             }
         }
     }
     
  
-    const int kStep = (argc < 2) ? 5000 : std::atoi(argv[1]);
+    const int kStep = (argc < 2) ? 1000 : std::atoi(argv[1]);
     for (int i = 0; i < kStep; i++)
     {
         world->stepSimulation(/*1.0/3600.0*/0.00001);
