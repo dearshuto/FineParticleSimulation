@@ -28,7 +28,7 @@ class fj::FineParticleWorld
 public:
     FineParticleWorld()
     : SpringK(1)
-    , E(1.0)
+    , E(10.0)
     , HamakerConstant(0)
     , m_collisionConfiguration( new btDefaultCollisionConfiguration() )
     , m_dispatcher( new btCollisionDispatcher( m_collisionConfiguration.get() ) )

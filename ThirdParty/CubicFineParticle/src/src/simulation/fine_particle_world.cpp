@@ -92,7 +92,7 @@ void fj::FineParticleWorld::applyNormalComponentContactForce(fj::Particle*const 
     
     const auto kEta = -2.0 * std::log(E) * std::sqrt(
                                                    (kReducedMass * SpringK)
-                                                   / (std::pow(kPI, 2.0) * std::pow(std::log(E), 2.0))
+                                                     / (std::pow(kPI, 2.0) * std::pow(std::log(E), 2.0))
                                                    );
     
     particle1->addContactForce(-kEta * kRelativeVelocity21);
