@@ -40,6 +40,7 @@ int main(int argc, char** argv)
     // レンダリング
     fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
     
+	auto initializeStart = std::chrono::system_clock::now();
     for (int i = 0; i < 20; i++){
         for (int k = 0; k < 20; k++){
             for (int j = 0; j < 20; j++)
