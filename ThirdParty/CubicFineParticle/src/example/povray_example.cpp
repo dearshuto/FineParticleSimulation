@@ -42,9 +42,9 @@ int main(int argc, char** argv)
     fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
     
 	auto initializeStart = std::chrono::system_clock::now();
-    for (int i = 0; i < 15; i++){
-        for (int k = 0; k < 15; k++){
-            for (int j = 0; j < 15; j++)
+    for (int i = 0; i < 20; i++){
+        for (int k = 0; k < 20; k++){
+            for (int j = 0; j < 20; j++)
             {
                 btVector3 position = btVector3(i, 1.2 + float(j), k);
                 btMatrix3x3 matrix;

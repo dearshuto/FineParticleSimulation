@@ -14,55 +14,49 @@
 
 void fj::FineParticleWorld::stepSimulation(btScalar timestep)
 {
-    updateParticleCollisionShapePosition(timestep);
-    
-    accumulateContactForce(timestep);
-    
-//    accumulateVandeerWaalsForce(timestep);
-    
+    accumulateFineParticleForce(timestep);
+
     updateParticleCollapse(timestep);
 
     updateAllObjectTransform(timestep);
 }
 
-
-void fj::FineParticleWorld::updateParticleCollisionShapePosition(const btScalar timestep)
+void fj::FineParticleWorld::accumulateFineParticleForce(const btScalar timestep)
 {
-    for (auto& particle : m_particles)
-    {
-        particle->updateCollisionShapePosition(timestep);
-    }
-}
-
-void fj::FineParticleWorld::accumulateContactForce(const btScalar timestep)
-{
-    // Bullet Physicsは衝突を検出した全てのペアを保持している
-    // これらのペアの中からParticleのオーバーラップを検出するオブジェクト同士の衝突に対して処理を施す
-
-    typedef fj::Particle::ParticlesOverlapDetector ParticlesOverlapDetector;
+    btBroadphasePairArray*const broadPhasePairArray = &m_pairCache->getOverlappingPairCache()->getOverlappingPairArray();
     
-    for (int i = 0; i < m_dispatcher->getNumManifolds(); i++)
+    for (unsigned int i = 0; i < broadPhasePairArray->size(); i++)
     {
-        const btPersistentManifold* manifold = m_dispatcher->getManifoldByIndexInternal(i);
-        const ParticlesOverlapDetector* kParticleOverlap1 = ParticlesOverlapDetector::upcast(manifold->getBody0());
-        const ParticlesOverlapDetector* kParticleOverlap2 = ParticlesOverlapDetector::upcast(manifold->getBody1());
-
-        if (kParticleOverlap1 && kParticleOverlap2)
+        auto& broadPhasePair = broadPhasePairArray->at(i);
+        
+        btCollisionObject* body0 = static_cast<btCollisionObject*>(broadPhasePair.m_pProxy0->m_clientObject);
+        btCollisionObject* body1 = static_cast<btCollisionObject*>(broadPhasePair.m_pProxy1->m_clientObject);
+        
+        fj::Particle*const particle1 = fj::Particle::upcast(body0);
+        fj::Particle*const particle2 = fj::Particle::upcast(body1);
+        
+        if (particle1 && particle2)
         {
-            fj::Particle* particle1 = kParticleOverlap1->Parent;
-            fj::Particle* particle2 = kParticleOverlap2->Parent;
+            FineParticlesContactInfo contactInfo{particle1, particle2};
             
-            applyNormalComponentContactForce(particle1, particle2);
-            applyTangentialComponentContactForce(particle1, particle2);
+            applyContactForce(contactInfo);
+            applyVandeerWaalsForce(contactInfo);
         }
     }
 
-
 }
 
-void fj::FineParticleWorld::applyNormalComponentContactForce(fj::Particle*const particle1, fj::Particle*const particle2)const
+void fj::FineParticleWorld::applyContactForce(const FineParticlesContactInfo& contactInfo)
+{
+    applyNormalComponentContactForce(contactInfo);
+    applyTangentialComponentContactForce(contactInfo);
+}
+
+void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticlesContactInfo& contactInfo)const
 {
     constexpr double kPI = 3.141592653589793238462643383279502884;
+    fj::Particle*const particle1 = contactInfo.Particle1;
+    fj::Particle*const particle2 = contactInfo.Particle2;
     const btTransform& kTransform1 = particle1->getWorldTransform();
     const btTransform& kTransform2 = particle2->getWorldTransform();
     
@@ -100,7 +94,7 @@ void fj::FineParticleWorld::applyNormalComponentContactForce(fj::Particle*const 
 
 }
 
-void fj::FineParticleWorld::applyTangentialComponentContactForce(fj::Particle*const particle1, fj::Particle*const particle2)const
+void fj::FineParticleWorld::applyTangentialComponentContactForce(const FineParticlesContactInfo& contactInfo)const
 {
 
 }
@@ -113,46 +107,33 @@ btScalar fj::FineParticleWorld::computeReducedMass(const fj::Particle &particle1
     return (kMass1 * kMass2) / (kMass1 + kMass2);
 }
 
-void fj::FineParticleWorld::accumulateVandeerWaalsForce(btScalar timestep)
+void fj::FineParticleWorld::applyVandeerWaalsForce(const FineParticlesContactInfo& contactInfo)const
 {
-    for (const auto& particle : m_particles)
-    {
-        btTransform transform;
-        particle->getMotionState()->getWorldTransform(transform);
-        const btVector3& kPosition = transform.getOrigin();
-        
-        for (int i = 0; i < particle->overlappingSize(); i++)
-        {
-            const fj::Particle* kOverlapParticle = fj::Particle::upcast( particle->getEffectObject(i) );
-            
-            if (kOverlapParticle)
-            {
-                const btVector3& kOverlapPosition = kOverlapParticle->getWorldTransform().getOrigin();
-                
-                // 近傍粒子から受けるファンデルワールス力の方向
-                const btVector3& kDirection = kPosition - kOverlapPosition;
-                
-                // 粒子の中心間距離
-                const btScalar kDistance = (kPosition - kOverlapPosition).norm();
-                
-                // 粒子の表面間距離
-                const btScalar kH = std::max(btScalar(0.000004), kDistance - (particle->getRadius() + kOverlapParticle->getRadius()));
-                
-                // 換算粒径
-                const btScalar kD = (particle->getRadius() * kOverlapParticle->getRadius()) / (particle->getRadius() + kOverlapParticle->getRadius());
-                
-                const btVector3 kF = (HamakerConstant * kD / (24 * std::pow(kH, 2.0)) ) * kDirection;
-                
-                particle->applyCentralForce(kF);
-            }
-            else
-            {
-                continue;
-            }
-            
-        }
-    }
+    fj::Particle*const particle1 = contactInfo.Particle1;
+    fj::Particle*const particle2 = contactInfo.Particle2;
+    const btScalar kRadius1 = particle1->getRadius();
+    const btScalar kRadius2 = particle2->getRadius();
     
+    // 粒子の中心間距離
+    const btScalar kDistance = contactInfo.kDistance;
+
+    // 近傍粒子から受けるファンデルワールス力の方向
+    const btVector3 kNormalizedDirection21 = -contactInfo.kNormalizedDirection12;
+    const btVector3 kNormalizedDirection12 = contactInfo.kNormalizedDirection12;
+    
+    // 粒子の表面間距離
+    const btScalar kH = std::max(
+                                 btScalar(0.000004) /*発散防止のクランプ*/
+                                 , kDistance - (kRadius1 + kRadius2)
+                                 );
+    
+    // 換算粒径
+    const btScalar kD = (kRadius1 * kRadius2) / (kRadius1 + kRadius2);
+    
+    const btScalar kF = HamakerConstant * kD / (24 * std::pow(kH, 2.0));
+    
+    particle1->applyCentralForce(kF * kNormalizedDirection21);
+    particle2->applyCentralForce(kF * kNormalizedDirection12);
 }
 
 void fj::FineParticleWorld::updateParticleCollapse(const btScalar timestep)
@@ -191,7 +172,6 @@ void fj::FineParticleWorld::addRigidBody(std::unique_ptr<btRigidBody> body, fj::
 
 void fj::FineParticleWorld::addParticle(std::unique_ptr<fj::Particle> body, fj::CollisionGroup group, fj::CollisionFiltering mask)
 {
-    body->setOverlapInWorld(this);
     m_world->addRigidBody(body.get(), static_cast<uint16_t>(group), static_cast<uint16_t>(mask) );
     m_particles.push_back( std::move(body) );
 }

@@ -25,6 +25,25 @@ namespace fj {
 class fj::FineParticleWorld
 {
     using TimeStep = btScalar;
+    
+    struct FineParticlesContactInfo
+    {
+        FineParticlesContactInfo(fj::Particle*const particle1, fj::Particle*const particle2)
+        : Particle1(particle1)
+        , Particle2(particle2)
+        , kDirection12(particle2->getWorldTransform().getOrigin() - particle2->getWorldTransform().getOrigin())
+        , kDistance(kDirection12.norm())
+        , kNormalizedDirection12(kDirection12 / kDistance)
+        {
+            
+        }
+        
+        fj::Particle*const Particle1;
+        fj::Particle*const Particle2;
+        const btVector3 kDirection12;
+        const btScalar kDistance;
+        const btVector3 kNormalizedDirection12;
+    };
 public:
     FineParticleWorld()
     : SpringK(1)
@@ -51,31 +70,40 @@ public:
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
      */
-    void addRigidBody(std::unique_ptr<btRigidBody> body, fj::CollisionGroup group, fj::CollisionFiltering mask);
+    void addRigidBody(std::unique_ptr<btRigidBody> body
+                      , fj::CollisionGroup group = fj::CollisionGroup::kNone
+                      , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
+                      );
     
     /**
      * この関数を使って登録した剛体はユーザが責任を持ってメモリを解放してください
      */
-    void addCollisionObject(btCollisionObject* body, fj::CollisionGroup group, fj::CollisionFiltering mask);
+    void addCollisionObject(btCollisionObject* body
+                            , fj::CollisionGroup group = fj::CollisionGroup::kNone
+                            , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
+                            );
     
-    void addParticle(std::unique_ptr<fj::Particle> body, fj::CollisionGroup group, fj::CollisionFiltering mask);
+    void addParticle(std::unique_ptr<fj::Particle> body
+                     , fj::CollisionGroup group = fj::CollisionGroup::kNone
+                     , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
+                     );
     
     void setGravity(const btVector3& gravity);
     
 private:
     
-    void updateParticleCollisionShapePosition(const btScalar timestep);
+    void accumulateFineParticleForce(const btScalar timestep);
     
-    void accumulateContactForce(const btScalar timestep);
+    void applyContactForce(const FineParticlesContactInfo& contactInfo);
     
-    void applyNormalComponentContactForce(fj::Particle*const particle1, fj::Particle*const particle2)const;
+    void applyNormalComponentContactForce(const FineParticlesContactInfo& contactInfo)const;
     
-    void applyTangentialComponentContactForce(fj::Particle*const particle1, fj::Particle*const particle2)const;
+    void applyTangentialComponentContactForce(const FineParticlesContactInfo& contactInfo)const;
     
     /** 換算質量を求める */
     btScalar computeReducedMass(const fj::Particle& particle1, const fj::Particle& particle2)const;
-    
-    void accumulateVandeerWaalsForce(const btScalar timestep);
+        
+    void applyVandeerWaalsForce(const FineParticlesContactInfo& contactInfo)const;
     
     void updateParticleCollapse(const btScalar timestep);
     

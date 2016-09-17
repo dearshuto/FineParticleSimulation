@@ -34,10 +34,10 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
     POV += "#include\"Colors.inc\"";
     POV += "camera {";
     POV += "   perspective";
-    POV += "    location <-50,50,0>";
+    POV += "    location <-10,10,0>";
     POV += "    angle 60";
     POV += "     up <0,1,0>";
-    POV += "    look_at <0,5,3>";
+    POV += "    look_at <3,4,3>";
     POV += "  }";
     
     
