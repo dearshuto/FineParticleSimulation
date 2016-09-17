@@ -14,8 +14,8 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
-
 #include "fine_particle/simulation/particle/particle.hpp"
+#include "fine_particle/simulation/bullet_algorithm/fine_particle_simulation_collision_configuration.hpp"
 
 namespace fj {
     class Particle;
@@ -31,7 +31,7 @@ class fj::FineParticleWorld
         FineParticlesContactInfo(fj::Particle*const particle1, fj::Particle*const particle2)
         : Particle1(particle1)
         , Particle2(particle2)
-        , kDirection12(particle2->getWorldTransform().getOrigin() - particle2->getWorldTransform().getOrigin())
+        , kDirection12(particle2->getPosition() - particle1->getPosition())
         , kDistance(kDirection12.norm())
         , kNormalizedDirection12(kDirection12 / kDistance)
         {
@@ -49,7 +49,7 @@ public:
     : SpringK(1)
     , E(10.0)
     , HamakerConstant(0)
-    , m_collisionConfiguration( new btDefaultCollisionConfiguration() )
+    , m_collisionConfiguration( new fj::FineParticleSimulationCollisionConfiguration() )
     , m_dispatcher( new btCollisionDispatcher( m_collisionConfiguration.get() ) )
     , m_pairCache( new btDbvtBroadphase() )
     , m_constraintSolver( new btSequentialImpulseConstraintSolver() )
@@ -96,7 +96,7 @@ private:
     
     void applyContactForce(const FineParticlesContactInfo& contactInfo);
     
-    void applyNormalComponentContactForce(const FineParticlesContactInfo& contactInfo)const;
+    void applyNormalComponentContactForce(const FineParticlesContactInfo& contactInfo, const btScalar overlap)const;
     
     void applyTangentialComponentContactForce(const FineParticlesContactInfo& contactInfo)const;
     

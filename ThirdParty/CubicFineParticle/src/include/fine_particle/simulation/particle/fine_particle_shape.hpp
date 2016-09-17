@@ -24,7 +24,7 @@ public:
     
     FineParticleShape(const btScalar radius)
     : Super(radius)
-    , m_rigidRadius(radius / 2.0)
+    , m_effectRangeRadius(radius * 2.0)
     {
         m_shapeType = CUSTOM_POLYHEDRAL_SHAPE_TYPE;
     }
@@ -34,8 +34,13 @@ public:
     btScalar getRigidRadius()const;
     
     btScalar getEffectRangeRadius()const;
+    
+    btScalar	getMargin()const override
+    {
+        return m_effectRangeRadius;
+    }
 private:
-    btScalar m_rigidRadius;
+    btScalar m_effectRangeRadius;
 };
 
 #endif /* fine_particle_shape_hpp */

@@ -130,6 +130,8 @@ public:
     {
         return m_mass;
     }
+    
+    btVector3 getPosition()const;
 private:
     void init();
 public:

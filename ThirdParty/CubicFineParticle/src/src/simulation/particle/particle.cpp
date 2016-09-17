@@ -76,3 +76,10 @@ btScalar fj::Particle::getRadius()const
 {
     return static_cast<const fj::FineParticleShape*>(getCollisionShape())->getRigidRadius();
 }
+
+btVector3 fj::Particle::getPosition()const
+{
+    btTransform trans;
+    m_motionState->getWorldTransform(trans);
+    return trans.getOrigin();
+}

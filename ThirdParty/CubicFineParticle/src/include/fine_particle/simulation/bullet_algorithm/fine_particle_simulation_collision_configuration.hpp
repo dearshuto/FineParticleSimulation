@@ -20,11 +20,10 @@ class fj::FineParticleSimulationCollisionConfiguration : public btDefaultCollisi
 {
     typedef btDefaultCollisionConfiguration Super;
 public:
-    FineParticleSimulationCollisionConfiguration() = delete;
     ~FineParticleSimulationCollisionConfiguration()
     {
-        m_convexConvexCreateFunc->~btCollisionAlgorithmCreateFunc();
-        btAlignedFree(	m_convexConvexCreateFunc);
+        m_finefine->~btCollisionAlgorithmCreateFunc();
+        btAlignedFree(m_finefine);
     }
     
     FineParticleSimulationCollisionConfiguration(const btDefaultCollisionConstructionInfo& constructionInfo = btDefaultCollisionConstructionInfo())

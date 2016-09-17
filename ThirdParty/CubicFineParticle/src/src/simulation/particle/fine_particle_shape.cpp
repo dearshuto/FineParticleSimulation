@@ -13,20 +13,19 @@ void fj::FineParticleShape::getAabb(const btTransform &t, btVector3 &aabbMin, bt
     // 親クラスのSphereShapeでは, 球に外接するAABBが設定される.
     // AABBを2倍に拡張しておくと, 粒子が少し離れた状態でブロードフェーズの判定が通る.
     //この離れる距離が影響範囲に対応する
-    // TODO: 2倍でいいのかな？動的に変形させるべきでは？
     
-    Super::getAabb(t, aabbMin, aabbMax);
-    
-    aabbMin *= btScalar(2.0);
-    aabbMax *= btScalar(2.0);
+    const btVector3& center = t.getOrigin();
+    btVector3 extent(getMargin(),getMargin(),getMargin());
+    aabbMin = center - extent;
+    aabbMax = center + extent;
 }
 
 btScalar fj::FineParticleShape::getRigidRadius()const
 {
-    return m_rigidRadius;
+    return Super::getRadius();
 }
 
 btScalar fj::FineParticleShape::getEffectRangeRadius()const
 {
-    return Super::getRadius();
+    return m_effectRangeRadius;
 }

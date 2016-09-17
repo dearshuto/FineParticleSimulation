@@ -36,27 +36,27 @@ int main(int argc, char** argv)
     std::unique_ptr<btRigidBody> body(new btRigidBody(rbInfo0));
     body->setRollingFriction(1);
     body->setFriction(1);
-    world->addRigidBody( std::move(body), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
-    world->SpringK = 100;
+    world->addRigidBody( std::move(body));
+    world->SpringK = 5;
     // レンダリング
     fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
     
 	auto initializeStart = std::chrono::system_clock::now();
-    for (int i = 0; i < 20; i++){
-        for (int k = 0; k < 20; k++){
-            for (int j = 0; j < 20; j++)
+    for (int i = 0; i < 5; i++){
+        for (int k = 0; k < 5; k++){
+            for (int j = 0; j < 5; j++)
             {
-                btVector3 position = btVector3(i, 1.2 + float(j), k);
-                btMatrix3x3 matrix;
-
-                matrix.setEulerZYX(45, 45, 45);
-                position = matrix * position;
-                position += btVector3(0, 1, 0);
+                btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
+//                btMatrix3x3 matrix;
+//
+//                matrix.setEulerZYX(45, 45, 45);
+//                position = matrix * position;
+//                position += btVector3(0, 1, 0);
                 
                 std::unique_ptr<fj::Particle> particle = std::move(
                                                                    fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position)
                                                                    );
-                world->addParticle(std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle);
+                world->addParticle(std::move(particle));
             }
         }
     }
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
     for (int i = 0; i < kStep; i++)
     {
 		simulationStart = std::chrono::system_clock::now();
-        world->stepSimulation(/*1.0/3600.0*/0.00001);
+        world->stepSimulation(1.0/480.0);
 		simulationEnd = std::chrono::system_clock::now();
 		simulationTime = simulationEnd - simulationStart;
 

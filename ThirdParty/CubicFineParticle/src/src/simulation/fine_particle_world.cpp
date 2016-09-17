@@ -14,6 +14,7 @@
 
 void fj::FineParticleWorld::stepSimulation(btScalar timestep)
 {
+    // なんかうまく動かないから後はよろしく
     accumulateFineParticleForce(timestep);
 
     updateParticleCollapse(timestep);
@@ -40,7 +41,7 @@ void fj::FineParticleWorld::accumulateFineParticleForce(const btScalar timestep)
             FineParticlesContactInfo contactInfo{particle1, particle2};
             
             applyContactForce(contactInfo);
-            applyVandeerWaalsForce(contactInfo);
+//            applyVandeerWaalsForce(contactInfo);
         }
     }
 
@@ -48,36 +49,33 @@ void fj::FineParticleWorld::accumulateFineParticleForce(const btScalar timestep)
 
 void fj::FineParticleWorld::applyContactForce(const FineParticlesContactInfo& contactInfo)
 {
-    applyNormalComponentContactForce(contactInfo);
-    applyTangentialComponentContactForce(contactInfo);
+    const auto particle1 = contactInfo.Particle1;
+    const auto particle2 = contactInfo.Particle2;
+    const auto kRadiusSum = particle1->getRadius() + particle2->getRadius();
+    const bool kIsOverlap = contactInfo.kDistance < kRadiusSum;
+    
+    if ( kIsOverlap )
+    {
+        const auto kOverlap = kRadiusSum - contactInfo.kDistance;
+
+        applyNormalComponentContactForce(contactInfo, kOverlap);
+        applyTangentialComponentContactForce(contactInfo);
+    }
 }
 
-void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticlesContactInfo& contactInfo)const
+void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticlesContactInfo& contactInfo,const btScalar overlap)const
 {
     constexpr double kPI = 3.141592653589793238462643383279502884;
     fj::Particle*const particle1 = contactInfo.Particle1;
     fj::Particle*const particle2 = contactInfo.Particle2;
-    const btTransform& kTransform1 = particle1->getWorldTransform();
-    const btTransform& kTransform2 = particle2->getWorldTransform();
     
-    const btVector3 kDirection12 = kTransform2.getOrigin() - kTransform1.getOrigin();
+    const btVector3 kDirection12 = contactInfo.kNormalizedDirection12;
     const btVector3 kDirection21 = -kDirection12;
-    const btScalar kNorm = kDirection12.norm();
-    const btScalar kDistance = (particle1->getRadius() + particle1->getRadius()) - kNorm;
+    const auto kDistance = contactInfo.kDistance;
     
-    if ( !std::isfinite(kDistance) || (kNorm == btScalar(0.0)) )
-    {
-        return;
-    }
-    
-    if (kDistance > 0)
-    {
-        // ばね
-        particle1->addContactForce(SpringK * kDistance * kDirection21.normalized() );
-        particle2->addContactForce(SpringK * kDistance * kDirection12.normalized() );
-        
-    }
-
+    // ばね
+    particle1->addContactForce(SpringK * kDistance * kDirection21 );
+    particle2->addContactForce(SpringK * kDistance * kDirection12 );
     
     // ダッシュポッド
     const btVector3 kRelativeVelocity12 = particle2->getLinearVelocity() - particle1->getLinearVelocity();
@@ -89,8 +87,8 @@ void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticles
                                                      / (std::pow(kPI, 2.0) * std::pow(std::log(E), 2.0))
                                                    );
     
-    particle1->addContactForce(-kEta * kRelativeVelocity21);
-    particle2->addContactForce(-kEta * kRelativeVelocity12);
+    particle1->addContactForce(kEta * kRelativeVelocity21);
+    particle2->addContactForce(kEta * kRelativeVelocity12);
 
 }
 
