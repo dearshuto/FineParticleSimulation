@@ -41,6 +41,11 @@ int main(int argc, char** argv)
     world->SpringK = 5;
     // レンダリング
     fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
+    auto& location =  output.getCameraInformationPtr()->Location;
+    
+    location.X = -45;
+    location.Y = 45;
+    location.Z = 45;
     
 	auto initializeStart = std::chrono::system_clock::now();
     for (int i = 0; i < 5; i++){
@@ -54,9 +59,7 @@ int main(int argc, char** argv)
 //                position = matrix * position;
 //                position += btVector3(0, 1, 0);
                 
-                std::unique_ptr<fj::Particle> particle = std::move(
-                                                                   fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position)
-                                                                   );
+                std::unique_ptr<fj::Particle> particle = fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position);
                 world->addParticle(std::move(particle));
             }
         }
