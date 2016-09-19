@@ -10,14 +10,16 @@
 #define povray_output_hpp
 
 #include <memory>
-#include <vector>
 
 namespace fj {
     class FineParticleWorld;
-    class Particle;
     class POVrayOutput;
 }
 
+/**
+ * シーンをPOV-Ray形式に変換する.
+ * x-z平面に乗っている無限平面と粒子をレンダリングするシーンを出力する.
+ */
 class fj::POVrayOutput
 {
 private:
