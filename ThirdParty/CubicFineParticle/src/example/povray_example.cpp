@@ -10,6 +10,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <string>
+#include <memory>
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/povray/povray_output.hpp"
@@ -88,6 +89,15 @@ int main(int argc, char** argv)
 		output.saveToFile(std::to_string(i) + ".pov");
     }
     
+    auto destructStart = std::chrono::system_clock::now();
+    world.reset();
+    auto destructTime = std::chrono::system_clock::now() - destructStart;
+    
+    std::cout << "Destruct = "
+    << std::chrono::duration_cast<std::chrono::milliseconds>(destructTime).count() / 1000.0
+    << "sec."
+    << std::endl;
+
     
     return 0;
 }
