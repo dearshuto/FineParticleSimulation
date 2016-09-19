@@ -1,0 +1,170 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   masterabs.sty (UTF)
+%   Style File for 修士論文発表会用アブストラクト    
+%   Version 1.0 　                                             
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+\topmargin=-1.0cm
+\headheight=0cm
+\headsep=1cm  \footskip=1.5cm
+\oddsidemargin=-0.55cm  \evensidemargin=-0.55cm
+\textheight=23.9cm  \textwidth=17cm
+\columnsep=0.8cm
+\setlength{\footskip}{1.5cm}
+\setlength{\footnotesep}{0.3cm}
+%
+\renewcommand\footnoterule{%
+  \kern 7\p@ \hrule width 7pc \kern 2.6\p@}
+%
+\long\def\@makefntext#1{\parindent 1em\noindent%
+\hbox to 2em{\hss $^{\@thefnmark}$~}%
+\@tempdima\columnwidth\advance\@tempdima-2em
+\parbox[t]{\@tempdima}{#1}}
+
+%sectionの再定義%
+
+\renewcommand{\section}{%
+	\@startsection{section}{1}{\z@}%
+	{.3\Cvs \@plus.5\Cdp \@minus.2 \Cdp}%
+	{.1\Cvs \@plus.3\Cdp}%
+	{\reset@font\bfseries}}
+
+%subsectionの再定義%
+
+\renewcommand{\subsection}{%
+	\@startsection{subsection}{1}{\z@}%
+	{.2\Cvs \@plus.5\Cdp \@minus.2 \Cdp}%
+	{.1\Cvs \@plus.3\Cdp}%
+	{\reset@font\bfseries}}
+
+
+\renewcommand{\subsubsection}{%
+	\@startsection{subsubsection}{1}{\z@}%
+	{.1\Cvs \@plus.5\Cdp \@minus.2 \Cdp}%
+	{.1\Cvs \@plus.3\Cdp}%
+	{\reset@font\bfseries}}
+
+%\renewcommand{\thesection}{\@Roman\c@section}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%-----------------------------------------------------------
+% j-title
+%-----------------------------------------------------------
+%
+\def\title#1{
+\begin{center}
+\begin{tabular}{c}
+ {\Large {\bf #1}\footnotemark} \\
+\omit \hskip 0.8\textwidth \\
+\end{tabular}\\%
+\end{center}
+\vspace{0.3cm}
+}
+
+\def\2ltitle#1#2{
+\begin{center}
+\begin{tabular}{c}
+{\Large {\bf #1}} \\
+{\Large {\bf #2}\footnotemark} \\
+\omit \hskip 0.8\textwidth \\
+\end{tabular}\\%
+\end{center}
+\vspace{0.3cm}
+}
+
+
+%-----------------------------------------------------------
+% author
+%-----------------------------------------------------------
+
+\newenvironment{preliminary}{\large}{\hspace{\textwidth}}%
+\def\profname#1{%
+\hfill\begin{tabular}{l}
+指導教員\hspace{-0.3em}：{ #1}\\
+\end{tabular}\\
+}
+\def\name#1#2{%
+\hfill\begin{tabular}{l}
+学籍番号\hspace{-0.3em}：{ #1 }\quad 氏名\hspace{-0.3em}：{ #2}\\
+\end{tabular}\\ 
+}
+
+
+%--------------------------------------------------------------
+% footnotemarkの定義
+%-------------------------------------------------------------
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\setcounter{footnote}{1}
+
+\def\init_fnmark{%
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
+}%
+
+\def\no_tlfnmark{%
+\setcounter{footnote}{-1}%
+}%
+
+%---------------------------------------------------------
+% e-title
+%---------------------------------------------------------
+%
+\def\etitle#1{%
+        \footnotetext{{\small%
+        #1
+        }}
+\init_fnmark%
+}
+
+%
+%---------------- table, figure, caption ------------------
+\setlength\abovecaptionskip{5\p@}
+\setlength\belowcaptionskip{0\p@}
+%
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+  \sbox\@tempboxa{#1~ #2}%
+  \ifdim \wd\@tempboxa >\hsize
+    #1~ #2\par
+  \else
+    \global \@minipagefalse
+    \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi
+  \vskip\belowcaptionskip}
+\renewcommand{\figurename}{図}
+\renewcommand{\tablename}{表}
+
+%
+\def\initenglish{
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tab.}
+\renewcommand{\refname}{References}
+}
+
+%
+%--------  bibliography ------------------------------------
+\renewcommand\@openbib@code{%
+      \advance\leftmargin\bibindent
+      \itemindent -\bibindent
+      \listparindent \itemindent
+      \parsep \z@
+      \itemsep 0pt
+      }%
+\renewcommand\newblock{\par}
+%
+%--------　Eqnarray, Eqnarray* の定義 ----------------------
+\newenvironment{Eqnarray}%
+  {\arraycolsep 0.14em\begin{eqnarray}}{\end{eqnarray}}
+\newenvironment{Eqnarray*}%
+  {\arraycolsep 0.14em\begin{eqnarray*}}{\end{eqnarray*}}
+%
+
+
+
+
+
+
+
+
+
