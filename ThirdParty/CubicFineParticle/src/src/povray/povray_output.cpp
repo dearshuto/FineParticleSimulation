@@ -30,19 +30,45 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
         std::cout << "The registerd world instance is invalid" << std::endl;
     }
     
-    std::string POV;
+    const auto& kPosition = getCameraInformation().Location;
+    const auto& kLookAt = getCameraInformation().LookAt;
+    
+    std::string POV("");
     POV += "#include\"Colors.inc\"";
     POV += "camera {";
     POV += "   perspective";
-    POV += "    location <-10,10,0>";
+    POV +=("    location <"
+           + std::to_string(kPosition.X)
+           + std::string(",")
+           + std::to_string(kPosition.Y)
+           + std::string(",")
+           + std::to_string(kPosition.Z)
+           + std::string(">")
+           );
+           
     POV += "    angle 60";
     POV += "     up <0,1,0>";
-    POV += "    look_at <3,4,3>";
+    POV +=("    look_at <"
+           + std::to_string(kLookAt.X)
+           + std::string(",")
+           + std::to_string(kLookAt.Y)
+           + std::string(",")
+           + std::to_string(kLookAt.Z)
+           + std::string(">")
+           );
+    
     POV += "  }";
     
     
     POV += "light_source{";
-    POV += "    <-50, 50, 0>";
+    POV +=("<"
+           + std::to_string(kPosition.X)
+           + std::string(",")
+           + std::to_string(kPosition.Y)
+           + std::string(",")
+           + std::to_string(kPosition.Z)
+           + std::string(">")
+           );
     POV += "    color 1.0";
     POV += "}";
     
