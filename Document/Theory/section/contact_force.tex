@@ -1,0 +1,111 @@
+ \section{粉体の離散化}
+ シミュレーションに使用する粉体の形状は粉体工学の世界でも研究の対象となっている.
+ 広く使用されているのはもっとも計算がシンプルで高速な処理が可能な球体であるが, それ以外の形状を利用したシミュレーションについての研究が存在する.
+ 鈴木らは穀粒のシミュレーションには楕円体を使用したシミュレーションが効果的であるということを提唱した\cite{elipsoid_collision}.
+ Frerasらはキューブを利用したシミュレーションの有用性を提唱した\cite{cubic_collision}.
+ これらの研究では, 複雑な形状に対しても球体と同様のアプローチを取るための手法が提案されている.\\
+ しかし, グラフィックスの分野では厳密な粒子形状を追求する必要性はない.
+ そこで粒子形状は球体を利用するものとする.
+  
+ \section{接触力の計算}
+
+  \subsection{レオロジーモデル}
+  簡単な力学モデルを組み合わせることで複雑な力学現象をモデル化したものがレオロジーモデルであり, 現象論的なアプローチに分類される. \\
+  粉体のシミュレーションに広く使用されているのはフォークト(Voigt) モデルである.
+  これは粒子間にばねとダッシュポッドが並列に接続していると考える, 粒子の接触力に注目したモデルである.
+  粒子間にばねとダッシュポッドが直列に接続していると考えるマックスウェル(Maxwell)モデルもあるが, これは粉体の圧縮現象に注目したモデルである.
+  フォークトモデルによってモデル化すると, 粒子間に働く接触力は以下の式で与えられる.
+
+  \begin{flalign}
+   \label{eq:base_equation}
+   {\boldsymbol F}  &=  {\boldsymbol F}_{spring} + {\boldsymbol F}_{dash-pod}&\\
+   {\boldsymbol F}_{spring} &=  -{k}{\boldsymbol \delta}_{ij} &\\
+   {\boldsymbol F}_{dash-pod} &=  -\eta{\boldsymbol v}_{C_{ij}}&\\
+   \label{eq:voigt}
+   {\boldsymbol \delta_{ij} } &: めり込み量 \nonumber \\
+   \eta &: 粘性減衰係数 \nonumber \\
+   {\boldsymbol {\boldsymbol v} }_{ij} &: 相対速度 \nonumber
+  \end{flalign}
+
+
+  この式を用いて法線方向に働く力と接線方向に働く力を計算する.
+  そして, それぞれ並進運動と回転運動に寄与する成分を取り出す.
+
+  \begin{flalign}
+   F_n &=  [( {\boldsymbol F}_{spring} + {\boldsymbol F}_{dash-pod}) \cdot {{\boldsymbol r}_i}'] {{\boldsymbol r}_i}'\\
+   F_t &= {\boldsymbol r}_i \times ( {\boldsymbol F}_{spring} + {\boldsymbol F}_{dash-pod})
+  \end{flalign}
+  ここで, ${\boldsymbol r}_i$は接触点の中心から見た相対位置であり, ${\boldsymbol r}_i' = -{\boldsymbol r}_i$である.\\
+  粒子形状を球体でモデル化した場合, 接触点の法線は必ず衝突した粒子の中心を結ぶ直線上にある.
+  そのため, フォークトモデルによって計算した力を分解する必要はない.
+
+  
+   \subsubsection{ばね}
+   粒子間の反発や弾性を表現するモデル.
+   ばね係数kは経験にもとづいて決定することが多い.
+   粒子系に対するオーバーラップが0.1\%〜1.0\%程度にすると粉体の挙動を適切に再現できるという研究結果がある\cite{dem_spring_coefficient}.
+   注目する現象（例えば輸送機による大掛かりな粉体の移動)が粒子間の弾力に関係ない場合, その現象を顕著にするために, さらに弱いばね係数を用いることもある.\\
+   また, ばね係数は粉体の相互作用を計算するときの力の方向に関係なく, 一定の値を使用して構わないとされている.
+   
+   \subsubsection{めり込み量}
+   ばねが粒子に加える力を計算するには粒子間のめり込み量が必要である.
+   $ {\boldsymbol n}_{C_{ij}}$ を接触点における法線とすると, 法線方向のめり込み量は以下の式で与えられる.
+   \begin{flalign}
+    {\boldsymbol \delta_{t_{ij}} } & = k\delta_{ij_n }{\boldsymbol n}_{C_{ij}}
+   \end{flalign}
+
+   接線方向のめり込み量は, 衝突が生じてからの接線方向の移動を足し合せることで与えられる.
+   \begin{flalign} 
+    {\boldsymbol \delta}^n_{ij} = |{\boldsymbol \delta}^{n-1}_{ij}| {\boldsymbol t}_{ij} + {\boldsymbol v}^n_t \Delta t
+   \end{flalign}
+   
+   ${\boldsymbol t}_{ij}$は接線方向の時間変化に対応するためのベクトルである.
+   \begin{flalign} 
+    {\boldsymbol t}_{ij} =  \frac{ {\boldsymbol \delta}^{n-1}_t}{| {\boldsymbol \delta}^{n-1}_t|}
+   \end{flalign}  
+   
+   
+   \subsubsection{ダッシュポッド}
+   個体粒子間の接触および衝突による, エネルギー減衰の現象, すなわち粘性をモデル化したもの.
+   粘性減衰係数はばね係数と関連付けられた以下の式で与えられる
+   
+   \begin{flalign}
+    \eta  &= -2\ln e \sqrt{ \frac{mk}{\pi^2 + (\ln e)^2} }\\
+    m&:質量 \nonumber\\
+    k&:ばね係数 \nonumber\\
+    e&: 反発係数 \nonumber
+   \end{flalign}
+   
+   質量が異なる粒子による衝突では以下の式で定義される換算質量を使用する.
+   \begin{flalign}
+    m = \frac{m_i m_j}{m_i + m_j}
+   \end{flalign}
+   
+   粉体の内部はほとんど動かないので, 1つの大きな粒子であると考えても問題ない.
+   将来的には内部と外部とで大きさが違う粒子モデルを利用することで計算速度の向上を図りたい.
+   
+  \subsection{相対速度}
+  ダッシュポッドが粒子に与える力を計算するには粒子間の相対速度が必要である.\\
+  法線方向の相対速度は, 粒子の相対速度の法線方向の成分を取り出せば良い.
+  \begin{flalign} 
+   {\boldsymbol {\boldsymbol v} }_{n_{ij}} &= [({\boldsymbol v}_i - {\boldsymbol v}_j) \cdot {\boldsymbol n}_{C_{ij}}]  {\boldsymbol n}_{C_{ij}}
+  \end{flalign}
+
+
+ 接線方向の相対速度は, 相対速度から法線成分を抜いて, 回転運動成分を足したものである.
+ \begin{flalign}
+  {\boldsymbol v}_{t_{ij}} = {\boldsymbol v}_{ij} 
+  -  ( {\boldsymbol v}_{ij} \cdot {\boldsymbol n}_{C_{ij}} ) {\boldsymbol n}_{C_{ij}} \nonumber \\
+  + (r_i{\boldsymbol \omega}_i   + r_j{\boldsymbol \omega}_j)\times {\boldsymbol n}_{C_{ij}} 
+ \end{flalign}
+ ここで, $r_i$は粒子$i$の半径であり, $\omega_i$は粒子$i$の角速度である.
+
+
+ \subsection{衝突点の算出}
+ 球体の場合, 対称性を考慮すると, 以下の式で衝突点が与えられる.
+ \begin{flalign}
+  \delta_{ij} = |{\boldsymbol x_i} - {\boldsymbol x}_j| - (r_i + r_j)\\
+  {\boldsymbol n}_{C_{ij}} = ({\boldsymbol x}_j -{\boldsymbol x}_i)_{normalize}
+ \end{flalign}
+ ここで, $x_i$は粒子$i$の中心の座標である.\\
+ 球体以外を利用する場合, 粒子がオーバーラップしている領域の接戦を利用することで衝突点が検出可能なアルゴリズムが提案されている\cite{elipsoid_collision}.

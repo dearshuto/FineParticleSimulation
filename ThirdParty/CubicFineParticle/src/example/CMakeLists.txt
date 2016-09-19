@@ -1,0 +1,17 @@
+PROJECT(RayTracer)
+
+add_executable(povray_example povray_example.cpp)
+target_link_libraries( povray_example
+	cubic_fine_particle
+	BulletDynamics
+	BulletCollision
+	LinearMath
+)
+
+add_executable(collapse_visualization collapse_visualization.cpp)
+target_link_libraries( collapse_visualization
+	cubic_fine_particle
+	BulletDynamics
+	BulletCollision
+	LinearMath
+)

@@ -15,5 +15,6 @@ class FINEPARTICLE_API AParticleStaticMeshActor : public AStaticMeshActor
 	
     AParticleStaticMeshActor();
 	
-	
+public:
+    void setRadius(const float radius);
 };
