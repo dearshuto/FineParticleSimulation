@@ -28,6 +28,7 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
     if ( !kWorld )
     {
         std::cout << "The registerd world instance is invalid" << std::endl;
+        return false;
     }
     
     const auto& kPosition = getCameraInformation().Location;
