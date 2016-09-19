@@ -16,6 +16,9 @@ namespace fj {
     class MohrStressCircle;
 }
 
+/**
+ * 粉体層における崩壊条件を決定するソルバ
+ */
 class fj::Particle::CollapseDetector
 {
 public:
