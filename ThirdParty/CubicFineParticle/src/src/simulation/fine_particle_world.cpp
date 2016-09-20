@@ -157,20 +157,20 @@ void fj::FineParticleWorld::updateAllObjectTransform(const btScalar timestep)
     m_world->stepSimulation(timestep, 1/*max substeps*/, timestep);
 }
 
-void fj::FineParticleWorld::addCollisionObject(btCollisionObject *body, fj::CollisionGroup group, fj::CollisionFiltering mask)
+void fj::FineParticleWorld::addCollisionObject(btCollisionObject *body)
 {
-    m_world->addCollisionObject(body, static_cast<uint16_t>(group), static_cast<uint16_t>(mask) );
+    m_world->addCollisionObject(body);
 }
 
-void fj::FineParticleWorld::addRigidBody(std::unique_ptr<btRigidBody> body, fj::CollisionGroup group, fj::CollisionFiltering mask)
+void fj::FineParticleWorld::addRigidBody(std::unique_ptr<btRigidBody> body)
 {
-    m_world->addRigidBody(body.get(), static_cast<uint16_t>(group), static_cast<uint16_t>(mask) );
+    m_world->addRigidBody(body.get());
     m_rigidBody.push_back( std::move(body) );
 }
 
-void fj::FineParticleWorld::addParticle(std::unique_ptr<fj::Particle> body, fj::CollisionGroup group, fj::CollisionFiltering mask)
+void fj::FineParticleWorld::addParticle(std::unique_ptr<fj::Particle> body)
 {
-    m_world->addRigidBody(body.get(), static_cast<uint16_t>(group), static_cast<uint16_t>(mask) );
+    m_world->addRigidBody(body.get() );
     m_particles.push_back( std::move(body) );
 }
 
