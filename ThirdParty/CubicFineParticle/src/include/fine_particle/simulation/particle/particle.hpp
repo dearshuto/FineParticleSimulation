@@ -37,7 +37,8 @@ public:
     , m_discretizedShapeType(shapeType)
     , m_mass(info.m_mass)
     {
-        init();
+        // アップキャストするために自分の情報をもたせておく
+        m_internalType = btCollisionObject::CO_RIGID_BODY | btCollisionObject::CO_USER_TYPE;
     }
     
     static std::unique_ptr<fj::Particle> generateParticle(const fj::DiscritizedParticleShape::ShapeType type, const btVector3& position);
@@ -96,8 +97,7 @@ public:
     }
     
     btVector3 getPosition()const;
-private:
-    void init();
+    
 public:
     static fj::FineParticleShape CollisionShape;
 private:

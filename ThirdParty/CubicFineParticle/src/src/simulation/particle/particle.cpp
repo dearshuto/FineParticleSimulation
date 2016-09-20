@@ -34,12 +34,6 @@ std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const fj::Discritiz
     return particle;
 }
 
-void fj::Particle::init()
-{
-    // アップキャストするために自分の情報をもたせておく
-    m_internalType = btCollisionObject::CO_RIGID_BODY | btCollisionObject::CO_USER_TYPE;
-}
-
 bool fj::Particle::isCollapse()const
 {
     const auto& kCollapseDetector = m_collapseDetector.lock();
