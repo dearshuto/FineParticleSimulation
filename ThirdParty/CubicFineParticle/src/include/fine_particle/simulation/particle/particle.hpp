@@ -101,18 +101,22 @@ public:
 public:
     static fj::FineParticleShape CollisionShape;
 private:
-    
+
+    /** Bulelt Physicsで必要なインスタンスのメモリ管理 */
     std::unique_ptr<btMotionState> m_motionState;
     
-    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
+    btScalar m_mass;
     
+    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
+
+    /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
     ContactForceContainer m_contactForceContainer;
     
+    /** 粉体崩壊曲線を定義するのに必要なパラメータ */
     fj::WarrenSpringParameter m_warrenSpringParameter;
     
+    /** 崩壊判定のアルゴリズム */
     std::weak_ptr<CollapseDetector> m_collapseDetector;
-    
-    btScalar m_mass;
 };
 
 #endif /* particle_hpp */
