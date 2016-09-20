@@ -6,6 +6,39 @@
 //
 //
 
+/**
+ * @mainpage 粉体シミュレーション
+ * 粉の挙動を再現するためのプログラムです.
+ *
+ * @section main_sec 粉体を再現するために必要なこと
+ * 1. 力学計算
+ * 2. 衝突判定
+ *
+ * これらを実現するためにBullet Physicsを導入します.
+ * Bullet Physics の特徴
+ * 1. 力学計算に必要なインタフェースが一通り揃っている
+ * 2. 衝突判定が高速
+ * 3. 拡張しやすい
+ *
+ * @section main_sec 力学計算
+ * 粉体のシミュレーションは独自のアルゴリズムを導入する.
+ * そのためには, 以下の3つの衝突を区別して検出しなくてはならない.
+ * 1. 粒子同士のオーバーラップ
+ * 2. 近傍粒子の検出
+ * 3. 粒子と他の物体との衝突
+ *
+ * @subsection main_subsec Bullet Physicsの衝突判定アルゴリズム
+ * Bullet PhysicsではAABB木を利用した衝突判定を行っている.
+ * ブロードフェーズでは衝突形状のAABBで判定を行い, ナローフェーズで実際の形状を利用した衝突判定を行う.
+ *
+ * @par 粉体シミュレーションへの拡張
+ * 粉体粒子同士のブロードフェーズにおける衝突はBullet Physicsに任せ, ナローフェーズを独自に実装するという手段をとる.
+ * AABBは通常, 物体に接するように定義されるが, あえて大きめのAABBにすることで近傍粒子との衝突も同時に検出する. ←これ工夫ポイント.
+ * すなわち, Bullet Physicsを以下のようにカスタマイズする.
+ * 1. ナローフェーズにおける粒子同士の衝突は何もしない
+ * 2. 粒子のAABBを大きくする
+ */
+
 #ifndef fine_particle_world_hpp
 #define fine_particle_world_hpp
 
@@ -25,7 +58,7 @@ namespace fj {
 class fj::FineParticleWorld
 {
     using TimeStep = btScalar;
-    
+
     struct FineParticlesContactInfo
     {
         FineParticlesContactInfo(fj::Particle*const particle1, fj::Particle*const particle2)
@@ -35,9 +68,9 @@ class fj::FineParticleWorld
         , kDistance(kDirection12.norm())
         , kNormalizedDirection12(kDirection12 / kDistance)
         {
-            
+
         }
-        
+
         fj::Particle*const Particle1;
         fj::Particle*const Particle2;
         const btVector3 kDirection12;
@@ -58,15 +91,15 @@ public:
               , m_constraintSolver.get()
               , m_collisionConfiguration.get())
               )
-    
+
     {
         m_world->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     }
-    
+
     ~FineParticleWorld() = default;
-    
+
     void stepSimulation(btScalar timestep);
-    
+
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
      */
@@ -74,7 +107,7 @@ public:
                       , fj::CollisionGroup group = fj::CollisionGroup::kNone
                       , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
                       );
-    
+
     /**
      * この関数を使って登録した剛体はユーザが責任を持ってメモリを解放してください
      */
@@ -82,56 +115,56 @@ public:
                             , fj::CollisionGroup group = fj::CollisionGroup::kNone
                             , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
                             );
-    
+
     void addParticle(std::unique_ptr<fj::Particle> body
                      , fj::CollisionGroup group = fj::CollisionGroup::kNone
                      , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
                      );
-    
+
     void setGravity(const btVector3& gravity);
-    
+
 private:
-    
+
     void accumulateFineParticleForce(const btScalar timestep);
-    
+
     void applyContactForce(const FineParticlesContactInfo& contactInfo);
-    
+
     void applyNormalComponentContactForce(const FineParticlesContactInfo& contactInfo, const btScalar overlap)const;
-    
+
     void applyTangentialComponentContactForce(const FineParticlesContactInfo& contactInfo)const;
-    
+
     /** 換算質量を求める */
     btScalar computeReducedMass(const fj::Particle& particle1, const fj::Particle& particle2)const;
-        
+
     void applyVandeerWaalsForce(const FineParticlesContactInfo& contactInfo)const;
-    
+
     void updateParticleCollapse(const btScalar timestep);
-    
+
     void updateAllObjectTransform(const btScalar timestep);
-    
+
 public:
     const std::vector<std::unique_ptr<fj::Particle>>& getParticles()const
     {
         return std::cref(m_particles);
     }
-    
+
     /** レオロジーモデルで使用するばね係数 */
     double SpringK;
-    
+
     /** 粒子間の反発力 */
     double E;
-    
+
     double HamakerConstant;
 private:
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
-    
-    
+
+
     //--Bullet Physicsのフレームワークを利用するためのインスタンス--//
-    
+
     /** Bullet Physicsは生ポインタで全ての処理をするので, メモリの管理はユーザ側でしなくてはならない
      * Bullet Physicsの中でシミュレーション対象となる剛体のメモリ管理用のコンテナ */
     std::vector<std::unique_ptr<btRigidBody>> m_rigidBody;
-    
+
     /** Bullet Physicsを利用するために最低限必要なインスタンス */
     std::unique_ptr<btCollisionConfiguration> m_collisionConfiguration;
     std::unique_ptr<btDispatcher> m_dispatcher;
