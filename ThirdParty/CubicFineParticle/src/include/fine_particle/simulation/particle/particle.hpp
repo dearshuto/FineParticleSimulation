@@ -12,47 +12,11 @@
 #include <memory>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
-#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include "fine_particle/simulation/mohr_stress_circle.hpp"
 #include "discritized_particle_shape.hpp"
 
 
 namespace fj {
-    
-    enum class CollisionGroup : uint16_t
-    {
-        kNone = 1,
-        
-        /**
-         * 普通の物体はこれ
-         */
-        kRigid = 2,
-        
-        /**
-         * 粒子の剛体部分. kRigidと衝突する.
-         */
-        kRigidParticle = 4,
-    };
-    
-    /**
-     * fj::CollisionFilteringをもとにした衝突の組合せ
-     */
-    enum class CollisionFiltering : uint16_t
-    {
-        kNone = 1,
-        
-        /** 
-         * 剛体は剛体同士の衝突と粒子との衝突が起きる. さらに剛体表面からのファンデルワールス力を検知するためにEffectRangeも検出する
-         */
-        kRigid = (static_cast<uint16_t>(CollisionGroup::kRigid)
-                  | static_cast<uint16_t>(CollisionGroup::kRigidParticle)),
-        
-        /**
-         * 粒子間に働く力は独自計算をするので, 粒子間の衝突だけは検知させない
-         */
-        kRigidParticle = (static_cast<uint16_t>(CollisionGroup::kRigid)),
-    };
-    
     class FineParticleShape;
     class Particle;
 }
@@ -73,7 +37,8 @@ public:
     , m_discretizedShapeType(shapeType)
     , m_mass(info.m_mass)
     {
-        init();
+        // アップキャストするために自分の情報をもたせておく
+        m_internalType = btCollisionObject::CO_RIGID_BODY | btCollisionObject::CO_USER_TYPE;
     }
     
     static std::unique_ptr<fj::Particle> generateParticle(const fj::DiscritizedParticleShape::ShapeType type, const btVector3& position);
@@ -132,23 +97,26 @@ public:
     }
     
     btVector3 getPosition()const;
-private:
-    void init();
+    
 public:
     static fj::FineParticleShape CollisionShape;
 private:
-    
+
+    /** Bulelt Physicsで必要なインスタンスのメモリ管理 */
     std::unique_ptr<btMotionState> m_motionState;
     
-    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
+    btScalar m_mass;
     
+    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
+
+    /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
     ContactForceContainer m_contactForceContainer;
     
+    /** 粉体崩壊曲線を定義するのに必要なパラメータ */
     fj::WarrenSpringParameter m_warrenSpringParameter;
     
+    /** 崩壊判定のアルゴリズム */
     std::weak_ptr<CollapseDetector> m_collapseDetector;
-    
-    btScalar m_mass;
 };
 
 #endif /* particle_hpp */

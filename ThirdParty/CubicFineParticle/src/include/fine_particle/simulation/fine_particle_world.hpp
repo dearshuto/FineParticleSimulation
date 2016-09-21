@@ -103,23 +103,14 @@ public:
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
      */
-    void addRigidBody(std::unique_ptr<btRigidBody> body
-                      , fj::CollisionGroup group = fj::CollisionGroup::kNone
-                      , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
-                      );
+    void addRigidBody(std::unique_ptr<btRigidBody> body);
 
     /**
      * この関数を使って登録した剛体はユーザが責任を持ってメモリを解放してください
      */
-    void addCollisionObject(btCollisionObject* body
-                            , fj::CollisionGroup group = fj::CollisionGroup::kNone
-                            , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
-                            );
+    void addCollisionObject(btCollisionObject* body);
 
-    void addParticle(std::unique_ptr<fj::Particle> body
-                     , fj::CollisionGroup group = fj::CollisionGroup::kNone
-                     , fj::CollisionFiltering mask = fj::CollisionFiltering::kNone
-                     );
+    void addParticle(std::unique_ptr<fj::Particle> body);
 
     void setGravity(const btVector3& gravity);
 
