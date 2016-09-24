@@ -4,11 +4,16 @@
 import shutil
 import os
 import glob
+import sys
 
-shutil.rmtree(os.getcwd() + '/CubicFineParticle/Libraries')
-os.mkdir(os.getcwd() + '/CubicFineParticle/Libraries')
+currentDirectory = os.getcwd()
 
+# FineParticleSimulation用のディレクトリを作成
+if not os.path.exists(currentDirectory + '/CubicFineParticle/Includes'):
+        os.mkdir(currentDirectory + '/CubicFineParticle/Includes')
+        os.mkdir(currentDirectory+ '/CubicFineParticle/Libraries')
 
+# Bullet Physics用のディレクトリを作成
 if not os.path.exists(os.getcwd() + '/BulletPhysics'):
 	os.makedirs(os.getcwd() + '/BulletPhysics/Includes')
 	os.makedirs(os.getcwd() + '/BulletPhysics/Libraries')
@@ -16,15 +21,21 @@ if not os.path.exists(os.getcwd() + '/BulletPhysics'):
 
 # my code
 path = 'CubicFineParticle/src/'
+
+# ヘッダのコピー
 target = os.path.join(os.getcwd(), path + 'include/')
 at = os.path.join(os.getcwd(), 'CubicFineParticle/Includes')
 
-# コードを階層を維持したままコピー
-try:
-    shutil.copytree(target, at)
-except OSError:
-    shutil.rmtree(at)
-    shutil.copytree(target, at)
+if not os.path.exists(target):
+        print target
+        sys.exit()
+else:
+        # コードを階層を維持したままコピー
+        try:
+                shutil.copytree(target, at)
+        except OSError:
+                shutil.rmtree(at)
+                shutil.copytree(target, at)
 
 # .libをコピー
 libpath = os.path.join(os.getcwd(), path + 'lib/Release')
