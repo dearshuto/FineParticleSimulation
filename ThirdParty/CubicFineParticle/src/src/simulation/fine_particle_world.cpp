@@ -14,7 +14,6 @@
 
 void fj::FineParticleWorld::stepSimulation(btScalar timestep)
 {
-    // なんかうまく動かないから後はよろしく
     accumulateFineParticleForce(timestep);
 
     updateParticleCollapse(timestep);
