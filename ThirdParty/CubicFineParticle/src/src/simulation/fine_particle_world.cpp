@@ -121,7 +121,7 @@ void fj::FineParticleWorld::applyVandeerWaalsForce(const FineParticlesContactInf
     
     // 粒子の表面間距離
     const btScalar kH = std::max(
-                                 btScalar(0.000004) /*発散防止のクランプ*/
+                                 btScalar(0.000004) //*発散防止のクランプ*/
                                  , kDistance - (kRadius1 + kRadius2)
                                  );
     
