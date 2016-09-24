@@ -41,7 +41,7 @@ void fj::FineParticleWorld::accumulateFineParticleForce(const btScalar timestep)
             FineParticlesContactInfo contactInfo{particle1, particle2};
             
             applyContactForce(contactInfo);
-//            applyVandeerWaalsForce(contactInfo);
+            applyVandeerWaalsForce(contactInfo);
         }
     }
 
