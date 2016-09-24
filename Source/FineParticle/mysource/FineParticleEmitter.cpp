@@ -31,7 +31,7 @@ void AFineParticleEmitter::BeginPlay()
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, m_planeMotionState.get(), m_plane.get(),localInertia);
     std::unique_ptr<btRigidBody> plane(new btRigidBody(rbInfo));
     
-    m_world.addRigidBody(std::move(plane), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
+    m_world.addRigidBody(std::move(plane));
 
     
     m_collapseDetector = std::make_shared<fj::Particle::CollapseDetector>();
@@ -79,10 +79,10 @@ void AFineParticleEmitter::CreateParticle(const FVector& position)
     visibleParticle->setRadius( 10 * particle->getRadius() );
     
     m_particles.Push(visibleParticle);
-    m_world.addParticle( std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle );
+    m_world.addParticle( std::move(particle) );
 }
 
 void AFineParticleEmitter::SetSimulationSpringK(const float SimulationSpringK)
 {
-    m_world.kSpringK = SimulationSpringK;
+    m_world.SpringK = SimulationSpringK;
 }
