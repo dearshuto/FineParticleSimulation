@@ -51,7 +51,7 @@ public:
     
     void rebuildMohrCircle();
     
-    bool hasIntersectionPoint(const fj::WarrenSpringParameter warrenSpringParameter)const;
+    bool hasIntersectionPoint(const fj::WarrenSpringParameter& warrenSpringParameter)const;
     
     const Position2D& getCenter()const
     {

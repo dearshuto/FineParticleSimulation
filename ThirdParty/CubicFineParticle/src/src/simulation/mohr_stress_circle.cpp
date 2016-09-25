@@ -31,7 +31,7 @@ void fj::MohrStressCircle::rebuildMohrCircle()
     m_radius = (kMax - kMin) / btScalar(2.);
 }
 
-bool fj::MohrStressCircle::hasIntersectionPoint(const fj::WarrenSpringParameter warrenSpringParameter)const
+bool fj::MohrStressCircle::hasIntersectionPoint(const fj::WarrenSpringParameter& warrenSpringParameter)const
 {
     
     
