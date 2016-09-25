@@ -34,8 +34,8 @@ public:
     Particle(const fj::DiscritizedParticleShape::ShapeType shapeType, const btRigidBodyConstructionInfo& info, std::unique_ptr<btMotionState> motionState)
     : btRigidBody(info)
     , m_motionState( std::move(motionState) )
-    , m_discretizedShapeType(shapeType)
     , m_mass(info.m_mass)
+    , m_discretizedShapeType(shapeType)
     {
         // アップキャストするために自分の情報をもたせておく
         m_internalType = btCollisionObject::CO_RIGID_BODY | btCollisionObject::CO_USER_TYPE;
