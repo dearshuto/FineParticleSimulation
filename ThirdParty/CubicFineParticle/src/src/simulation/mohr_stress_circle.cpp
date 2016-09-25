@@ -18,6 +18,8 @@ void fj::MohrStressCircle::rebuildMohrCircle()
 {
     if (m_normalStress.empty())
     {
+        m_center = {{0.0, 0.0}};
+        m_radius = 0.0;
         return;
     }
     
