@@ -15,6 +15,8 @@
 #include <btBulletDynamicsCommon.h>
 
 namespace fj {
+    
+    // ワーレンス・スプリング曲線を定義するためのパラメータ
     struct WarrenSpringParameter
     {
         WarrenSpringParameter()
@@ -33,6 +35,7 @@ namespace fj {
     class MohrStressCircle;
 }
 
+/** モール応力円 */
 class fj::MohrStressCircle
 {
     typedef std::array<btScalar, 2> Position2D;
@@ -41,14 +44,17 @@ public:
     MohrStressCircle() = default;
     ~MohrStressCircle() = default;
     
+    /** @param size 評価する垂直応力の個数. 指定した方がメモリ効率が良くなる. */
     MohrStressCircle(const size_t size)
     : m_normalStress(size)
     {
         
     }
     
+    /** @param normalStress 有限な値である力*/
     void addNormalStress(const double normalStress);
     
+    /** モール応力円の中心と半径を再計算する.*/
     void rebuildMohrCircle();
     
     bool hasIntersectionPoint(const fj::WarrenSpringParameter warrenSpringParameter)const;
