@@ -6,6 +6,7 @@
 //
 //
 
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <BulletCollision/CollisionDispatch/btSimulationIslandManager.h>
@@ -204,6 +205,21 @@ void fj::FineParticleWorld::addParticle(std::unique_ptr<fj::Particle> body)
 {
     m_world->addRigidBody(body.get() );
     m_particles.push_back( std::move(body) );
+}
+
+void fj::FineParticleWorld::removeParticle(fj::Particle *const particle)
+{
+    m_world->removeCollisionObject(particle);
+    
+    // m_particlesの中に同一のアドレスをもつインスタンスが存在しないことを前提とする
+    auto inContainer = std::find_if(m_particles.begin(), m_particles.end()
+                                    , [particle](std::unique_ptr<fj::Particle>& containerComponent){
+                                        return containerComponent.get() == particle;
+                                    });
+    
+    assert(inContainer != m_particles.end());
+    
+    m_particles.erase(inContainer);
 }
 
 void fj::FineParticleWorld::setGravity(const btVector3 &gravity)

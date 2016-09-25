@@ -116,6 +116,8 @@ public:
 
     void addParticle(std::unique_ptr<fj::Particle> body);
 
+    void removeParticle(fj::Particle*const particle);
+    
     void setGravity(const btVector3& gravity);
 
     
