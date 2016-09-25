@@ -34,7 +34,7 @@ void fj::SimulationTimeProfile::endSimulationProfile()
 
 void fj::SimulationTimeProfile::terminate()
 {
-    std::ofstream output("simulation_time.log");
+    std::ofstream output(m_outputDirectory + "/simulation_time.log");
     
     output << "Max: " << m_max / 1000.0 << " sec" << std::endl;
     output << "Min: " << m_min / 1000.0 << " sec" << std::endl;

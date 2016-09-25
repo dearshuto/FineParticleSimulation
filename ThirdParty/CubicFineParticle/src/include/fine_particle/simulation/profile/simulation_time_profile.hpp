@@ -24,8 +24,9 @@ class fj::SimulationTimeProfile : public fj::SimulationProfile
     typedef std::chrono::system_clock::time_point time_point;
     typedef long long MiliSecTime;
 public:
-    SimulationTimeProfile()
+    SimulationTimeProfile(const std::string& outputDirectory = ".")
     : Super(Priority::kAbsolutelyLast)
+    , m_outputDirectory(outputDirectory)
     , m_average(0)
     , m_max(0)
     , m_min(std::numeric_limits<MiliSecTime>::infinity())
@@ -42,6 +43,8 @@ public:
     void terminate()override;
     
 private:
+    std::string m_outputDirectory;
+    
     time_point m_start;
     
     MiliSecTime m_average;
