@@ -209,6 +209,7 @@ void fj::FineParticleWorld::addParticle(std::unique_ptr<fj::Particle> body)
 
 void fj::FineParticleWorld::removeParticle(fj::Particle *const particle)
 {
+    // Bullet Physicsからの削除
     m_world->removeCollisionObject(particle);
     
     // m_particlesの中に同一のアドレスをもつインスタンスが存在しないことを前提とする
@@ -216,9 +217,7 @@ void fj::FineParticleWorld::removeParticle(fj::Particle *const particle)
                                     , [particle](std::unique_ptr<fj::Particle>& containerComponent){
                                         return containerComponent.get() == particle;
                                     });
-    
     assert(inContainer != m_particles.end());
-    
     m_particles.erase(inContainer);
 }
 
