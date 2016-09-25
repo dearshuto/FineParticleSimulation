@@ -116,6 +116,13 @@ public:
 
     void addParticle(std::unique_ptr<fj::Particle> body);
 
+    /** 指定された粒子を削除する 
+     * @param particle 削除対象. 存在しなかった場合の挙動は未定義.
+     * @pre particleはシミュレーションに組み込まれているインスタンスである
+     * @pre particleはnullptrでない
+     */
+    void removeParticle(fj::Particle*const particle);
+    
     void setGravity(const btVector3& gravity);
 
     
