@@ -27,6 +27,11 @@ FILE(GLOB_RECURSE particle_files
 	${CMAKE_SOURCE_DIR}/src/simulation/particle/*.cpp
 )
 
+FILE(GLOB_RECURSE profile_files
+	${CMAKE_SOURCE_DIR}/include/fine_particle/simulation/profile/*.hpp
+	${CMAKE_SOURCE_DIR}/src/simulation/profile/*.cpp
+)
+
 FILE(GLOB_RECURSE povray_files
 	${CMAKE_SOURCE_DIR}/include/fine_particle/povray/povray_output.hpp
 	${CMAKE_SOURCE_DIR}/src/povray/povray_output.cpp
@@ -35,6 +40,7 @@ FILE(GLOB_RECURSE povray_files
 SOURCE_GROUP(simulation\\particle FILES ${particle_files})
 SOURCE_GROUP(simulation\\ FILES ${simulation_files})
 SOURCE_GROUP(simulation\\bullet_algorithm FILES ${bullet_algorithm_files})
+SOURCE_GROUP(simulation\\profile FILES ${profile_files})
 SOURCE_GROUP(povray FILES ${povray_files})
 
 # インクルードフォルダを相対パスの検索対象に設定する
@@ -47,6 +53,7 @@ ENDIF()
 add_library(cubic_fine_particle STATIC
 	${simulation_files}
 	${particle_files}
+	${profile_files}
 	${bullet_algorithm_files}
 	${povray_files}
 )

@@ -12,13 +12,22 @@
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/fine_particle_world.hpp"
 
+void fj::FineParticleWorld::terminate()
+{
+    terminateProfiles();
+}
+
 void fj::FineParticleWorld::stepSimulation(btScalar timestep)
 {
+    startProfiling();
+    
     accumulateFineParticleForce(timestep);
 
     updateParticleCollapse(timestep);
 
     updateAllObjectTransform(timestep);
+    
+    endProfiling();
 }
 
 void fj::FineParticleWorld::accumulateFineParticleForce(const btScalar timestep)
@@ -156,6 +165,30 @@ void fj::FineParticleWorld::updateAllObjectTransform(const btScalar timestep)
     m_world->stepSimulation(timestep, 1/*max substeps*/, timestep);
 }
 
+void fj::FineParticleWorld::startProfiling()
+{
+    for (auto& profile : m_profiles)
+    {
+        profile->startSimulationProfile();
+    }
+}
+
+void fj::FineParticleWorld::endProfiling()
+{
+    for (auto& profile : m_profiles)
+    {
+        profile->endSimulationProfile();
+    }
+}
+
+void fj::FineParticleWorld::terminateProfiles()
+{
+    for (auto& profile : m_profiles)
+    {
+        profile->terminate();
+    }
+}
+
 void fj::FineParticleWorld::addCollisionObject(btCollisionObject *body)
 {
     m_world->addCollisionObject(body);
@@ -176,4 +209,9 @@ void fj::FineParticleWorld::addParticle(std::unique_ptr<fj::Particle> body)
 void fj::FineParticleWorld::setGravity(const btVector3 &gravity)
 {
     m_world->setGravity(gravity);
+}
+
+void fj::FineParticleWorld::addProfileSystem(std::unique_ptr<fj::SimulationProfile> profile)
+{
+    m_profiles.push_back(std::move(profile));
 }
