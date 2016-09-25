@@ -29,8 +29,12 @@ public:
     {
         
     }
+
+    virtual void startSimulationProfile() = 0;
     
+    virtual void endSimulationProfile() = 0;
     
+    virtual void terminate() = 0;
     
 protected:
     unsigned int getPriorityAdUInt()const

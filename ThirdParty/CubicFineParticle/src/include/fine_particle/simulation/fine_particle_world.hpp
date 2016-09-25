@@ -48,6 +48,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include "fine_particle/simulation/particle/particle.hpp"
+#include "fine_particle/simulation/profile/simulation_profile.hpp"
 #include "fine_particle/simulation/bullet_algorithm/fine_particle_simulation_collision_configuration.hpp"
 
 namespace fj {
@@ -99,8 +100,10 @@ public:
 
     ~FineParticleWorld() = default;
 
+    void terminate();
+    
     void stepSimulation(btScalar timestep);
-
+    
     /**
      * この関数を使って登録した剛体は、プログラム側で解放されます
      */
@@ -115,6 +118,10 @@ public:
 
     void setGravity(const btVector3& gravity);
 
+    
+    //------------------ Profiling -----------------------------//
+    void addProfileSystem(std::unique_ptr<fj::SimulationProfile> profile);
+    
 private:
 
     void accumulateFineParticleForce(const btScalar timestep);
@@ -134,6 +141,13 @@ private:
 
     void updateAllObjectTransform(const btScalar timestep);
 
+    //----------------- Profiling ------------------------------//
+    void startProfiling();
+    
+    void endProfiling();
+    
+    void terminateProfiles();
+    
 public:
     const std::vector<std::unique_ptr<fj::Particle>>& getParticles()const
     {
@@ -153,6 +167,7 @@ public:
 private:
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
 
+    std::vector<std::unique_ptr<fj::SimulationProfile>> m_profiles;
 
     //--Bullet Physicsのフレームワークを利用するためのインスタンス--//
 
