@@ -86,3 +86,8 @@ void AFineParticleEmitter::SetSimulationSpringK(const float SimulationSpringK)
 {
     m_world.SpringK = SimulationSpringK;
 }
+
+void AFineParticleEmitter::SetDashpodEnvelop(const float DashpodEnvelop)
+{
+	m_world.DashpodEnvelop = DashpodEnvelop;
+}
