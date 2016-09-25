@@ -16,6 +16,7 @@ std::vector<btVector3> fj::DiscritizedParticleShape::GetDiscritizedParticleShape
     switch (static_cast<int>(type))
     {
         case static_cast<int>(ShapeType::kCube):
+            // 中心が原点にあるキューブの各面の法線
             return {
                 {1, 0, 0},
                 {-1, 0, 0},

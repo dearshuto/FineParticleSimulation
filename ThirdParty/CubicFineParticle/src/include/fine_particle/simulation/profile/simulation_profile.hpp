@@ -13,6 +13,7 @@ namespace fj {
     class SimulationProfile;
 }
 
+/** Worldで行われるシミュレーションの情報を取得&整理する */
 class fj::SimulationProfile
 {
 protected:

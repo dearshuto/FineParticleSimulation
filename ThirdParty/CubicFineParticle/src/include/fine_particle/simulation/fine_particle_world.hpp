@@ -56,10 +56,12 @@ namespace fj {
     class FineParticleWorld;
 }
 
+/** シミュレーションが進行する空間 */
 class fj::FineParticleWorld
 {
     using TimeStep = btScalar;
-
+    
+    /** 粉体粒子間の情報を計算すると同時に保持する */
     struct FineParticlesContactInfo
     {
         FineParticlesContactInfo(fj::Particle*const particle1, fj::Particle*const particle2)
@@ -95,23 +97,28 @@ public:
               )
 
     {
+        // btGhostObjectがオーバラップしたオブジェクトを検知できるようにコールバックを登録しておく
         m_world->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     }
 
     ~FineParticleWorld() = default;
 
+    /** シミュレーションの終了後に呼び出してください. 今のところプロファイリングの終了処理に使ってます.
+     * 呼び出さなくてもシミュレーションにおけるメモリリークは起きません */
     void terminate();
     
+    /** タイムステップ分だけシミュレーションを進める 
+     * @param timestep シミュレーションの間隔. 0.0001くらい短い方が安定する. */
     void stepSimulation(btScalar timestep);
     
-    /**
+    /** シミュレーション対象を追加する.
      * この関数を使って登録した剛体は、プログラム側で解放されます
-     */
+     * @param body fj::Particle以外の剛体 */
     void addRigidBody(std::unique_ptr<btRigidBody> body);
 
-    /**
-     * この関数を使って登録した剛体はユーザが責任を持ってメモリを解放してください
-     */
+    /** シミュレーション対象を追加する.
+     * この関数を使って登録した剛体はユーザが責任を持ってメモリを解放してください 
+     * @param body fj::Particle以外の剛体 */
     void addCollisionObject(btCollisionObject* body);
 
     void addParticle(std::unique_ptr<fj::Particle> body);
@@ -119,10 +126,11 @@ public:
     /** 指定された粒子を削除する 
      * @param particle 削除対象. 存在しなかった場合の挙動は未定義.
      * @pre particleはシミュレーションに組み込まれているインスタンスである
-     * @pre particleはnullptrでない
-     */
+     * @pre particleはnullptrでない. */
     void removeParticle(fj::Particle*const particle);
     
+    /** シミュレーションする空間における重力の方向を指定する.
+     * @param gravity 重力の方向. すべての要素が有限値であればどんなベクトルでもいい. */
     void setGravity(const btVector3& gravity);
 
     
@@ -131,26 +139,43 @@ public:
     
 private:
 
+    //--------------------------- 粉体の力学計算 ------------------------------------------------------------------//
+    /** 粉体粒子にかかる接触力と静電気力を計算する */
     void accumulateFineParticleForce(const btScalar timestep);
 
+    /** 各粒子の接触力を算出する
+     * @pre m_particlesに格納されているすべての粒子において, 各粒子が保持する接触力が0である
+     */
     void applyContactForce(const FineParticlesContactInfo& contactInfo);
 
+    /** 粒子間の垂直方向の力を算出&適用する */
     void applyNormalComponentContactForce(const FineParticlesContactInfo& contactInfo, const btScalar overlap)const;
 
     void applyTangentialComponentContactForce(const FineParticlesContactInfo& contactInfo)const;
 
-    /** 換算質量を求める */
+    /** 換算質量を求める 
+     * @pre particle1, particle2の両方の質量が生の値をもつ
+     */
     btScalar computeReducedMass(const fj::Particle& particle1, const fj::Particle& particle2)const;
 
+    /** 各粒子にかかるファンデルワールス力を算出&適用する */
     void applyVandeerWaalsForce(const FineParticlesContactInfo& contactInfo)const;
 
+    /** 粉体崩壊曲線にもとづいて各粒子の動きを制限する */
     void updateParticleCollapse(const btScalar timestep);
 
+    /** このワールドがシミュレーション対象としている物体すべてを動かす */
     void updateAllObjectTransform(const btScalar timestep);
 
-    //----------------- Profiling ------------------------------//
-    void startProfiling();
     
+    
+    //------------------------------ Profiling -----------------------------------------------------------------------//
+    /** 
+     @pre fj::FineParticleWorld::stepSImulation関数で, どの力学計算関数よりも先に呼ばれる */
+    void startProfiling();
+
+    /**
+     @pre fj::FineParticleWorld::stepSImulation関数で, どの力学計算関数よりも後に呼ばれる */
     void endProfiling();
     
     void terminateProfiles();
@@ -160,7 +185,11 @@ public:
     {
         return std::cref(m_particles);
     }
-
+    
+    
+    
+    
+    //------------------------------- 粉体シミュレーションにおけるパラメータ --------------------------------------------//
     /** レオロジーモデルで使用するばね係数 */
     double SpringK;
 
@@ -170,19 +199,24 @@ public:
     /** 粒子間の反発力 */
     double E;
 
+    /** ファンデルワールス力による付着度 */
     double HamakerConstant;
+    
 private:
+    
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
 
     std::vector<std::unique_ptr<fj::SimulationProfile>> m_profiles;
 
-    //--Bullet Physicsのフレームワークを利用するためのインスタンス--//
-
+    
+    
+    
+    //---------------- Bullet Physicsのフレームワークを利用するためのインスタンス ----------------------//
     /** Bullet Physicsは生ポインタで全ての処理をするので, メモリの管理はユーザ側でしなくてはならない
      * Bullet Physicsの中でシミュレーション対象となる剛体のメモリ管理用のコンテナ */
     std::vector<std::unique_ptr<btRigidBody>> m_rigidBody;
 
-    /** Bullet Physicsを利用するために最低限必要なインスタンス */
+    // Bullet Physicsを利用するために最低限必要なインスタンス
     std::unique_ptr<btCollisionConfiguration> m_collisionConfiguration;
     std::unique_ptr<btDispatcher> m_dispatcher;
     std::unique_ptr<btBroadphaseInterface> m_pairCache;

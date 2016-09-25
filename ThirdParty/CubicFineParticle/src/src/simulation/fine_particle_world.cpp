@@ -197,6 +197,8 @@ void fj::FineParticleWorld::addCollisionObject(btCollisionObject *body)
 
 void fj::FineParticleWorld::addRigidBody(std::unique_ptr<btRigidBody> body)
 {
+    assert( !fj::Particle::upcast(body.get()) && "Use addParticle function to register a instance of fj::Particle.");
+    
     m_world->addRigidBody(body.get());
     m_rigidBody.push_back( std::move(body) );
 }
