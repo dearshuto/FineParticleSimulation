@@ -31,6 +31,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Actor")
     void SetSimulationSpringK(const float SimulationSpringK);
     
+	UFUNCTION(BlueprintCallable, Category = "Actor")
+	void SetDashpodEnvelop(const float DashpodEnvelop);
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Edit")
     float SimulationTimeStep;
 
