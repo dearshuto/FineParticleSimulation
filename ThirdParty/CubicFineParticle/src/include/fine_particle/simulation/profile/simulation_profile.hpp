@@ -9,7 +9,10 @@
 #ifndef simulation_profile_hpp
 #define simulation_profile_hpp
 
+#include <memory>
+
 namespace fj {
+    class FineParticleWorld;
     class SimulationProfile;
 }
 
@@ -37,14 +40,26 @@ public:
     
     virtual void terminate() = 0;
     
+    void registerWorld(std::weak_ptr<fj::FineParticleWorld>& world)
+    {
+        m_world = world;
+    }
+    
 protected:
     unsigned int getPriorityAdUInt()const
     {
         return static_cast<unsigned int>(m_priority);
     }
     
+    const std::weak_ptr<fj::FineParticleWorld>& getWorld()const
+    {
+        return m_world;
+    }
+    
 private:
     const Priority m_priority;
+    
+    std::weak_ptr<fj::FineParticleWorld> m_world;
 };
 
 
