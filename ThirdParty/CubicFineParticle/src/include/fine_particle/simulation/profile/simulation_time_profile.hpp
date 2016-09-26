@@ -34,13 +34,13 @@ public:
         
     }
     
-    ~SimulationTimeProfile() = default;
+    virtual~SimulationTimeProfile() = default;
     
-    void startSimulationProfile()override;
+    virtual void startSimulationProfile()override;
     
-    void endSimulationProfile()override;
+    virtual void endSimulationProfile()override;
     
-    void terminate()override;
+    virtual void terminate()override;
     
 protected:
     
