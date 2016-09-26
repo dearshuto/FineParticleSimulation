@@ -19,6 +19,13 @@ void fj::SimulationTimeProfile::endSimulationProfile()
 {
     auto currentStep = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - m_start ).count();
 
+    updateSimulationTimeMinMax(currentStep);
+
+    updateSimulationTimeAverage(currentStep);
+}
+
+void fj::SimulationTimeProfile::updateSimulationTimeMinMax(const MilliSecTime &currentStep)
+{
     if (currentStep > m_max)
     {
         m_max = currentStep;
@@ -28,7 +35,10 @@ void fj::SimulationTimeProfile::endSimulationProfile()
     {
         m_min = currentStep;
     }
+}
 
+void fj::SimulationTimeProfile::updateSimulationTimeAverage(const MilliSecTime &currentStep)
+{
     m_average = (m_average == 0) ? currentStep : (currentStep + m_average) / 2.0;
 }
 
