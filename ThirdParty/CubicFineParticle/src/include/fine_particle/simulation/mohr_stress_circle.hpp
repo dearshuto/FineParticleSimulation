@@ -13,6 +13,7 @@
 #include <tuple>
 #include <vector>
 #include <btBulletDynamicsCommon.h>
+#include "fine_particle/simulation/particle/discritized_particle_shape.hpp"
 
 namespace fj {
     
@@ -39,23 +40,25 @@ namespace fj {
 class fj::MohrStressCircle
 {
     typedef std::array<btScalar, 2> Position2D;
-    
+    typedef std::vector<btVector3> ContactForceContainer;
+    typedef std::vector<btScalar> NormalStressContainer;
 public:
-    MohrStressCircle() = default;
+    MohrStressCircle() = delete;
     ~MohrStressCircle() = default;
     
-    /** @param size 評価する垂直応力の個数. 指定した方がメモリ効率が良くなる. */
-    MohrStressCircle(const size_t size)
-    : m_normalStress(size)
+    MohrStressCircle(const fj::DiscritizedParticleShape::ShapeType shapeType)
+    : m_discretizedShapeType(shapeType)
     {
-        
+
     }
     
     /** @param normalStress 有限な値である力*/
-    void addNormalStress(const double normalStress);
+    void addContactForce(const btVector3& normalStress);
     
     /** モール応力円の中心と半径を再計算する.*/
-    void rebuildMohrCircle();
+    void rebuildMohrCircle(const btMatrix3x3& rotateMatrix);
+    
+    void clearContactForce();
     
     bool hasIntersectionPoint(const fj::WarrenSpringParameter& warrenSpringParameter)const;
     
@@ -64,17 +67,35 @@ public:
         return m_center;
     }
 
+    const ContactForceContainer& getContactForceContainer()const
+    {
+        return m_contactForce;
+    }
+    
+    const fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
+    {
+        return m_discretizedShapeType;
+    }
+    
     const btScalar getRadius()const
     {
         return m_radius;
     }
     
 private:
+    void rebuildCircleCenterAndRadius(const btMatrix3x3& rotateMatrix);
+    
+    NormalStressContainer computeNormalStress(const btMatrix3x3& rotateMatrix)const;
+    
+private:
     Position2D m_center;
     
     btScalar m_radius;
     
-    std::vector<double> m_normalStress;
+    /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
+    ContactForceContainer m_contactForce;
+    
+    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
 };
 
 #endif /* mohr_stress_circle_hpp */

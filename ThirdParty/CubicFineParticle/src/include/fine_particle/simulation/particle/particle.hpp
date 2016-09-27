@@ -31,12 +31,7 @@ private:
     {
         // ShapeTypeを必ず指定させるためのコンストラクタ
         FineParticleCollapseFactor(const fj::DiscritizedParticleShape::ShapeType shapeType)
-        : DiscretizedShapeType(shapeType){}
-        
-        fj::DiscritizedParticleShape::ShapeType DiscretizedShapeType;
-        
-        /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
-        ContactForceContainer ContactForces;
+        : MohrStressCircle(shapeType){}
         
         /** 粉体崩壊曲線を定義するのに必要なパラメータ */
         WarrenSpringParameter CollapseCurveParameter;
@@ -88,10 +83,7 @@ public:
     
     
     
-    //---------- Public Member Funcsions ---------------------------------------
-    
-    bool isCollapse()const;
-    
+    //---------- Public Member Funcsions ---------------------------------------    
     void addContactForce(const btVector3& constctForce);
     
     void applyContactForce();
@@ -105,17 +97,22 @@ public:
     
     const ContactForceContainer& getContactForceContainer()const
     {
-        return getFineParticleCollapseFactor().ContactForces;
+        return getMohrStressCircle().getContactForceContainer();
     }
 
     fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
     {
-        return getFineParticleCollapseFactor().DiscretizedShapeType;
+        return getFineParticleCollapseFactor().MohrStressCircle.getDiscretizedShapeType();
     }
     
     const fj::WarrenSpringParameter& getWarrenSpringParameter()const
     {
         return getFineParticleCollapseFactor().CollapseCurveParameter;
+    }
+    
+    const fj::MohrStressCircle& getMohrStressCircle()const
+    {
+        return getFineParticleCollapseFactor().MohrStressCircle;
     }
     
     btScalar getMass()const
@@ -141,11 +138,6 @@ public:
     
     //---------- Private Getters ----------------------------------------------
 private:
-    ContactForceContainer* getContactForceContainerPtr()
-    {
-        return &m_collapseFactor.ContactForces;
-    }
-
     const FineParticleCollapseFactor& getFineParticleCollapseFactor()const
     {
         return m_collapseFactor;
@@ -156,7 +148,7 @@ private:
         return &m_collapseFactor;
     }
     
-    fj::MohrStressCircle* getMohrStressCurclePtr()
+    fj::MohrStressCircle* getMohrStressCirclePtr()
     {
         return &(getFineParticleCollapseFactorPtr()->MohrStressCircle);
     }

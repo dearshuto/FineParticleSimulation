@@ -33,26 +33,9 @@ std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const fj::Discritiz
     return particle;
 }
 
-bool fj::Particle::isCollapse()const
-{
-    const auto& kCollapseDetector = m_collapseDetector.lock();
-    
-    if (kCollapseDetector)
-    {
-        return kCollapseDetector->shouldCallapse( std::cref(*this) );
-    }
-    else
-    {
-        return true;
-    }
-    
-    return true;
-}
-
 void fj::Particle::addContactForce(const btVector3& contactForce)
 {
-    getContactForceContainerPtr()->push_back(contactForce);
-//    getMohrStressCurclePtr()->pish_back():
+    getMohrStressCirclePtr()->addContactForce(contactForce);
 }
 
 void fj::Particle::applyContactForce()
@@ -63,7 +46,7 @@ void fj::Particle::applyContactForce()
 
 void fj::Particle::clearContactForce()
 {
-    getContactForceContainerPtr()->clear();
+    getMohrStressCirclePtr()->clearContactForce();
 }
 
 btScalar fj::Particle::getRadius()const

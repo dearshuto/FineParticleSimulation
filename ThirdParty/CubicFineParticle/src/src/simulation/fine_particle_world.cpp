@@ -147,7 +147,7 @@ void fj::FineParticleWorld::updateParticleCollapse(const btScalar timestep)
 {
     for (auto& particle : m_particles)
     {
-        if ( /*particle->isCollapse()*/true )
+        if ( shouldCollapse(*particle) )
         {
             particle->applyContactForce();
         }
@@ -159,6 +159,17 @@ void fj::FineParticleWorld::updateParticleCollapse(const btScalar timestep)
         }
         particle->clearContactForce();
     }
+}
+
+bool fj::FineParticleWorld::shouldCollapse(const fj::Particle &particle)const
+{
+    // とりあえず常に崩壊
+    return true;
+    
+    const auto& kMohrStressCircle = particle.getMohrStressCircle();
+    const auto& kWarrennSpringParameter = particle.getWarrenSpringParameter();
+    
+    // Use any algorithm...
 }
 
 void fj::FineParticleWorld::updateAllObjectTransform(const btScalar timestep)
