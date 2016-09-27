@@ -164,6 +164,8 @@ private:
     /** 粉体崩壊曲線にもとづいて各粒子の動きを制限する */
     void updateParticleCollapse(const btScalar timestep);
 
+    bool shouldCollapse(const fj::Particle& particle)const;
+    
     /** このワールドがシミュレーション対象としている物体すべてを動かす */
     void updateAllObjectTransform(const btScalar timestep);
 

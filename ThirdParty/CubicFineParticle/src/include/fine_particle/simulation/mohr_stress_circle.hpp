@@ -40,7 +40,8 @@ namespace fj {
 class fj::MohrStressCircle
 {
     typedef std::array<btScalar, 2> Position2D;
-    
+    typedef std::vector<btVector3> ContactForceContainer;
+    typedef std::vector<btScalar> NormalStressContainer;
 public:
     MohrStressCircle() = delete;
     ~MohrStressCircle() = default;
@@ -52,10 +53,12 @@ public:
     }
     
     /** @param normalStress 有限な値である力*/
-    void addNormalStress(const double normalStress);
+    void addContactForce(const btVector3& normalStress);
     
     /** モール応力円の中心と半径を再計算する.*/
-    void rebuildMohrCircle();
+    void rebuildMohrCircle(const btMatrix3x3& rotateMatrix);
+    
+    void clearContactForce();
     
     bool hasIntersectionPoint(const fj::WarrenSpringParameter& warrenSpringParameter)const;
     
@@ -64,6 +67,11 @@ public:
         return m_center;
     }
 
+    const ContactForceContainer& getContactForceContainer()const
+    {
+        return m_contactForce;
+    }
+    
     const fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
     {
         return m_discretizedShapeType;
@@ -75,11 +83,17 @@ public:
     }
     
 private:
+    void rebuildCircleCenterAndRadius(const btMatrix3x3& rotateMatrix);
+    
+    NormalStressContainer computeNormalStress(const btMatrix3x3& rotateMatrix)const;
+    
+private:
     Position2D m_center;
     
     btScalar m_radius;
     
-    std::vector<double> m_normalStress;
+    /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
+    ContactForceContainer m_contactForce;
     
     fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
 };

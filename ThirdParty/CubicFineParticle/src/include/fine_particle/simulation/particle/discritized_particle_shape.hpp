@@ -38,7 +38,7 @@ public:
         
         virtual unsigned int size()const = 0;
         virtual const btVector3& get(unsigned int index)const = 0;
-        virtual void rotate(const btMatrix3x3& matrix);
+        virtual void rotate(const btMatrix3x3& matrix) = 0;
     };
     
 private:
