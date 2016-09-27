@@ -29,7 +29,7 @@ public:
     bool shouldCallapse(const fj::Particle& particle)const override;
     
 private:
-    void saveToFile(const fj::MohrStressCircle& mohrStressCircle, const fj::WarrenSpringCurve::Parameter& warrenSpringParameter)const;
+    void saveToFile(const fj::MohrStressCircle& mohrStressCircle, const fj::WarrenSpringCurve& warrenSpringParameter)const;
 };
 
 #endif /* gnuplot_visualizing_collapse_detector_hpp */

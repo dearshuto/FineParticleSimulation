@@ -19,7 +19,7 @@ bool fj::GnuplotVisualizingCollapseDetector::shouldCallapse(const fj::Particle &
     return true;//kMohrStressCircle.hasIntersectionPoint(particle.getWarrenSpringParameter());
 }
 
-void fj::GnuplotVisualizingCollapseDetector::saveToFile(const fj::MohrStressCircle &mohrStressCircle, const fj::WarrenSpringCurve::Parameter& warrenSpringParameter)const
+void fj::GnuplotVisualizingCollapseDetector::saveToFile(const fj::MohrStressCircle &mohrStressCircle, const fj::WarrenSpringCurve& warrenSpringParameter)const
 {
     static unsigned int tickCount = 0;
     
@@ -31,7 +31,7 @@ void fj::GnuplotVisualizingCollapseDetector::saveToFile(const fj::MohrStressCirc
         << std::to_string(mohrStressCircle.getCenter().X) << ", " << std::to_string(mohrStressCircle.getCenter().Y)
         << " size " << std::to_string(mohrStressCircle.getRadius())
         << std::endl;
-    output << "plot " << std::to_string(warrenSpringParameter.Adhesion) << "*" << "(" << "x / " << std::to_string(warrenSpringParameter.Collapsibility) << " + 1)" << "**(" << std::to_string(warrenSpringParameter.SheerIndex) << ")" << std::endl;
+//    output << "plot " << std::to_string(warrenSpringParameter.Adhesion) << "*" << "(" << "x / " << std::to_string(warrenSpringParameter.Collapsibility) << " + 1)" << "**(" << std::to_string(warrenSpringParameter.SheerIndex) << ")" << std::endl;
     
     
     output << "set output" << "\"" << std::to_string(tickCount) << ".eps\"" << std::endl;

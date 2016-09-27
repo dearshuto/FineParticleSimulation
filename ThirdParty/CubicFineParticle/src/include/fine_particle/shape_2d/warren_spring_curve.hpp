@@ -17,8 +17,7 @@ namespace fj {
 
 class fj::WarrenSpringCurve : public fj::MathFunctionC1
 {
-public:
-    
+private:
     // ワーレンス・スプリング曲線を定義するためのパラメータ
     struct Parameter
     {
@@ -35,14 +34,25 @@ public:
         double Collapsibility; //垂直応力を大きくしたときの崩壊のしやすさ。粉体崩壊曲線の傾きに対応する.
     };
     
-private:
-    WarrenSpringCurve() = default;
 public:
+    WarrenSpringCurve() = default;
     ~WarrenSpringCurve() = default;
     
-    virtual double compute(const double x)const = 0;
+    double compute(const double x)const override;
     
-    virtual double computeGradient(const double x)const = 0;
+    double computeGradient(const double x)const override;
+    
+    const Parameter& getParameter()const
+    {
+        return m_parameter;
+    }
+    
+    Parameter* getParameterPtr()
+    {
+        return &m_parameter;
+    }
+private:
+    Parameter m_parameter;
 };
 
 #endif /* warren_spring_curve_hpp */
