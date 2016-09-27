@@ -193,9 +193,9 @@ void fj::FineParticleWorld::startProfiling()
 
 void fj::FineParticleWorld::endProfiling()
 {
-    for (auto& profile : m_profiles)
+    for (auto reverseIterator = m_profiles.crbegin(); reverseIterator != m_profiles.crend(); ++reverseIterator)
     {
-        profile->endSimulationProfile();
+        (*reverseIterator)->endSimulationProfile();
     }
 }
 
@@ -247,5 +247,11 @@ void fj::FineParticleWorld::setGravity(const btVector3 &gravity)
 
 void fj::FineParticleWorld::addProfileSystem(std::unique_ptr<fj::SimulationProfile> profile)
 {
-    m_profiles.push_back(std::move(profile));
+    // fj::SimulationProfile::Priority が自分と同等かそれ以上になる最初のイテレータを取得
+    const auto at = std::find_if(m_profiles.begin(), m_profiles.end()
+                                 , [&](std::unique_ptr<fj::SimulationProfile>& containedProfile){
+                                     return profile->getPriorityAdUInt() <= containedProfile->getPriorityAdUInt();
+                                 });
+    
+    m_profiles.insert(at, std::move(profile));
 }

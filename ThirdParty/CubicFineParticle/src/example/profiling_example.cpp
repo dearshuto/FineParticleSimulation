@@ -14,13 +14,17 @@
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/profile/simulation_time_profile.hpp"
+#include "fine_particle/simulation/profile/mohr_stress_circle_profile.hpp"
 #include "fine_particle/povray/povray_output.hpp"
 
 int main(int argc, char** argv)
 {
     std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
+    std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
+    
     std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
     world->setGravity( btVector3(0, -9.8, 0) );
+    world->addProfileSystem( std::move(mohrStressCircleProfile) );
     world->addProfileSystem( std::move(timeProfile) );
     
     // 床
