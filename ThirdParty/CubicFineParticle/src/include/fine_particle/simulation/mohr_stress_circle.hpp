@@ -13,6 +13,7 @@
 #include <tuple>
 #include <vector>
 #include <btBulletDynamicsCommon.h>
+#include "fine_particle/simulation/particle/discritized_particle_shape.hpp"
 
 namespace fj {
     
@@ -44,11 +45,10 @@ public:
     MohrStressCircle() = default;
     ~MohrStressCircle() = default;
     
-    /** @param size 評価する垂直応力の個数. 指定した方がメモリ効率が良くなる. */
-    MohrStressCircle(const size_t size)
-    : m_normalStress(size)
+    MohrStressCircle(const fj::DiscritizedParticleShape::ShapeType shapeType)
+    : m_discretizedShapeType(shapeType)
     {
-        
+
     }
     
     /** @param normalStress 有限な値である力*/
@@ -75,6 +75,8 @@ private:
     btScalar m_radius;
     
     std::vector<double> m_normalStress;
+    
+    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
 };
 
 #endif /* mohr_stress_circle_hpp */

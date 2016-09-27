@@ -25,26 +25,21 @@ fj::MohrStressCircle fj::Particle::CollapseDetector::generateMohrStressCircle(co
     const btMatrix3x3& kRotationMatrix = transform.getBasis();
     
     // 粒子の形状を取得。法線があれば垂直抗力を算出できるね。
-    auto faceNormals = fj::DiscritizedParticleShape::GetDiscritizedParticleShapeNormal(particle.getDiscretizedShapeType());
-    
-    // 法線を回転させる
-    for (auto& normal :  faceNormals)
-    {
-        normal = kRotationMatrix * normal;
-    }
+    auto faceNormals = fj::DiscritizedParticleShape::GetDiscretizedParticleShapeNormal(particle.getDiscretizedShapeType());
+    faceNormals->rotate(kRotationMatrix);
 
     // 各法線方向にかかる垂直抗力を算出
     fj::MohrStressCircle mohrStressCircle;
     
-    for (const auto& kNormal : faceNormals)
-    {
-        for (const btVector3& kNormalStress : particle.getContactForceContainer())
-        {
-            mohrStressCircle.addNormalStress(
-                                             std::max( static_cast<btScalar>(0), kNormalStress.dot(-kNormal))
-                                             );
-        }
-    }
+//    for (const auto& kNormal : faceNormals)
+//    {
+//        for (const btVector3& kNormalStress : particle.getContactForceContainer())
+//        {
+//            mohrStressCircle.addNormalStress(
+//                                             std::max( static_cast<btScalar>(0), kNormalStress.dot(-kNormal))
+//                                             );
+//        }
+//    }
     
     mohrStressCircle.rebuildMohrCircle();
     

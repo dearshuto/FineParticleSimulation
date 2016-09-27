@@ -9,9 +9,10 @@
 #ifndef discritized_particle_shape_hpp
 #define discritized_particle_shape_hpp
 
-#include <vector>
+#include <memory>
 
 class btVector3;
+class btMatrix3x3;
 
 namespace fj {
     class DiscritizedParticleShape;
@@ -28,12 +29,24 @@ public:
     {
         kCube,
     };
+    
+    class NormalContainer
+    {
+    public:
+        NormalContainer() = default;
+        virtual~NormalContainer() = default;
+        
+        virtual unsigned int size()const = 0;
+        virtual const btVector3& get(unsigned int index)const = 0;
+        virtual void rotate(const btMatrix3x3& matrix);
+    };
+    
 private:
     // インスタンス化はしない方針で
     DiscritizedParticleShape() = delete;
     ~DiscritizedParticleShape() = delete;
 public:
-    static std::vector<btVector3> GetDiscritizedParticleShapeNormal(const ShapeType type);
+    static std::unique_ptr<NormalContainer> GetDiscretizedParticleShapeNormal(const ShapeType type);
 };
 
 #endif /* discritized_particle_shape_hpp */
