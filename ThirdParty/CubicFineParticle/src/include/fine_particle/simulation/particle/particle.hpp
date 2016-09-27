@@ -31,9 +31,7 @@ private:
     {
         // ShapeTypeを必ず指定させるためのコンストラクタ
         FineParticleCollapseFactor(const fj::DiscritizedParticleShape::ShapeType shapeType)
-        : DiscretizedShapeType(shapeType){}
-        
-        fj::DiscritizedParticleShape::ShapeType DiscretizedShapeType;
+        : MohrStressCircle(shapeType){}
         
         /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
         ContactForceContainer ContactForces;
@@ -110,7 +108,7 @@ public:
 
     fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
     {
-        return getFineParticleCollapseFactor().DiscretizedShapeType;
+        return getFineParticleCollapseFactor().MohrStressCircle.getDiscretizedShapeType();
     }
     
     const fj::WarrenSpringParameter& getWarrenSpringParameter()const

@@ -29,7 +29,7 @@ fj::MohrStressCircle fj::Particle::CollapseDetector::generateMohrStressCircle(co
     faceNormals->rotate(kRotationMatrix);
 
     // 各法線方向にかかる垂直抗力を算出
-    fj::MohrStressCircle mohrStressCircle;
+    fj::MohrStressCircle* mohrStressCircle;
     
 //    for (const auto& kNormal : faceNormals)
 //    {
@@ -41,7 +41,7 @@ fj::MohrStressCircle fj::Particle::CollapseDetector::generateMohrStressCircle(co
 //        }
 //    }
     
-    mohrStressCircle.rebuildMohrCircle();
+//    mohrStressCircle.rebuildMohrCircle();
     
-    return mohrStressCircle;
+    return *mohrStressCircle;
 }

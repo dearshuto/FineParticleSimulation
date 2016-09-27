@@ -42,7 +42,7 @@ class fj::MohrStressCircle
     typedef std::array<btScalar, 2> Position2D;
     
 public:
-    MohrStressCircle() = default;
+    MohrStressCircle() = delete;
     ~MohrStressCircle() = default;
     
     MohrStressCircle(const fj::DiscritizedParticleShape::ShapeType shapeType)
@@ -64,6 +64,11 @@ public:
         return m_center;
     }
 
+    const fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
+    {
+        return m_discretizedShapeType;
+    }
+    
     const btScalar getRadius()const
     {
         return m_radius;
