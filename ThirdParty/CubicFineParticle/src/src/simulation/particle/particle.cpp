@@ -30,7 +30,6 @@ std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const fj::Discritiz
     std::unique_ptr<fj::Particle> particle(new fj::Particle(type, rbInfo, std::move(myMotionState)));
     particle->setRollingFriction(1);
     particle->setFriction(1);
-
     return particle;
 }
 
@@ -52,18 +51,19 @@ bool fj::Particle::isCollapse()const
 
 void fj::Particle::addContactForce(const btVector3& contactForce)
 {
-    m_contactForceContainer.push_back(contactForce);
+    getContactForceContainerPtr()->push_back(contactForce);
+//    getMohrStressCurclePtr()->pish_back():
 }
 
 void fj::Particle::applyContactForce()
 {
-    const btVector3 kContactForceSum = std::accumulate(std::begin(m_contactForceContainer), std::end(m_contactForceContainer), btVector3(0, 0, 0)/*初期値*/);
+    const btVector3 kContactForceSum = std::accumulate(std::begin(getContactForceContainer()), std::end(getContactForceContainer()), btVector3(0, 0, 0)/*初期値*/);
     applyCentralForce(kContactForceSum);
 }
 
 void fj::Particle::clearContactForce()
 {
-    m_contactForceContainer.clear();
+    getContactForceContainerPtr()->clear();
 }
 
 btScalar fj::Particle::getRadius()const

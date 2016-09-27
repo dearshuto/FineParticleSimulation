@@ -23,9 +23,28 @@ namespace fj {
 
 class fj::Particle : public btRigidBody
 {
-public:
+private:
     typedef btRigidBody Super;
     typedef std::vector<btVector3> ContactForceContainer;
+
+    struct FineParticleCollapseFactor
+    {
+        // ShapeTypeを必ず指定させるためのコンストラクタ
+        FineParticleCollapseFactor(const fj::DiscritizedParticleShape::ShapeType shapeType)
+        : DiscretizedShapeType(shapeType){}
+        
+        fj::DiscritizedParticleShape::ShapeType DiscretizedShapeType;
+        
+        /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
+        ContactForceContainer ContactForces;
+        
+        /** 粉体崩壊曲線を定義するのに必要なパラメータ */
+        WarrenSpringParameter CollapseCurveParameter;
+        
+        fj::MohrStressCircle MohrStressCircle;
+    };
+
+public:
     class CollapseDetector;
 public:
     Particle() = delete;
@@ -35,14 +54,42 @@ public:
     : btRigidBody(info)
     , m_motionState( std::move(motionState) )
     , m_mass(info.m_mass)
-    , m_discretizedShapeType(shapeType)
+    , m_collapseFactor(shapeType)
     {
         // アップキャストするために自分の情報をもたせておく
         m_internalType = btCollisionObject::CO_RIGID_BODY | btCollisionObject::CO_USER_TYPE;
     }
     
+    
+    
+    
+    //---------- Static Functions --------------------------------------------
+    
     static std::unique_ptr<fj::Particle> generateParticle(const fj::DiscritizedParticleShape::ShapeType type, const btVector3& position);
-        
+    
+    /** btCollisionObjectをfj::Particleにアップキャストする.
+     * キャストに失敗するとnullptrを返す. */
+    static fj::Particle* upcast(btCollisionObject* colObj)
+    {
+        if (colObj->getInternalType()&btCollisionObject::CO_USER_TYPE)
+            return (fj::Particle*)colObj;
+        return nullptr;
+    }
+    
+    /** btCollisionObjectをfj::Particleにアップキャストするconst版.
+     * キャストに失敗するとnullptrを返す. */
+    static const fj::Particle* upcast(const btCollisionObject* colObj)
+    {
+        if (colObj->getInternalType()&btCollisionObject::CO_USER_TYPE)
+            return (const fj::Particle*)colObj;
+        return nullptr;
+    }
+    
+    
+    
+    
+    //---------- Public Member Funcsions ---------------------------------------
+    
     bool isCollapse()const;
     
     void addContactForce(const btVector3& constctForce);
@@ -51,44 +98,24 @@ public:
     
     void clearContactForce();
     
-    /**
-     * btCollisionObjectをfj::Particleにアップキャストする.
-     * キャストに失敗するとnullptrを返す.
-     */
-    static fj::Particle* upcast(btCollisionObject* colObj)
-    {
-        if (colObj->getInternalType()&btCollisionObject::CO_USER_TYPE)
-            return (fj::Particle*)colObj;
-        return nullptr;
-    }
-
-    static const fj::Particle* upcast(const btCollisionObject* colObj)
-    {
-        if (colObj->getInternalType()&btCollisionObject::CO_USER_TYPE)
-            return (const fj::Particle*)colObj;
-        return nullptr;
-    }
-
-    btScalar getRadius()const;
     
-    fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
-    {
-        return m_discretizedShapeType;
-    }
+    
+    
+    //---------- Public Getters -------------------------------------------------
     
     const ContactForceContainer& getContactForceContainer()const
     {
-        return m_contactForceContainer;
+        return getFineParticleCollapseFactor().ContactForces;
+    }
+
+    fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
+    {
+        return getFineParticleCollapseFactor().DiscretizedShapeType;
     }
     
     const fj::WarrenSpringParameter& getWarrenSpringParameter()const
     {
-        return m_warrenSpringParameter;
-    }
-    
-    void setCollapseDetector(const std::weak_ptr<CollapseDetector>& collapseDetector)
-    {
-        m_collapseDetector = collapseDetector;
+        return getFineParticleCollapseFactor().CollapseCurveParameter;
     }
     
     btScalar getMass()const
@@ -98,6 +125,41 @@ public:
     
     btVector3 getPosition()const;
     
+    btScalar getRadius()const;
+    
+    
+    
+    
+    //---------- Public Setters -----------------------------------------------
+    void setCollapseDetector(const std::weak_ptr<CollapseDetector>& collapseDetector)
+    {
+        m_collapseDetector = collapseDetector;
+    }
+    
+    
+    
+    
+    //---------- Private Getters ----------------------------------------------
+private:
+    ContactForceContainer* getContactForceContainerPtr()
+    {
+        return &m_collapseFactor.ContactForces;
+    }
+
+    const FineParticleCollapseFactor& getFineParticleCollapseFactor()const
+    {
+        return m_collapseFactor;
+    }
+
+    FineParticleCollapseFactor* getFineParticleCollapseFactorPtr()
+    {
+        return &m_collapseFactor;
+    }
+    
+    fj::MohrStressCircle* getMohrStressCurclePtr()
+    {
+        return &(getFineParticleCollapseFactorPtr()->MohrStressCircle);
+    }
 public:
     static fj::FineParticleShape CollisionShape;
 private:
@@ -107,13 +169,7 @@ private:
     
     btScalar m_mass;
     
-    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
-
-    /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
-    ContactForceContainer m_contactForceContainer;
-    
-    /** 粉体崩壊曲線を定義するのに必要なパラメータ */
-    fj::WarrenSpringParameter m_warrenSpringParameter;
+    FineParticleCollapseFactor m_collapseFactor;
     
     /** 崩壊判定のアルゴリズム */
     std::weak_ptr<CollapseDetector> m_collapseDetector;
