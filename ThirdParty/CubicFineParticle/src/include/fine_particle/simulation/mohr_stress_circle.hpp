@@ -15,25 +15,9 @@
 #include <btBulletDynamicsCommon.h>
 #include "fine_particle/simulation/particle/discritized_particle_shape.hpp"
 #include "fine_particle/shape_2d/circle.hpp"
+#include "fine_particle/shape_2d/warren_spring_curve.hpp"
 
 namespace fj {
-    
-    // ワーレンス・スプリング曲線を定義するためのパラメータ
-    struct WarrenSpringParameter
-    {
-        WarrenSpringParameter()
-        : SheerIndex(1)
-        , Adhesion(1)
-        , Collapsibility(1)
-        {
-            
-        }
-        
-        double SheerIndex; //剪断指数→粉体崩壊曲線の曲率に対応する
-        double Adhesion; // 粘着力→大きいほど崩壊しにくくなる. 粉体崩壊曲線のτ切片に対応する.
-        double Collapsibility; //垂直応力を大きくしたときの崩壊のしやすさ。粉体崩壊曲線の傾きに対応する.
-    };
-    
     class MohrStressCircle;
 }
 
@@ -60,8 +44,6 @@ public:
     void rebuildMohrCircle(const btMatrix3x3& rotateMatrix);
     
     void clearContactForce();
-    
-    bool hasIntersectionPoint(const fj::WarrenSpringParameter& warrenSpringParameter)const;
     
     const Position2D& getCenter()const
     {

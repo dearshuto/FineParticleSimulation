@@ -14,7 +14,7 @@ bool fj::Particle::CollapseDetector::shouldCallapse(const fj::Particle &particle
 {
     const auto kMohrStressCircle = generateMohrStressCircle(particle);
     
-    return kMohrStressCircle.hasIntersectionPoint( particle.getWarrenSpringParameter() );
+    return true;//kMohrStressCircle.hasIntersectionPoint( particle.getWarrenSpringParameter() );
 }
 
 fj::MohrStressCircle fj::Particle::CollapseDetector::generateMohrStressCircle(const fj::Particle &particle)const

@@ -16,10 +16,10 @@ bool fj::GnuplotVisualizingCollapseDetector::shouldCallapse(const fj::Particle &
     
     saveToFile(kMohrStressCircle, particle.getWarrenSpringParameter());
     
-    return kMohrStressCircle.hasIntersectionPoint(particle.getWarrenSpringParameter());
+    return true;//kMohrStressCircle.hasIntersectionPoint(particle.getWarrenSpringParameter());
 }
 
-void fj::GnuplotVisualizingCollapseDetector::saveToFile(const fj::MohrStressCircle &mohrStressCircle, const fj::WarrenSpringParameter& warrenSpringParameter)const
+void fj::GnuplotVisualizingCollapseDetector::saveToFile(const fj::MohrStressCircle &mohrStressCircle, const fj::WarrenSpringCurve::Parameter& warrenSpringParameter)const
 {
     static unsigned int tickCount = 0;
     

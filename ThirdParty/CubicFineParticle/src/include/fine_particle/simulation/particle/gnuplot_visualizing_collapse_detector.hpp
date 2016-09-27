@@ -10,6 +10,7 @@
 #define gnuplot_visualizing_collapse_detector_hpp
 
 #include "collapse_detector.hpp"
+#include "fine_particle/shape_2d/warren_spring_curve.hpp"
 
 namespace fj{
     class GnuplotVisualizingCollapseDetector;
@@ -28,7 +29,7 @@ public:
     bool shouldCallapse(const fj::Particle& particle)const override;
     
 private:
-    void saveToFile(const fj::MohrStressCircle& mohrStressCircle, const fj::WarrenSpringParameter& warrenSpringParameter)const;
+    void saveToFile(const fj::MohrStressCircle& mohrStressCircle, const fj::WarrenSpringCurve::Parameter& warrenSpringParameter)const;
 };
 
 #endif /* gnuplot_visualizing_collapse_detector_hpp */

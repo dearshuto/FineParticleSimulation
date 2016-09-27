@@ -72,10 +72,3 @@ fj::MohrStressCircle::NormalStressContainer fj::MohrStressCircle::computeNormalS
     
     return stressContainer;
 }
-
-bool fj::MohrStressCircle::hasIntersectionPoint(const fj::WarrenSpringParameter& warrenSpringParameter)const
-{
-    
-    
-    return true;
-}
