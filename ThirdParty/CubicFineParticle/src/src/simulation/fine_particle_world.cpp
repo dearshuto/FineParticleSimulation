@@ -12,6 +12,7 @@
 #include <BulletCollision/CollisionDispatch/btSimulationIslandManager.h>
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/fine_particle_world.hpp"
+#include "fine_particle/shape_2d/newton_method.hpp"
 
 void fj::FineParticleWorld::terminate()
 {
@@ -147,6 +148,7 @@ void fj::FineParticleWorld::updateParticleCollapse(const btScalar timestep)
 {
     for (auto& particle : m_particles)
     {
+        particle->updateCollapseStatus();
         if ( shouldCollapse(*particle) )
         {
             particle->applyContactForce();
@@ -164,12 +166,16 @@ void fj::FineParticleWorld::updateParticleCollapse(const btScalar timestep)
 bool fj::FineParticleWorld::shouldCollapse(const fj::Particle &particle)const
 {
     // とりあえず常に崩壊
-    return true;
-    
     const auto& kMohrStressCircle = particle.getMohrStressCircle();
-    const auto& kWarrennSpringParameter = particle.getWarrenSpringParameter();
+    const auto kWaarenSpringCurve = particle.getWarrenSpringCurve();
+    std::function<bool(double distance)> func = ([&](const double distance){
+        return distance < kMohrStressCircle.getRadius();
+    });
     
-    // Use any algorithm...
+    const auto kClosestPoint = fj::NewtonMethod::GetInstance().computeClosestPoint(kWaarenSpringCurve, kMohrStressCircle, &func);
+    
+    // どこかしらに近傍が存在していれば崩壊
+    return std::isfinite(kClosestPoint.X);
 }
 
 void fj::FineParticleWorld::updateAllObjectTransform(const btScalar timestep)

@@ -15,7 +15,7 @@ void fj::MohrStressCircle::addContactForce(const btVector3& normalStress)
     m_contactForce.push_back(normalStress);
 }
 
-void fj::MohrStressCircle::rebuildMohrCircle(const btMatrix3x3& rotateMatrix)
+void fj::MohrStressCircle::rebuildMohrCircle(const btQuaternion& rotateMatrix)
 {
     if (m_contactForce.empty())
     {
@@ -34,20 +34,20 @@ void fj::MohrStressCircle::clearContactForce()
     m_contactForce.clear();
 }
 
-void fj::MohrStressCircle::rebuildCircleCenterAndRadius(const btMatrix3x3& rotateMatrix)
+void fj::MohrStressCircle::rebuildCircleCenterAndRadius(const btQuaternion& rotateMatrix)
 {
     // 各面にかかっている垂直応力の中の最大値と最小値を見つける.
     
     NormalStressContainer stressContainer = computeNormalStress(rotateMatrix);
-    const auto& kMinMax = std::minmax(std::begin(stressContainer), std::end(stressContainer));
-    const auto kMin = *kMinMax.first;
-    const auto kMax = *kMinMax.second;
-    
+    const auto& kMinMax = std::minmax_element(std::begin(stressContainer), std::end(stressContainer));
+    const auto kMin = *std::get<0>(kMinMax);
+    const auto kMax = *std::get<1>(kMinMax);
+
     Center = {static_cast<btScalar>(( kMin + kMax) / 2.0), 0};
     Radius = (kMax - kMin) / btScalar(2.);
 }
 
-fj::MohrStressCircle::NormalStressContainer fj::MohrStressCircle::computeNormalStress(const btMatrix3x3 &rotateMatrix)const
+fj::MohrStressCircle::NormalStressContainer fj::MohrStressCircle::computeNormalStress(const btQuaternion &rotateMatrix)const
 {
     // 各面に対してかかっている垂直応力を算出する
     
@@ -62,20 +62,14 @@ fj::MohrStressCircle::NormalStressContainer fj::MohrStressCircle::computeNormalS
     // 離散化形状の各面の法線に回転成分を適用する. そのあとすべての接触力を評価する
     for (int i = 0; i < discretizedShape->size(); i++)
     {
-        const auto kNormal = rotateMatrix * discretizedShape->get(i);
+        auto kNormal = discretizedShape->get(i);//rotateMatrix * discretizedShape->get(i);
+//        kNormal *= rotateMatrix.inverse();
         
         for (const auto& stress: m_contactForce)
         {
-            stressContainer[i] += std::max( static_cast<btScalar>(0.0), stress.dot(kNormal));
+            stressContainer[i] += std::max( static_cast<btScalar>(0.0), stress.dot({kNormal.x(), kNormal.y(), kNormal.z()}));
         }
     }
     
     return stressContainer;
-}
-
-bool fj::MohrStressCircle::hasIntersectionPoint(const fj::WarrenSpringParameter& warrenSpringParameter)const
-{
-    
-    
-    return true;
 }

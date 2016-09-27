@@ -13,6 +13,7 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include "fine_particle/simulation/mohr_stress_circle.hpp"
+#include "fine_particle/shape_2d/warren_spring_curve.hpp"
 #include "discritized_particle_shape.hpp"
 
 
@@ -34,7 +35,7 @@ private:
         : MohrStressCircle(shapeType){}
         
         /** 粉体崩壊曲線を定義するのに必要なパラメータ */
-        WarrenSpringParameter CollapseCurveParameter;
+        fj::WarrenSpringCurve WarrenSpringCurve;
         
         fj::MohrStressCircle MohrStressCircle;
     };
@@ -83,7 +84,9 @@ public:
     
     
     
-    //---------- Public Member Funcsions ---------------------------------------    
+    //---------- Public Member Funcsions ---------------------------------------
+    void updateCollapseStatus();
+    
     void addContactForce(const btVector3& constctForce);
     
     void applyContactForce();
@@ -105,9 +108,9 @@ public:
         return getFineParticleCollapseFactor().MohrStressCircle.getDiscretizedShapeType();
     }
     
-    const fj::WarrenSpringParameter& getWarrenSpringParameter()const
+    const fj::WarrenSpringCurve& getWarrenSpringCurve()const
     {
-        return getFineParticleCollapseFactor().CollapseCurveParameter;
+        return getFineParticleCollapseFactor().WarrenSpringCurve;
     }
     
     const fj::MohrStressCircle& getMohrStressCircle()const

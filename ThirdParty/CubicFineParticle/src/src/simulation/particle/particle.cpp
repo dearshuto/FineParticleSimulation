@@ -33,6 +33,11 @@ std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const fj::Discritiz
     return particle;
 }
 
+void fj::Particle::updateCollapseStatus()
+{
+    getMohrStressCirclePtr()->rebuildMohrCircle( Super::getWorldTransform().getRotation() );
+}
+
 void fj::Particle::addContactForce(const btVector3& contactForce)
 {
     getMohrStressCirclePtr()->addContactForce(contactForce);
