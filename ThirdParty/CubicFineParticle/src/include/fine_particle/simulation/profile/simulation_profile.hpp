@@ -22,6 +22,7 @@ class fj::SimulationProfile
 protected:
     enum class Priority : unsigned int
     {
+        kI_dont_care,
         kAbsolutelyLast,
     };
 public:
