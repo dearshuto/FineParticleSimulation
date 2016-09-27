@@ -14,7 +14,7 @@ bool fj::GnuplotVisualizingCollapseDetector::shouldCallapse(const fj::Particle &
 {
     const auto kMohrStressCircle = generateMohrStressCircle(particle);
     
-    saveToFile(kMohrStressCircle, particle.getWarrenSpringParameter());
+    saveToFile(kMohrStressCircle, particle.getWarrenSpringCurve());
     
     return true;//kMohrStressCircle.hasIntersectionPoint(particle.getWarrenSpringParameter());
 }

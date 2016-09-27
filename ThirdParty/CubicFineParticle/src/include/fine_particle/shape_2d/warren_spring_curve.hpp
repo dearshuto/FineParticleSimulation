@@ -9,13 +9,13 @@
 #ifndef warren_spring_curve_hpp
 #define warren_spring_curve_hpp
 
-#include "math_function_c1.hpp"
+#include "math_function_c2.hpp"
 
 namespace fj {
     class WarrenSpringCurve;
 }
 
-class fj::WarrenSpringCurve : public fj::MathFunctionC1
+class fj::WarrenSpringCurve : public fj::MathFunctionC2
 {
 private:
     // ワーレンス・スプリング曲線を定義するためのパラメータ
@@ -41,6 +41,8 @@ public:
     double compute(const double x)const override;
     
     double computeGradient(const double x)const override;
+    
+    double computeLaplacian(const double x)const override;
     
     const Parameter& getParameter()const
     {

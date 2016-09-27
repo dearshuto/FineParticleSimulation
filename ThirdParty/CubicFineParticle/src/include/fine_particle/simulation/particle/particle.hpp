@@ -35,7 +35,7 @@ private:
         : MohrStressCircle(shapeType){}
         
         /** 粉体崩壊曲線を定義するのに必要なパラメータ */
-        fj::WarrenSpringCurve CollapseCurveParameter;
+        fj::WarrenSpringCurve WarrenSpringCurve;
         
         fj::MohrStressCircle MohrStressCircle;
     };
@@ -106,9 +106,9 @@ public:
         return getFineParticleCollapseFactor().MohrStressCircle.getDiscretizedShapeType();
     }
     
-    const fj::WarrenSpringCurve& getWarrenSpringParameter()const
+    const fj::WarrenSpringCurve& getWarrenSpringCurve()const
     {
-        return getFineParticleCollapseFactor().CollapseCurveParameter;
+        return getFineParticleCollapseFactor().WarrenSpringCurve;
     }
     
     const fj::MohrStressCircle& getMohrStressCircle()const

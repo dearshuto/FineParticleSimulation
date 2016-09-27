@@ -17,8 +17,8 @@ struct fj::Circle
 {
     struct Position2D
     {
-        float X;
-        float Y;
+        double X;
+        double Y;
     };
 public:
     Circle(const Position2D& center = {0, 0}, const float radius = 0.0)

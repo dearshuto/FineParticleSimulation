@@ -168,15 +168,15 @@ bool fj::FineParticleWorld::shouldCollapse(const fj::Particle &particle)const
     return true;
     
     const auto& kMohrStressCircle = particle.getMohrStressCircle();
-    const auto& kWarrennSpringParameter = particle.getWarrenSpringParameter();
+    const auto kWaarenSpringCurve = particle.getWarrenSpringCurve();
+    std::function<bool(double distance)> func = ([&](const double distance){
+        return distance < kMohrStressCircle.getRadius();
+    });
     
-    const auto kWaarenSpringCurve = [&](const double x){
-        return static_cast<double>(0.0);
-    };
+    const auto kClosestPoint = fj::NewtonMethod::GetInstance().computeClosestPoint(kWaarenSpringCurve, kMohrStressCircle, &func);
     
-    const auto kClosestPoint = fj::NewtonMethod::GetInstance().computeClosestPoint(kWaarenSpringCurve, particle.getMohrStressCircle());
-    
-    return true;//kDistance < kMohrStressCircle.getRadius();
+    // どこかしらに近傍が存在していれば崩壊
+    return std::isfinite(kClosestPoint.X);
 }
 
 void fj::FineParticleWorld::updateAllObjectTransform(const btScalar timestep)
