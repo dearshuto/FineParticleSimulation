@@ -12,7 +12,6 @@
 
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/mohr_stress_circle.hpp"
-#include "fine_particle/simulation/particle/collapse_detector.hpp"
 #include "fine_particle/simulation/particle/fine_particle_shape.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
 
