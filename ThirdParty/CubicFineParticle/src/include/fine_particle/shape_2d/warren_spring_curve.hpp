@@ -23,7 +23,7 @@ private:
     {
         Parameter()
         : SheerIndex(1)
-        , Adhesion(1)
+        , Adhesion(0.3)
         , Collapsibility(1)
         {
             

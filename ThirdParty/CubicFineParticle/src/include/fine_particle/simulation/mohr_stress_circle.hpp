@@ -41,7 +41,7 @@ public:
     void addContactForce(const btVector3& normalStress);
     
     /** モール応力円の中心と半径を再計算する.*/
-    void rebuildMohrCircle(const btMatrix3x3& rotateMatrix);
+    void rebuildMohrCircle(const btQuaternion& rotateMatrix);
     
     void clearContactForce();
     
@@ -66,9 +66,9 @@ public:
     }
     
 private:
-    void rebuildCircleCenterAndRadius(const btMatrix3x3& rotateMatrix);
+    void rebuildCircleCenterAndRadius(const btQuaternion& rotateMatrix);
     
-    NormalStressContainer computeNormalStress(const btMatrix3x3& rotateMatrix)const;
+    NormalStressContainer computeNormalStress(const btQuaternion& rotateMatrix)const;
     
 private:
     /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */

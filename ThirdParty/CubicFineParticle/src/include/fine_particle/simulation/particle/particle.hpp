@@ -84,7 +84,9 @@ public:
     
     
     
-    //---------- Public Member Funcsions ---------------------------------------    
+    //---------- Public Member Funcsions ---------------------------------------
+    void updateCollapseStatus();
+    
     void addContactForce(const btVector3& constctForce);
     
     void applyContactForce();
