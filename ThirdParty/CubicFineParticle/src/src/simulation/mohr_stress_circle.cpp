@@ -19,8 +19,9 @@ void fj::MohrStressCircle::rebuildMohrCircle(const btMatrix3x3& rotateMatrix)
 {
     if (m_contactForce.empty())
     {
-        m_center = {{0.0, 0.0}};
-        m_radius = 0.0;
+        Center = {0.0, 0.0};
+        Radius = 0.0;
+        return;
     }
     else
     {
@@ -42,8 +43,8 @@ void fj::MohrStressCircle::rebuildCircleCenterAndRadius(const btMatrix3x3& rotat
     const auto kMin = *kMinMax.first;
     const auto kMax = *kMinMax.second;
     
-    m_center = {{static_cast<btScalar>(( kMin + kMax) / 2.0), 0}};
-    m_radius = (kMax - kMin) / btScalar(2.);
+    Center = {static_cast<btScalar>(( kMin + kMax) / 2.0), 0};
+    Radius = (kMax - kMin) / btScalar(2.);
 }
 
 fj::MohrStressCircle::NormalStressContainer fj::MohrStressCircle::computeNormalStress(const btMatrix3x3 &rotateMatrix)const

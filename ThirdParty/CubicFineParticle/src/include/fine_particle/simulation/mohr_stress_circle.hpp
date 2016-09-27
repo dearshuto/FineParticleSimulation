@@ -14,6 +14,7 @@
 #include <vector>
 #include <btBulletDynamicsCommon.h>
 #include "fine_particle/simulation/particle/discritized_particle_shape.hpp"
+#include "fine_particle/shape_2d/circle.hpp"
 
 namespace fj {
     
@@ -37,9 +38,9 @@ namespace fj {
 }
 
 /** モール応力円 */
-class fj::MohrStressCircle
+class fj::MohrStressCircle : public fj::Circle
 {
-    typedef std::array<btScalar, 2> Position2D;
+    typedef fj::Circle Super;
     typedef std::vector<btVector3> ContactForceContainer;
     typedef std::vector<btScalar> NormalStressContainer;
 public:
@@ -64,7 +65,7 @@ public:
     
     const Position2D& getCenter()const
     {
-        return m_center;
+        return Super::Center;
     }
 
     const ContactForceContainer& getContactForceContainer()const
@@ -79,7 +80,7 @@ public:
     
     const btScalar getRadius()const
     {
-        return m_radius;
+        return Super::Radius;
     }
     
 private:
@@ -88,10 +89,6 @@ private:
     NormalStressContainer computeNormalStress(const btMatrix3x3& rotateMatrix)const;
     
 private:
-    Position2D m_center;
-    
-    btScalar m_radius;
-    
     /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
     ContactForceContainer m_contactForce;
     
