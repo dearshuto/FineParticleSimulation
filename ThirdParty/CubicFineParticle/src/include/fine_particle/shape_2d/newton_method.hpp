@@ -23,6 +23,12 @@ private:
 public:
     ~NewtonMethod() = default;
     
+    static const fj::NewtonMethod& GetInstance()
+    {
+        static fj::NewtonMethod instance;
+        return instance;
+    }
+    
     fj::Circle::Position2D computeClosestPoint(const std::function<double(double)>& explicitFunction, const fj::Circle& circle) const override;
 };
 

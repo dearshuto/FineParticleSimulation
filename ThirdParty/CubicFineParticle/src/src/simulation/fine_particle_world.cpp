@@ -12,6 +12,7 @@
 #include <BulletCollision/CollisionDispatch/btSimulationIslandManager.h>
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/fine_particle_world.hpp"
+#include "fine_particle/shape_2d/newton_method.hpp"
 
 void fj::FineParticleWorld::terminate()
 {
@@ -169,7 +170,13 @@ bool fj::FineParticleWorld::shouldCollapse(const fj::Particle &particle)const
     const auto& kMohrStressCircle = particle.getMohrStressCircle();
     const auto& kWarrennSpringParameter = particle.getWarrenSpringParameter();
     
-    // Use any algorithm...
+    const auto kWaarenSpringCurve = [&](const double x){
+        return static_cast<double>(0.0);
+    };
+    
+    const auto kClosestPoint = fj::NewtonMethod::GetInstance().computeClosestPoint(kWaarenSpringCurve, particle.getMohrStressCircle());
+    
+    return true;//kDistance < kMohrStressCircle.getRadius();
 }
 
 void fj::FineParticleWorld::updateAllObjectTransform(const btScalar timestep)
