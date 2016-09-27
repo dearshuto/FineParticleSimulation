@@ -18,8 +18,8 @@ void fj::MohrStressCircle::rebuildMohrCircle()
 {
     if (m_normalStress.empty())
     {
-        m_center = {{0.0, 0.0}};
-        m_radius = 0.0;
+        Center = {0.0, 0.0};
+        Radius = 0.0;
         return;
     }
     
@@ -27,8 +27,8 @@ void fj::MohrStressCircle::rebuildMohrCircle()
     const auto kMin = *kMinMax.first;
     const auto kMax = *kMinMax.second;
     
-    m_center = {{static_cast<btScalar>(( kMin + kMax) / 2.0), 0}};
-    m_radius = (kMax - kMin) / btScalar(2.);
+    Center = {static_cast<btScalar>(( kMin + kMax) / 2.0), 0};
+    Radius = (kMax - kMin) / btScalar(2.);
 }
 
 bool fj::MohrStressCircle::hasIntersectionPoint(const fj::WarrenSpringParameter& warrenSpringParameter)const

@@ -13,6 +13,7 @@
 #include <tuple>
 #include <vector>
 #include <btBulletDynamicsCommon.h>
+#include "fine_particle/shape_2d/circle.hpp"
 
 namespace fj {
     
@@ -36,10 +37,9 @@ namespace fj {
 }
 
 /** モール応力円 */
-class fj::MohrStressCircle
+class fj::MohrStressCircle : public fj::Circle
 {
-    typedef std::array<btScalar, 2> Position2D;
-    
+    typedef fj::Circle Super;
 public:
     MohrStressCircle() = default;
     ~MohrStressCircle() = default;
@@ -61,19 +61,15 @@ public:
     
     const Position2D& getCenter()const
     {
-        return m_center;
+        return Super::Center;
     }
 
     const btScalar getRadius()const
     {
-        return m_radius;
+        return Super::Radius;
     }
     
 private:
-    Position2D m_center;
-    
-    btScalar m_radius;
-    
     std::vector<double> m_normalStress;
 };
 

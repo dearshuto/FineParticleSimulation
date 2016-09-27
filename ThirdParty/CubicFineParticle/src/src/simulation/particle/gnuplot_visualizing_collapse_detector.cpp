@@ -28,7 +28,7 @@ void fj::GnuplotVisualizingCollapseDetector::saveToFile(const fj::MohrStressCirc
 //    output << "set terminal aqua" << std::endl;
     output << "set terminal postscript eps enhanced color" << std::endl;
     output << "set object circle at "
-        << std::to_string(mohrStressCircle.getCenter()[0]) << ", " << std::to_string(mohrStressCircle.getCenter()[1])
+        << std::to_string(mohrStressCircle.getCenter().X) << ", " << std::to_string(mohrStressCircle.getCenter().Y)
         << " size " << std::to_string(mohrStressCircle.getRadius())
         << std::endl;
     output << "plot " << std::to_string(warrenSpringParameter.Adhesion) << "*" << "(" << "x / " << std::to_string(warrenSpringParameter.Collapsibility) << " + 1)" << "**(" << std::to_string(warrenSpringParameter.SheerIndex) << ")" << std::endl;
