@@ -15,11 +15,15 @@
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/profile/simulation_time_profile.hpp"
 #include "fine_particle/simulation/profile/mohr_stress_circle_profile.hpp"
+#include "fine_particle/simulation/profile/mohr_stress_circle_distribution.hpp"
 #include "fine_particle/povray/povray_output.hpp"
 
 int main(int argc, char** argv)
 {
     std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
+    std::unique_ptr<fj::MohrStressCircleDistribution> distrubution(new fj::MohrStressCircleDistribution());
+    distrubution->setGraph(0, 10, 0.25);
+    
     std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
     mohrStressCircleProfile->setFilter( std::function<bool(const int)>([](const int index){return index == 7;} ) );
     
@@ -29,8 +33,11 @@ int main(int argc, char** argv)
     
     
     mohrStressCircleProfile->registerWorld(worldWeakPtr);
-    world->addProfileSystem( std::move(mohrStressCircleProfile) );
+    distrubution->registerWorld(worldWeakPtr);
+    
+//    world->addProfileSystem( std::move(mohrStressCircleProfile) );
     world->addProfileSystem( std::move(timeProfile) );
+    world->addProfileSystem(std::move(distrubution));
     
     // 床
     std::unique_ptr<btCollisionShape> groundShape(new btBoxShape( btVector3(btScalar(1000), btScalar(10), btScalar(1000))));
@@ -48,9 +55,9 @@ int main(int argc, char** argv)
     world->SpringK = 5;
     
     // 粒子生成
-    for (int i = 0; i < 2; i++){
-        for (int j = 0; j < 5; j++){
-            for (int k = 0; k < 2; k++)
+    for (int i = 0; i < 10; i++){
+        for (int j = 0; j < 10; j++){
+            for (int k = 0; k < 10; k++)
             {
                 btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
                 btMatrix3x3 matrix;
