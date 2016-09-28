@@ -14,13 +14,22 @@
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/profile/simulation_time_profile.hpp"
+#include "fine_particle/simulation/profile/mohr_stress_circle_profile.hpp"
 #include "fine_particle/povray/povray_output.hpp"
 
 int main(int argc, char** argv)
 {
     std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
+    std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
+    mohrStressCircleProfile->setFilter( std::function<bool(const int)>([](const int index){return index == 7;} ) );
+    
     std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
+    std::weak_ptr<fj::FineParticleWorld> worldWeakPtr(world);
     world->setGravity( btVector3(0, -9.8, 0) );
+    
+    
+    mohrStressCircleProfile->registerWorld(worldWeakPtr);
+    world->addProfileSystem( std::move(mohrStressCircleProfile) );
     world->addProfileSystem( std::move(timeProfile) );
     
     // 床
@@ -39,9 +48,9 @@ int main(int argc, char** argv)
     world->SpringK = 5;
     
     // 粒子生成
-    for (int i = 0; i < 10; i++){
-        for (int j = 0; j < 10; j++){
-            for (int k = 0; k < 10; k++)
+    for (int i = 0; i < 2; i++){
+        for (int j = 0; j < 5; j++){
+            for (int k = 0; k < 2; k++)
             {
                 btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
                 btMatrix3x3 matrix;
@@ -58,7 +67,7 @@ int main(int argc, char** argv)
     
     
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 50; i++)
     {
         world->stepSimulation(1.0/480.0);
     }

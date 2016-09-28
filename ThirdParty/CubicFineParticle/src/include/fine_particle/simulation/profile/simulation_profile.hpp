@@ -22,6 +22,7 @@ class fj::SimulationProfile
 protected:
     enum class Priority : unsigned int
     {
+        kI_dont_care,
         kAbsolutelyLast,
     };
 public:
@@ -45,11 +46,11 @@ public:
         m_world = world;
     }
     
-protected:
     unsigned int getPriorityAdUInt()const
     {
         return static_cast<unsigned int>(m_priority);
     }
+protected:
     
     const std::weak_ptr<fj::FineParticleWorld>& getWorld()const
     {

@@ -135,6 +135,9 @@ public:
 
     
     //------------------ Profiling -----------------------------//
+    /** プロファイル処理を追加する
+     * @pre プロファイルが fj::SimulationProfile::Priority 順に並んでいる.
+     * @post プロファイルが fj::SimulationProfile::Priority 順に並んでいる.*/
     void addProfileSystem(std::unique_ptr<fj::SimulationProfile> profile);
     
 private:
