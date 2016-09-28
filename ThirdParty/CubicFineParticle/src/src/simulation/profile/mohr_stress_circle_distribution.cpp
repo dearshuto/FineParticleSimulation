@@ -38,8 +38,8 @@ void fj::MohrStressCircleDistribution::endSimulationProfile()
             ++data[kCell];
         }
         
-        std::ofstream output("disribution_" + std::to_string(frame) + ".data");
-        std::ofstream command("disribution_" + std::to_string(frame) + ".gnuplot");
+        std::ofstream output(getOutputDirectory() + "/disribution_" + std::to_string(frame) + ".data");
+        std::ofstream command(getOutputDirectory() + "/disribution_" + std::to_string(frame) + ".gnuplot");
         for (int i = 0; i < data.size(); i++)
         {
             output << m_duration * i << " " << data[i] << std::endl;

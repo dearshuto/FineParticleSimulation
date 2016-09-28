@@ -20,24 +20,75 @@
 
 int main(int argc, char** argv)
 {
-    std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
-    std::unique_ptr<fj::MohrStressCircleDistribution> distrubution(new fj::MohrStressCircleDistribution());
-    distrubution->setGraph(0, 10, 0.25);
-    
-    std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
-    mohrStressCircleProfile->setFilter( std::function<bool(const int)>([](const int index){return index == 7;} ) );
-    
     std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
     std::weak_ptr<fj::FineParticleWorld> worldWeakPtr(world);
     world->setGravity( btVector3(0, -9.8, 0) );
-    
-    
-    mohrStressCircleProfile->registerWorld(worldWeakPtr);
-    distrubution->registerWorld(worldWeakPtr);
-    
-//    world->addProfileSystem( std::move(mohrStressCircleProfile) );
-    world->addProfileSystem( std::move(timeProfile) );
-    world->addProfileSystem(std::move(distrubution));
+
+    // 引数に何かしらが渡ってきたらプロファイル設定をおこなう
+    if (1 < argc)
+    {
+        std::vector<std::string> commandOption;
+        
+        // オプションを全てバラす
+        for (int i = 1; i < argc; i++)
+        {
+            commandOption.push_back( std::string(argv[1]) );
+        }
+        
+        std::vector<std::string>::iterator iterator;
+        
+        // シミュレーション時間の最大値, 最小値, 平均を知りたいとき
+        iterator = std::find_if(commandOption.begin(), commandOption.end()
+                                , [](const std::string& option){
+                                    return option == "-min_max_average_time";
+                                });
+
+        if (commandOption.end() != iterator)
+        {
+            std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
+            world->addProfileSystem( std::move(timeProfile) );
+            std::cout << "Min, Max, Average profile" << std::endl;
+        }
+
+        // 粒子にかかってる力の差分（モール応力円の半径）の分布が知りたいとき
+        iterator = std::find_if(commandOption.begin(), commandOption.end()
+                                , [](const std::string& option){
+                                    return option == "-distribusion";
+                                });
+        if (commandOption.end() != iterator)
+        {
+            std::unique_ptr<fj::MohrStressCircleDistribution> distrubution(new fj::MohrStressCircleDistribution());
+            distrubution->setGraph(0, 10, 0.25);
+            distrubution->registerWorld(worldWeakPtr);
+            world->addProfileSystem(std::move(distrubution));
+            std::cout << "Stress Distribution" << std::endl;
+        }
+
+        
+        // 粉体崩壊曲線を見たいとき
+        iterator = std::find_if(commandOption.begin(), commandOption.end()
+                                , [](const std::string& option){
+                                    return option == "-collapse_curve";
+                                });
+        if (commandOption.end() != iterator)
+        {
+            // --collapse_curveの次にフィルタ番号が指定されていないといけない
+            try {
+                const auto filter = std::stoi( *(++iterator) );
+                
+                std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
+                mohrStressCircleProfile->setFilter( std::function<bool(const int)>([filter](const int index){return index == filter;} ) );
+                mohrStressCircleProfile->registerWorld(worldWeakPtr);
+                mohrStressCircleProfile->setOutputDirectory("./collapse_curve");
+                world->addProfileSystem(std::move(mohrStressCircleProfile));
+                std::cout << "Chase at " << filter << std::endl;
+            } catch (const std::exception& e)
+            {
+                std::cout << "-collapse_curve number ← Use Integer" << std::endl;
+            }
+        }
+
+    }
     
     // 床
     std::unique_ptr<btCollisionShape> groundShape(new btBoxShape( btVector3(btScalar(1000), btScalar(10), btScalar(1000))));

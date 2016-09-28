@@ -24,9 +24,8 @@ class fj::SimulationTimeProfile : public fj::SimulationProfile
     typedef std::chrono::system_clock::time_point time_point;
     typedef long long MilliSecTime;
 public:
-    SimulationTimeProfile(const std::string& outputDirectory = ".")
+    SimulationTimeProfile()
     : Super(Priority::kAbsolutelyLast)
-    , m_outputDirectory(outputDirectory)
     , m_average(0)
     , m_max(0)
     , m_min(std::numeric_limits<MilliSecTime>::infinity())
@@ -49,10 +48,6 @@ protected:
     void updateSimulationTimeAverage(const MilliSecTime& currentStep);
     
 public:
-    const std::string& getOutputDirectory()const
-    {
-        return m_outputDirectory;
-    }
     
     const time_point& getStartTime()const
     {
@@ -75,7 +70,6 @@ public:
     }
     
 private:
-    std::string m_outputDirectory;
     
     time_point m_start;
     
