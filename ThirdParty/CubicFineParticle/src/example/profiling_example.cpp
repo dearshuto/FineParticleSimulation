@@ -21,6 +21,7 @@ int main(int argc, char** argv)
 {
     std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
     std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
+    mohrStressCircleProfile->setFilter( std::function<bool(const int)>([](const int index){return index == 7;} ) );
     
     std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
     std::weak_ptr<fj::FineParticleWorld> worldWeakPtr(world);
@@ -66,7 +67,7 @@ int main(int argc, char** argv)
     
     
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 50; i++)
     {
         world->stepSimulation(1.0/480.0);
     }

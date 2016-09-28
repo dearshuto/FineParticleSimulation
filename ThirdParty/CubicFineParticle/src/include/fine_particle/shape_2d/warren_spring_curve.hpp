@@ -22,7 +22,7 @@ private:
     struct Parameter
     {
         Parameter()
-        : SheerIndex(1)
+        : SheerIndex(1.5)
         , Adhesion(0.3)
         , Collapsibility(1)
         {

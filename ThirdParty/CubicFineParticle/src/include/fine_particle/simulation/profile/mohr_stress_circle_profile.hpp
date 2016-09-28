@@ -32,6 +32,14 @@ public:
     void endSimulationProfile()override;
     
     void terminate()override;
+    
+    void setFilter(const std::function<bool(const int index)>& function)
+    {
+        m_filterFunction = function;
+    }
+    
+private:
+    std::function<bool(const int index)> m_filterFunction;
 };
 
 #endif /* mohr_stress_circle_profile_hpp */
