@@ -23,7 +23,11 @@ int main(int argc, char** argv)
     std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
     
     std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
+    std::weak_ptr<fj::FineParticleWorld> worldWeakPtr(world);
     world->setGravity( btVector3(0, -9.8, 0) );
+    
+    
+    mohrStressCircleProfile->registerWorld(worldWeakPtr);
     world->addProfileSystem( std::move(mohrStressCircleProfile) );
     world->addProfileSystem( std::move(timeProfile) );
     
@@ -43,9 +47,9 @@ int main(int argc, char** argv)
     world->SpringK = 5;
     
     // 粒子生成
-    for (int i = 0; i < 10; i++){
-        for (int j = 0; j < 10; j++){
-            for (int k = 0; k < 10; k++)
+    for (int i = 0; i < 2; i++){
+        for (int j = 0; j < 5; j++){
+            for (int k = 0; k < 2; k++)
             {
                 btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
                 btMatrix3x3 matrix;

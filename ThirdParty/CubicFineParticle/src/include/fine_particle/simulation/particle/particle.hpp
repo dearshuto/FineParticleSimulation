@@ -98,6 +98,11 @@ public:
     
     //---------- Public Getters -------------------------------------------------
     
+    const FineParticleCollapseFactor& getFineParticleCollapseFactor()const
+    {
+        return m_collapseFactor;
+    }
+    
     const ContactForceContainer& getContactForceContainer()const
     {
         return getMohrStressCircle().getContactForceContainer();
@@ -141,11 +146,6 @@ public:
     
     //---------- Private Getters ----------------------------------------------
 private:
-    const FineParticleCollapseFactor& getFineParticleCollapseFactor()const
-    {
-        return m_collapseFactor;
-    }
-
     FineParticleCollapseFactor* getFineParticleCollapseFactorPtr()
     {
         return &m_collapseFactor;
