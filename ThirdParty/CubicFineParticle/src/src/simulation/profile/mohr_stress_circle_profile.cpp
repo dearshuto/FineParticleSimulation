@@ -41,7 +41,6 @@ void fj::MohrStressCircleProfile::endSimulationProfile()
                 }
             }
 
-            
             const std::string kFilename = getOutputDirectory() + "/particle" + std::to_string(i) + "_" + std::to_string(frameCount);
             std::ofstream output(kFilename + ".gnuplot");
             
@@ -50,7 +49,7 @@ void fj::MohrStressCircleProfile::endSimulationProfile()
                 std::cout << "MohrStressCircleProfile not run" << std::endl;
                 break;
             }
-            
+
             const auto& particle = world->getParticles()[i];
             const auto& kMohrStressCircle = particle->getFineParticleCollapseFactor().MohrStressCircle;
             const auto& kWarrenSpringParameter = particle->getWarrenSpringCurve().getParameter();
@@ -59,7 +58,7 @@ void fj::MohrStressCircleProfile::endSimulationProfile()
             const auto kRadius = kMohrStressCircle.getRadius();
             
             output << "reset" << std::endl;
-            output << "set terminal png" << std::endl;
+            output << "set terminal png size 400,300" << std::endl;
             output << "set ytics 1.0" << std::endl;
             output << "set size ratio 1.0 1.0" << std::endl;
             output << "set output \"" << kFilename << ".png\"" << std::endl;

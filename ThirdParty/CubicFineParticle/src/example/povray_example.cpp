@@ -78,6 +78,8 @@ int main(int argc, char** argv)
     // 引数でシミュレーションステップが指定されていなければ1000回だけシミュレーションを回す
     // 引数で渡された値が数字以外だったときの処理は未定義
     const int kStep = (argc < 2) ? 1000 : std::atoi(argv[1]);
+    const double kE = (argc < 3) ? 1 : std::atoi(argv[2]);
+    world->DashpodEnvelop = kE;
     
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
     for (int i = 0; i < kStep; i++)
