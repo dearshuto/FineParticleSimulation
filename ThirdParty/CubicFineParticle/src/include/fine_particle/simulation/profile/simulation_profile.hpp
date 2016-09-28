@@ -62,6 +62,8 @@ public:
     {
         return static_cast<unsigned int>(m_priority);
     }
+    
+    
 protected:
     
     const std::weak_ptr<fj::FineParticleWorld>& getWorld()const
