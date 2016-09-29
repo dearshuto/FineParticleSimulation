@@ -89,7 +89,12 @@ public:
     
     void addContactForce(const btVector3& constctForce);
     
-    void applyContactForce();
+    /// 「崩壊=粒子が移動する」なので, 接触力を粒子に与える.
+    void collapse();
+    
+    /// 摩擦力によって動きが止まる現象を表現する
+    /// @pre 接触力が計算済みでモール応力円が構成済みである
+    void lockWithFriction();
     
     void clearContactForce();
     

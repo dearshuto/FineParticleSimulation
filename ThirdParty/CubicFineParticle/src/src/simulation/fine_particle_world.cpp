@@ -151,13 +151,11 @@ void fj::FineParticleWorld::updateParticleCollapse(const btScalar timestep)
         particle->updateCollapseStatus();
         if ( shouldCollapse(*particle) )
         {
-            particle->applyContactForce();
+            particle->collapse();
         }
         else
         {
-            // 崩壊条件を満たしてない場合, 速度を奪ってしまえば位置更新されない
-            particle->clearForces();
-            particle->setLinearVelocity(btVector3(0, 0, 0));
+            particle->lockWithFriction();
         }
         particle->clearContactForce();
     }
