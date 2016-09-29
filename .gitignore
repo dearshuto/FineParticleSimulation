@@ -11,6 +11,14 @@ ThirdParty/CubicFineParticle/Libraries/*
 *.pro*
 *.VC.*
 .vc/*
+*.pyc
+*.gnuplot
+*.png
+*.pov
+*.data
+*.log
+*.mov
+*.mp4
 ThirdParty/CubicFineParticle/src/bin
 ThirdParty/CubicFineParticle/src/lib
 ThirdParty/CubicFineParticle/src/build

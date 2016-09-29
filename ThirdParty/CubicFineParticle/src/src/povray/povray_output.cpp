@@ -87,7 +87,7 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
     POV += "plane{y,0";
     POV += "    pigment{";
     POV += "        checker White*1.2, color rgb<0.5,0.9,0.9>*10";
-    POV += "        scale 0.2";
+    POV += "        scale 10.2";
     POV += "    }";
     POV += "    finish{phong 1 reflection 0.3}";
     POV += "}";

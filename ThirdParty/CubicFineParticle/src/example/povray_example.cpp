@@ -44,9 +44,9 @@ int main(int argc, char** argv)
     
     // 粒子生成
 	auto initializeStart = std::chrono::system_clock::now();
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 5; j++){
-            for (int k = 0; k < 5; k++)
+    for (int i = 0; i < 10; i++){
+        for (int j = 0; j < 10; j++){
+            for (int k = 0; k < 10; k++)
             {
                 btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
                 btMatrix3x3 matrix;
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
     for (int i = 0; i < kStep; i++)
     {
 		simulationStart = std::chrono::system_clock::now();
-        world->stepSimulation(1.0/480.0);
+        world->stepSimulation(1.0/120.0);
 		simulationEnd = std::chrono::system_clock::now();
 		simulationTime = simulationEnd - simulationStart;
 
