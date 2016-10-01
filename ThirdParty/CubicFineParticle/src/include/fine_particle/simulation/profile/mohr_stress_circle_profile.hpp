@@ -20,12 +20,14 @@ class fj::MohrStressCircleProfile : public fj::SimulationProfile
 {
     typedef fj::SimulationProfile Super;
 public:
-    MohrStressCircleProfile()
-    : Super(Priority::kI_dont_care)
+    MohrStressCircleProfile() = delete;
+    ~MohrStressCircleProfile() = default;
+
+    MohrStressCircleProfile(const fj::FineParticleWorld& world)
+    : Super(world, Priority::kI_dont_care)
     {
         
     }
-    ~MohrStressCircleProfile() = default;
     
     void startSimulationProfile()override;
     

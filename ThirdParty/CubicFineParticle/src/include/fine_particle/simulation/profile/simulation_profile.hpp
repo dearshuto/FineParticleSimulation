@@ -30,8 +30,9 @@ public:
     SimulationProfile() = delete;
     virtual~SimulationProfile() = default;
     
-    SimulationProfile(const Priority priority)
-    : m_priority(priority)
+    SimulationProfile(const fj::FineParticleWorld& world, const Priority priority)
+    : m_world(world)
+    , m_priority(priority)
     , m_outputDirectory("./")
     {
         
@@ -53,11 +54,6 @@ public:
         m_outputDirectory = filename;
     }
     
-    void registerWorld(std::weak_ptr<fj::FineParticleWorld>& world)
-    {
-        m_world = world;
-    }
-    
     unsigned int getPriorityAdUInt()const
     {
         return static_cast<unsigned int>(m_priority);
@@ -66,15 +62,15 @@ public:
     
 protected:
     
-    const std::weak_ptr<fj::FineParticleWorld>& getWorld()const
+    const fj::FineParticleWorld& getWorld()const
     {
         return m_world;
     }
     
 private:
+    const fj::FineParticleWorld& m_world;
+
     const Priority m_priority;
-    
-    std::weak_ptr<fj::FineParticleWorld> m_world;
     
     std::string m_outputDirectory;
 };

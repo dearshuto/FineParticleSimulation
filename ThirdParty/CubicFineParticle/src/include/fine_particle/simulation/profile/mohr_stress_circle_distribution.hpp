@@ -19,13 +19,15 @@ class fj::MohrStressCircleDistribution : public fj::SimulationProfile
 {
     typedef fj::SimulationProfile Super;
 public:
-    MohrStressCircleDistribution()
-    : Super(Priority::kI_dont_care)
+    MohrStressCircleDistribution() = delete;
+    ~MohrStressCircleDistribution() = default;
+
+    MohrStressCircleDistribution(const fj::FineParticleWorld& world)
+    : Super(world, Priority::kI_dont_care)
     {
         
     }
-    ~MohrStressCircleDistribution() = default;
-    
+
     void startSimulationProfile()override;
     
     void endSimulationProfile()override;

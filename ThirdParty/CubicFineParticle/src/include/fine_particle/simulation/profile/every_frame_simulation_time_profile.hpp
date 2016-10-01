@@ -19,14 +19,16 @@ class fj::EveryFrameSimulationTimeProfile : public fj::SimulationTimeProfile
 {
     typedef fj::SimulationTimeProfile Super;
 public:
-    EveryFrameSimulationTimeProfile()
-    : m_frame(0)
+    EveryFrameSimulationTimeProfile() = delete;
+    ~EveryFrameSimulationTimeProfile() = default;
+    
+    EveryFrameSimulationTimeProfile(const fj::FineParticleWorld& world)
+    : Super(world)
+    , m_frame(0)
     {
         
     }
-    
-    ~EveryFrameSimulationTimeProfile() = default;
-    
+
     void endSimulationProfile()override;
     
     void terminate()override;

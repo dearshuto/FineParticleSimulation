@@ -20,38 +20,33 @@ void fj::MohrStressCircleDistribution::endSimulationProfile()
 {
     static unsigned int frame = 0;
     
-    const auto world = getWorld().lock();
+    const auto& world = getWorld();
     
-    if (world)
+    std::vector<unsigned int> data;
+    
+    data.resize(( (m_max - m_min)/m_duration ));
+    std::fill(data.begin(), data.end(), 0);
+    
+    for (int i = 0; i < world.getParticles().size(); i++)
     {
-        std::vector<unsigned int> data;
+        const auto& particle = world.getParticles()[i];
+        const float kRadius = particle->getMohrStressCircle().getRadius();
+        const int kCell = static_cast<int>(kRadius / m_duration);
         
-        data.resize(( (m_max - m_min)/m_duration ));
-        std::fill(data.begin(), data.end(), 0);
-        
-        for (int i = 0; i < world->getParticles().size(); i++)
-        {
-            const auto& particle = world->getParticles()[i];
-            const float kRadius = particle->getMohrStressCircle().getRadius();
-            const int kCell = static_cast<int>(kRadius / m_duration);
-            
-            ++data[kCell];
-        }
-        
-        std::ofstream output(getOutputDirectory() + "/distribution_" + std::to_string(frame) + ".data");
-        std::ofstream command(getOutputDirectory() + "/distribution_" + std::to_string(frame) + ".gnuplot");
-        for (int i = 0; i < data.size(); i++)
-        {
-            output << m_duration * i << " " << data[i] << std::endl;
-        }
-        
-        command << "reset" << std::endl;
-        command << "set terminal png size 400,300" << std::endl;
-        command << "set output \"distribution_" << frame << ".png\"" << std::endl;
-        command << "plot \"distribution_" << frame << ".data\" using 1:2 with lines" << std::endl;
-        
+        ++data[kCell];
     }
     
+    std::ofstream output("disribution_" + std::to_string(frame) + ".data");
+    std::ofstream command("disribution_" + std::to_string(frame) + ".gnuplot");
+    for (int i = 0; i < data.size(); i++)
+    {
+        output << m_duration * i << " " << data[i] << std::endl;
+    }
+    
+    command << "reset" << std::endl;
+    command << "set terminal png" << std::endl;
+    command << "set output \"distribution_" << frame << ".png\"" << std::endl;
+    command << "plot \"disribution_" << frame << ".data\" using 1:2 with lines" << std::endl;
     
     ++frame;
 }
