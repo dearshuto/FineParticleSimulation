@@ -83,7 +83,7 @@ int main(int argc, char** argv)
         // 粒子にかかってる力の差分（モール応力円の半径）の分布が知りたいとき
         iterator = std::find_if(commandOption.begin(), commandOption.end()
                                 , [](const std::string& option){
-                                    return option == "-distribusion";
+                                    return option == "-distribution";
                                 });
         if (commandOption.end() != iterator)
         {
