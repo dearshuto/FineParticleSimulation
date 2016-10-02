@@ -10,6 +10,7 @@
 #define simulation_profile_hpp
 
 #include <memory>
+#include <string>
 
 namespace fj {
     class FineParticleWorld;
@@ -31,6 +32,7 @@ public:
     
     SimulationProfile(const Priority priority)
     : m_priority(priority)
+    , m_outputDirectory("./")
     {
         
     }
@@ -41,6 +43,16 @@ public:
     
     virtual void terminate() = 0;
     
+    const std::string& getOutputDirectory()const
+    {
+        return m_outputDirectory;
+    }
+    
+    void setOutputDirectory(const std::string& filename)
+    {
+        m_outputDirectory = filename;
+    }
+    
     void registerWorld(std::weak_ptr<fj::FineParticleWorld>& world)
     {
         m_world = world;
@@ -50,6 +62,8 @@ public:
     {
         return static_cast<unsigned int>(m_priority);
     }
+    
+    
 protected:
     
     const std::weak_ptr<fj::FineParticleWorld>& getWorld()const
@@ -61,6 +75,8 @@ private:
     const Priority m_priority;
     
     std::weak_ptr<fj::FineParticleWorld> m_world;
+    
+    std::string m_outputDirectory;
 };
 
 

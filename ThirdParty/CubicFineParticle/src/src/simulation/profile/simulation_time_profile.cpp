@@ -44,7 +44,7 @@ void fj::SimulationTimeProfile::updateSimulationTimeAverage(const MilliSecTime &
 
 void fj::SimulationTimeProfile::terminate()
 {
-    std::ofstream output(m_outputDirectory + "/simulation_time.log");
+    std::ofstream output(getOutputDirectory() + "/simulation_time.log");
     
     output << "Max: " << m_max / 1000.0 << " sec" << std::endl;
     output << "Min: " << m_min / 1000.0 << " sec" << std::endl;

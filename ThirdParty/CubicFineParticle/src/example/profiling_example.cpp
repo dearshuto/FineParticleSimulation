@@ -20,24 +20,108 @@
 
 int main(int argc, char** argv)
 {
-    std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
-    std::unique_ptr<fj::MohrStressCircleDistribution> distrubution(new fj::MohrStressCircleDistribution());
-    distrubution->setGraph(0, 10, 0.25);
-    
-    std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
-    mohrStressCircleProfile->setFilter( std::function<bool(const int)>([](const int index){return index == 7;} ) );
-    
     std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
     std::weak_ptr<fj::FineParticleWorld> worldWeakPtr(world);
     world->setGravity( btVector3(0, -9.8, 0) );
-    
-    
-    mohrStressCircleProfile->registerWorld(worldWeakPtr);
-    distrubution->registerWorld(worldWeakPtr);
-    
-//    world->addProfileSystem( std::move(mohrStressCircleProfile) );
-    world->addProfileSystem( std::move(timeProfile) );
-    world->addProfileSystem(std::move(distrubution));
+
+    unsigned int simulationStep = 50;
+    // 引数に何かしらが渡ってきたらプロファイル設定をおこなう
+    if (1 < argc)
+    {
+        
+        std::vector<std::string> commandOption;
+        
+        // オプションを全てバラす
+        for (int i = 1; i < argc; i++)
+        {
+            commandOption.push_back( std::string(argv[i]) );
+        }
+        
+        std::vector<std::string>::iterator iterator;
+        
+        // 出力ディレクトリの設定
+        std::string outputDirectory(".");
+        iterator = std::find_if(commandOption.begin(), commandOption.end()
+                                , [](const std::string& option){
+                                    return option == "-output";
+                                });
+        
+        if (commandOption.end() != iterator)
+        {
+            outputDirectory = *(++iterator);
+        }
+
+        // シミュレーション回数
+        iterator = std::find_if(commandOption.begin(), commandOption.end()
+                                , [](const std::string& option){
+                                    return option == "-step";
+                                });
+        
+        if (commandOption.end() != iterator)
+        {
+            // -step の次に数字が来てるものとする
+            try {
+                simulationStep = std::stoi( *(++iterator) );
+            } catch (const std::exception& e) {
+                std::cout << "FUCK" << std::endl;
+            }
+
+        }
+        
+        // シミュレーション時間の最大値, 最小値, 平均を知りたいとき
+        iterator = std::find_if(commandOption.begin(), commandOption.end()
+                                , [](const std::string& option){
+                                    return option == "-min_max_average_time";
+                                });
+
+        if (commandOption.end() != iterator)
+        {
+            std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
+            timeProfile->setOutputDirectory(outputDirectory);
+            world->addProfileSystem( std::move(timeProfile) );
+            std::cout << "Min, Max, Average profile" << std::endl;
+        }
+
+        // 粒子にかかってる力の差分（モール応力円の半径）の分布が知りたいとき
+        iterator = std::find_if(commandOption.begin(), commandOption.end()
+                                , [](const std::string& option){
+                                    return option == "-distribusion";
+                                });
+        if (commandOption.end() != iterator)
+        {
+            std::unique_ptr<fj::MohrStressCircleDistribution> distrubution(new fj::MohrStressCircleDistribution());
+            distrubution->setGraph(0, 10, 0.25);
+            distrubution->registerWorld(worldWeakPtr);
+            distrubution->setOutputDirectory(outputDirectory);
+            world->addProfileSystem(std::move(distrubution));
+            std::cout << "Stress Distribution" << std::endl;
+        }
+
+        
+        // 粉体崩壊曲線を見たいとき
+        iterator = std::find_if(commandOption.begin(), commandOption.end()
+                                , [](const std::string& option){
+                                    return option == "-collapse_curve";
+                                });
+        if (commandOption.end() != iterator)
+        {
+            // --collapse_curveの次にフィルタ番号が指定されていないといけない
+            try {
+                const auto filter = std::stoi( *(++iterator) );
+                
+                std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
+                mohrStressCircleProfile->setFilter( std::function<bool(const int)>([filter](const int index){return index == filter;} ) );
+                mohrStressCircleProfile->registerWorld(worldWeakPtr);
+                mohrStressCircleProfile->setOutputDirectory(outputDirectory);
+                world->addProfileSystem(std::move(mohrStressCircleProfile));
+                std::cout << "Chase at " << filter << std::endl;
+            } catch (const std::exception& e)
+            {
+                std::cout << "-collapse_curve number ← Use Integer" << std::endl;
+            }
+        }
+
+    }
     
     // 床
     std::unique_ptr<btCollisionShape> groundShape(new btBoxShape( btVector3(btScalar(1000), btScalar(10), btScalar(1000))));
@@ -74,7 +158,7 @@ int main(int argc, char** argv)
     
     
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < simulationStep; i++)
     {
         world->stepSimulation(1.0/480.0);
     }

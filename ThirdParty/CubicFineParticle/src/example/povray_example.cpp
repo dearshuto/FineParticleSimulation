@@ -44,9 +44,9 @@ int main(int argc, char** argv)
     
     // 粒子生成
 	auto initializeStart = std::chrono::system_clock::now();
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 5; j++){
-            for (int k = 0; k < 5; k++)
+    for (int i = 0; i < 10; i++){
+        for (int j = 0; j < 10; j++){
+            for (int k = 0; k < 10; k++)
             {
                 btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
                 btMatrix3x3 matrix;
@@ -78,12 +78,14 @@ int main(int argc, char** argv)
     // 引数でシミュレーションステップが指定されていなければ1000回だけシミュレーションを回す
     // 引数で渡された値が数字以外だったときの処理は未定義
     const int kStep = (argc < 2) ? 1000 : std::atoi(argv[1]);
+    const double kE = (argc < 3) ? 1 : std::atoi(argv[2]);
+    world->DashpodEnvelop = kE;
     
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
     for (int i = 0; i < kStep; i++)
     {
 		simulationStart = std::chrono::system_clock::now();
-        world->stepSimulation(1.0/480.0);
+        world->stepSimulation(1.0/120.0);
 		simulationEnd = std::chrono::system_clock::now();
 		simulationTime = simulationEnd - simulationStart;
 
