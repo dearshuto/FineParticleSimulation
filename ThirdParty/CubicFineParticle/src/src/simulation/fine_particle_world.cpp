@@ -252,13 +252,14 @@ void fj::FineParticleWorld::setGravity(const btVector3 &gravity)
     m_world->setGravity(gravity);
 }
 
-void fj::FineParticleWorld::addProfileSystem(std::unique_ptr<fj::SimulationProfile> profile)
+void fj::FineParticleWorld::addProfileSystem(const fj::AdditionalProcedure::Target target)
 {
     // fj::SimulationProfile::Priority が自分と同等かそれ以上になる最初のイテレータを取得
+    std::unique_ptr<fj::AdditionalProcedure> additionalProcedure;
     const auto at = std::find_if(m_profiles.begin(), m_profiles.end()
-                                 , [&](std::unique_ptr<fj::SimulationProfile>& containedProfile){
-                                     return profile->getPriorityAdUInt() <= containedProfile->getPriorityAdUInt();
+                                 , [&](std::unique_ptr<fj::AdditionalProcedure>& containedProfile){
+                                     return additionalProcedure->getPriorityAdUInt() <= containedProfile->getPriorityAdUInt();
                                  });
     
-    m_profiles.insert(at, std::move(profile));
+    m_profiles.insert(at, std::move(additionalProcedure));
 }

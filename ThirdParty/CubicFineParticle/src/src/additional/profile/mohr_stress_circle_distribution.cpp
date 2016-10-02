@@ -9,7 +9,7 @@
 #include <fstream>
 #include <vector>
 #include "fine_particle/simulation/fine_particle_world.hpp"
-#include "fine_particle/simulation/profile/mohr_stress_circle_distribution.hpp"
+#include "fine_particle/additional/profile/mohr_stress_circle_distribution.hpp"
 
 void fj::MohrStressCircleDistribution::startSimulationProfile()
 {

@@ -29,7 +29,6 @@ public:
     
     SimulationTimeProfile(const fj::FineParticleWorld& world, const std::string& outputDirectory = ".")
     : Super(world, Priority::kAbsolutelyLast)
-    , m_outputDirectory(outputDirectory)
     , m_average(0)
     , m_max(0)
     , m_min(std::numeric_limits<MilliSecTime>::infinity())

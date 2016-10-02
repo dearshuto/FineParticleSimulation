@@ -7,7 +7,7 @@
 //
 
 #include <fstream>
-#include "fine_particle/simulation/profile/every_frame_simulation_time_profile.hpp"
+#include "fine_particle/additional/profile/every_frame_simulation_time_profile.hpp"
 
 void fj::EveryFrameSimulationTimeProfile::endSimulationProfile()
 {

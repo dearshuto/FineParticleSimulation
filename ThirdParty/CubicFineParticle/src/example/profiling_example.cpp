@@ -13,10 +13,10 @@
 #include <memory>
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
-#include "fine_particle/simulation/profile/simulation_time_profile.hpp"
-#include "fine_particle/simulation/profile/mohr_stress_circle_profile.hpp"
-#include "fine_particle/simulation/profile/mohr_stress_circle_distribution.hpp"
-#include "fine_particle/povray/povray_output.hpp"
+#include "fine_particle/additional/profile/simulation_time_profile.hpp"
+#include "fine_particle/additional/profile/mohr_stress_circle_profile.hpp"
+#include "fine_particle/additional/profile/mohr_stress_circle_distribution.hpp"
+#include "fine_particle/additional/povray/povray_output.hpp"
 
 int main(int argc, char** argv)
 {
@@ -76,6 +76,7 @@ int main(int argc, char** argv)
 
         if (commandOption.end() != iterator)
         {
+            world->add
             std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
             timeProfile->setOutputDirectory(outputDirectory);
             world->addProfileSystem( std::move(timeProfile) );

@@ -47,8 +47,8 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include "fine_particle/additional/additional_procedure.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
-#include "fine_particle/simulation/profile/simulation_profile.hpp"
 #include "fine_particle/simulation/bullet_algorithm/fine_particle_simulation_collision_configuration.hpp"
 
 namespace fj {
@@ -137,7 +137,7 @@ public:
     /** プロファイル処理を追加する
      * @pre プロファイルが fj::SimulationProfile::Priority 順に並んでいる.
      * @post プロファイルが fj::SimulationProfile::Priority 順に並んでいる.*/
-    void addProfileSystem(std::unique_ptr<fj::SimulationProfile> profile);
+    void addProfileSystem(const fj::AdditionalProcedure::Target target);
     
 private:
 
@@ -210,7 +210,7 @@ private:
     
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
 
-    std::vector<std::unique_ptr<fj::SimulationProfile>> m_profiles;
+    std::vector<std::unique_ptr<fj::AdditionalProcedure>> m_profiles;
 
     
     

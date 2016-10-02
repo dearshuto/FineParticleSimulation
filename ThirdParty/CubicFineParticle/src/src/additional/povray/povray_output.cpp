@@ -12,7 +12,7 @@
 #include <string>
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
-#include "fine_particle/povray/povray_output.hpp"
+#include "fine_particle/additional/povray/povray_output.hpp"
 
 bool fj::POVrayOutput::saveToFile(const std::string &filename)const
 {

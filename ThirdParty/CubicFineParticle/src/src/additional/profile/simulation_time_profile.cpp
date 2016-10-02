@@ -8,7 +8,7 @@
 
 #include <fstream>
 #include <ostream>
-#include "fine_particle/simulation/profile/simulation_time_profile.hpp"
+#include "fine_particle/additional/profile/simulation_time_profile.hpp"
 
 void fj::SimulationTimeProfile::startSimulationProfile()
 {

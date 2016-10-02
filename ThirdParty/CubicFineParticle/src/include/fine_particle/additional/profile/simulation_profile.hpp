@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <string>
+#include "fine_particle/additional/additional_procedure.hpp"
 
 namespace fj {
     class FineParticleWorld;
@@ -18,20 +19,16 @@ namespace fj {
 }
 
 /** Worldで行われるシミュレーションの情報を取得&整理する */
-class fj::SimulationProfile
+class fj::SimulationProfile : public fj::AdditionalProcedure
 {
-protected:
-    enum class Priority : unsigned int
-    {
-        kI_dont_care,
-        kAbsolutelyLast,
-    };
+    typedef fj::AdditionalProcedure Super;
 public:
     SimulationProfile() = delete;
     virtual~SimulationProfile() = default;
     
     SimulationProfile(const fj::FineParticleWorld& world, const Priority priority)
-    : m_world(world)
+    : Super(priority)
+    , m_world(world)
     , m_priority(priority)
     , m_outputDirectory("./")
     {
@@ -58,7 +55,6 @@ public:
     {
         return static_cast<unsigned int>(m_priority);
     }
-    
     
 protected:
     

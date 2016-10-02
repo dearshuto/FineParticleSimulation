@@ -9,7 +9,7 @@
 #ifndef every_frame_simulation_time_profile_hpp
 #define every_frame_simulation_time_profile_hpp
 
-#include "fine_particle/simulation/profile/simulation_time_profile.hpp"
+#include "fine_particle/additional/profile/simulation_time_profile.hpp"
 
 namespace fj {
     class EveryFrameSimulationTimeProfile;

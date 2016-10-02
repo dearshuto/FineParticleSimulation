@@ -10,8 +10,8 @@
 #include <fstream>
 #include <string>
 #include "fine_particle/simulation/fine_particle_world.hpp"
+#include "fine_particle/additional/profile/mohr_stress_circle_profile.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
-#include "fine_particle/simulation/profile/mohr_stress_circle_profile.hpp"
 
 void fj::MohrStressCircleProfile::startSimulationProfile()
 {
