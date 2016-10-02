@@ -40,6 +40,14 @@ private:
         fj::MohrStressCircle MohrStressCircle;
     };
 
+    struct RheorogyModelParameter
+    {
+        RheorogyModelParameter()
+        : DashpodEnvelope(1.0)
+        {}
+        
+        btScalar DashpodEnvelope;
+    };
 public:
     class CollapseDetector;
 public:
@@ -118,6 +126,16 @@ public:
         return getFineParticleCollapseFactor().MohrStressCircle.getDiscretizedShapeType();
     }
     
+    const RheorogyModelParameter& getRheorogyModelParameter()const
+    {
+        return m_rheorogyModelParameter;
+    }
+
+    RheorogyModelParameter* getRheorogyModelParameterPtr()
+    {
+        return &m_rheorogyModelParameter;
+    }
+
     const fj::WarrenSpringCurve& getWarrenSpringCurve()const
     {
         return getFineParticleCollapseFactor().WarrenSpringCurve;
@@ -170,6 +188,8 @@ private:
     btScalar m_mass;
     
     FineParticleCollapseFactor m_collapseFactor;
+    
+    RheorogyModelParameter m_rheorogyModelParameter;
     
     /** 崩壊判定のアルゴリズム */
     std::weak_ptr<CollapseDetector> m_collapseDetector;
