@@ -14,7 +14,23 @@
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/additional/povray/povray_output.hpp"
 
-bool fj::POVrayOutput::saveToFile(const std::string &filename)const
+void fj::POVRayOutput::startSimulationProfile()
+{
+    
+}
+
+void fj::POVRayOutput::endSimulationProfile()
+{
+    const std::string kFilename = std::to_string(fj::FineParticleWorld::GetSimulationStep()) + ".pov";
+    saveToFile(kFilename);
+}
+
+void fj::POVRayOutput::terminate()
+{
+    
+}
+
+bool fj::POVRayOutput::saveToFile(const std::string &filename)const
 {
     std::ofstream output(filename);
     

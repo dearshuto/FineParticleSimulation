@@ -26,7 +26,7 @@ void fj::MohrStressCircleProfile::endSimulationProfile()
     
     std::function<double()> func;
     
-    const auto& world = getWorld();
+    const auto& world = getFineParticleWorld();
     
     for (int i = 0; i < world.getParticles().size(); i++)
     {

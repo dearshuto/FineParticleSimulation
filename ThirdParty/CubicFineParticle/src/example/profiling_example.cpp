@@ -76,10 +76,8 @@ int main(int argc, char** argv)
 
         if (commandOption.end() != iterator)
         {
-            world->add
-            std::unique_ptr<fj::SimulationProfile> timeProfile(new fj::SimulationTimeProfile());
+            auto timeProfile = world->addProfileSystem<fj::SimulationTimeProfile>(fj::AdditionalProcedure::Target::kSimulationTimeProfile);
             timeProfile->setOutputDirectory(outputDirectory);
-            world->addProfileSystem( std::move(timeProfile) );
             std::cout << "Min, Max, Average profile" << std::endl;
         }
 
@@ -90,11 +88,9 @@ int main(int argc, char** argv)
                                 });
         if (commandOption.end() != iterator)
         {
-            std::unique_ptr<fj::MohrStressCircleDistribution> distrubution(new fj::MohrStressCircleDistribution());
-            distrubution->setGraph(0, 10, 0.25);
-            distrubution->registerWorld(worldWeakPtr);
-            distrubution->setOutputDirectory(outputDirectory);
-            world->addProfileSystem(std::move(distrubution));
+            auto distribution = world->addProfileSystem<fj::MohrStressCircleDistribution>(fj::AdditionalProcedure::Target::kMohrStressCircleDistrubution);
+            distribution->setGraph(0, 10, 0.25);
+            distribution->setOutputDirectory(outputDirectory);
             std::cout << "Stress Distribution" << std::endl;
         }
 
@@ -110,11 +106,9 @@ int main(int argc, char** argv)
             try {
                 const auto filter = std::stoi( *(++iterator) );
                 
-                std::unique_ptr<fj::MohrStressCircleProfile> mohrStressCircleProfile(new fj::MohrStressCircleProfile());
+                auto mohrStressCircleProfile = world->addProfileSystem<fj::MohrStressCircleProfile>(fj::AdditionalProcedure::Target::kMohrStressCircleProfiler);
                 mohrStressCircleProfile->setFilter( std::function<bool(const int)>([filter](const int index){return index == filter;} ) );
-                mohrStressCircleProfile->registerWorld(worldWeakPtr);
                 mohrStressCircleProfile->setOutputDirectory(outputDirectory);
-                world->addProfileSystem(std::move(mohrStressCircleProfile));
                 std::cout << "Chase at " << filter << std::endl;
             } catch (const std::exception& e)
             {

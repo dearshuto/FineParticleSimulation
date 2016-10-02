@@ -10,19 +10,22 @@
 #define povray_output_hpp
 
 #include <memory>
+#include "fine_particle/additional/additional_procedure.hpp"
 
 namespace fj {
     class FineParticleWorld;
-    class POVrayOutput;
+    class POVRayOutput;
 }
 
 /**
  * シーンをPOV-Ray形式に変換する.
  * x-z平面に乗っている無限平面と粒子をレンダリングするシーンを出力する.
  */
-class fj::POVrayOutput
+class fj::POVRayOutput : public fj::AdditionalProcedure
 {
 private:
+    typedef fj::AdditionalProcedure Super;
+    
     struct Vector3D
     {
         Vector3D()
@@ -42,14 +45,20 @@ public:
         Vector3D LookAt;
     };
 public:
-    POVrayOutput() = delete;
-    ~POVrayOutput() = default;
+    POVRayOutput() = delete;
+    ~POVRayOutput() = default;
     
-    POVrayOutput( std::weak_ptr<fj::FineParticleWorld> world)
-    : m_world(world)
+    POVRayOutput(const fj::FineParticleWorld& world)
+    : Super(Priority::kI_dont_care, world)
     {
         
     }
+    
+    void startSimulationProfile() override;
+    
+    void endSimulationProfile()  override;
+    
+    void terminate() override;
     
     bool saveToFile(const std::string& filename)const;
     

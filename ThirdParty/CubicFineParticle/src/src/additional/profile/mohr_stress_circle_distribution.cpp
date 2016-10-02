@@ -20,7 +20,7 @@ void fj::MohrStressCircleDistribution::endSimulationProfile()
 {
     static unsigned int frame = 0;
     
-    const auto& world = getWorld();
+    const auto& world = getFineParticleWorld();
     
     std::vector<unsigned int> data;
     

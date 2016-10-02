@@ -9,7 +9,10 @@
 #ifndef additional_procedure_hpp
 #define additional_procedure_hpp
 
+#include <string>
+
 namespace fj {
+    class FineParticleWorld;
     class AdditionalProcedure;
 }
 
@@ -25,11 +28,16 @@ public:
     enum  class Target
     {
         kPOVRayOutput,
+        kMohrStressCircleProfiler,
+        kMohrStressCircleDistrubution,
+        kSimulationTimeProfile,
     };
 public:
     
-    AdditionalProcedure(const Priority priority)
+    AdditionalProcedure(const Priority priority, const fj::FineParticleWorld& world, const std::string& outputDirectory = "./")
     : m_priority(priority)
+    , m_world(world)
+    , m_outputDirectory(outputDirectory)
     {
         
     }
@@ -45,10 +53,27 @@ public:
         return static_cast<unsigned int>(m_priority);
     }
 
+    const fj::FineParticleWorld& getFineParticleWorld()const
+    {
+        return m_world;
+    }
+    
+    const std::string& getOutputDirectory()const
+    {
+        return m_outputDirectory;
+    }
+    
+    void setOutputDirectory(const std::string& outputDirectory)
+    {
+        m_outputDirectory = outputDirectory;
+    }
 private:
     
     const Priority m_priority;
-
+    
+    const fj::FineParticleWorld& m_world;
+    
+    std::string m_outputDirectory;
 };
 
 #endif /* additional_procedure_hpp */

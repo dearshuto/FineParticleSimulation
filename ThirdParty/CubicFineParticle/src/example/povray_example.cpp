@@ -20,6 +20,13 @@ int main(int argc, char** argv)
     std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
     world->setGravity( btVector3(0, -9.8, 0) );
 
+    auto output = world->addProfileSystem<fj::POVRayOutput>(fj::AdditionalProcedure::Target::kPOVRayOutput);
+    auto& location =  output->getCameraInformationPtr()->Location;
+    location.X = -45;
+    location.Y = 45;
+    location.Z = 45;
+   
+    
     // 床
     std::unique_ptr<btCollisionShape> groundShape(new btBoxShape( btVector3(btScalar(1000), btScalar(10), btScalar(1000))));
     btScalar mass0(0.);
@@ -34,13 +41,6 @@ int main(int argc, char** argv)
     body->setFriction(1);
     world->addRigidBody( std::move(body));
     world->SpringK = 5;
- 
-    // レンダリング
-    fj::POVrayOutput output( (std::weak_ptr<fj::FineParticleWorld>(world)) );
-    auto& location =  output.getCameraInformationPtr()->Location;
-    location.X = -45;
-    location.Y = 45;
-    location.Z = 45;
     
     // 粒子生成
 	auto initializeStart = std::chrono::system_clock::now();
@@ -92,8 +92,6 @@ int main(int argc, char** argv)
 			<< std::chrono::duration_cast<std::chrono::milliseconds>(simulationTime).count() / 1000.0
 			<< "sec."
 			<< std::endl;
-
-		output.saveToFile(std::to_string(i) + ".pov");
     }
 
     // 粒子, ソルバの解放にかかる時間の測定

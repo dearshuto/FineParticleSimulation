@@ -10,9 +10,15 @@
 #include <cmath>
 #include <iostream>
 #include <BulletCollision/CollisionDispatch/btSimulationIslandManager.h>
+#include "fine_particle/additional/povray/povray_output.hpp"
+#include "fine_particle/additional/profile/simulation_time_profile.hpp"
+#include "fine_particle/additional/profile/mohr_stress_circle_profile.hpp"
+#include "fine_particle/additional/profile/mohr_stress_circle_distribution.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/shape_2d/newton_method.hpp"
+
+unsigned int fj::FineParticleWorld::s_simulationStep;
 
 void fj::FineParticleWorld::terminate()
 {
@@ -21,6 +27,8 @@ void fj::FineParticleWorld::terminate()
 
 void fj::FineParticleWorld::stepSimulation(btScalar timestep)
 {
+    IncrementSimulationStep();
+    
     startProfiling();
     
     accumulateFineParticleForce(timestep);
@@ -250,16 +258,4 @@ void fj::FineParticleWorld::removeParticle(fj::Particle *const particle)
 void fj::FineParticleWorld::setGravity(const btVector3 &gravity)
 {
     m_world->setGravity(gravity);
-}
-
-void fj::FineParticleWorld::addProfileSystem(const fj::AdditionalProcedure::Target target)
-{
-    // fj::SimulationProfile::Priority が自分と同等かそれ以上になる最初のイテレータを取得
-    std::unique_ptr<fj::AdditionalProcedure> additionalProcedure;
-    const auto at = std::find_if(m_profiles.begin(), m_profiles.end()
-                                 , [&](std::unique_ptr<fj::AdditionalProcedure>& containedProfile){
-                                     return additionalProcedure->getPriorityAdUInt() <= containedProfile->getPriorityAdUInt();
-                                 });
-    
-    m_profiles.insert(at, std::move(additionalProcedure));
 }
