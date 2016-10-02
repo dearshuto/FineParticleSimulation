@@ -46,6 +46,7 @@ private:
         : DashpodEnvelope(1.0)
         {}
         
+        /** ダッシュポッドの影響をブーストする係数 */
         btScalar DashpodEnvelope;
     };
 public:

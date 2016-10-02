@@ -78,6 +78,8 @@ void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticles
     constexpr double kPI = 3.141592653589793238462643383279502884;
     fj::Particle*const particle1 = contactInfo.Particle1;
     fj::Particle*const particle2 = contactInfo.Particle2;
+    const auto& kRheorogyParameter1 = particle1->getRheorogyModelParameter();
+    const auto& kRheorogyParameter2 = particle2->getRheorogyModelParameter();
     
     const btVector3 kDirection12 = contactInfo.kNormalizedDirection12;
     const btVector3 kDirection21 = -kDirection12;
@@ -91,8 +93,9 @@ void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticles
     const btVector3 kRelativeVelocity12 = particle2->getLinearVelocity() - particle1->getLinearVelocity();
     const btVector3 kRelativeVelocity21 = -kRelativeVelocity12;
     const auto kReducedMass = computeReducedMass(std::cref(*particle1), std::cref(*particle2));
+    const auto kDashpodEnvelope = (kRheorogyParameter1.DashpodEnvelope + kRheorogyParameter2.DashpodEnvelope) / 2.0;
     
-    const auto kEta = -2.0 * DashpodEnvelop * std::log(E) * std::sqrt(
+    const auto kEta = -2.0 * kDashpodEnvelope * std::log(E) * std::sqrt(
                                                    (kReducedMass * SpringK)
                                                      / (std::pow(kPI, 2.0) * std::pow(std::log(E), 2.0))
                                                    );

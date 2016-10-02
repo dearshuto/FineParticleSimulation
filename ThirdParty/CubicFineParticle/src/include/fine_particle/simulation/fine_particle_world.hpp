@@ -83,7 +83,6 @@ class fj::FineParticleWorld
 public:
     FineParticleWorld()
     : SpringK(1)
-    , DashpodEnvelop(1.0)
     , E(10.0)
     , HamakerConstant(0)
     , m_collisionConfiguration( new fj::FineParticleSimulationCollisionConfiguration() )
@@ -197,9 +196,6 @@ public:
     //------------------------------- 粉体シミュレーションにおけるパラメータ --------------------------------------------//
     /** レオロジーモデルで使用するばね係数 */
     double SpringK;
-
-    /** ダッシュポッドの影響をブーストする係数 */
-    double DashpodEnvelop;
     
     /** 粒子間の反発力 */
     double E;
