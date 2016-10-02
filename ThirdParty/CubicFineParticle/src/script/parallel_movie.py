@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     #実行
     povray_renderer.executeCommand()
-    profile.executeCommand('-distribusion -collapse_curve 0 ' + '-step ' + str(step) +  ' -output ' + current)
+    profile.executeCommand('-distribution -collapse_curve 0 ' + '-step ' + str(step) +  ' -output ' + current)
 
     #画像をレンダリング
     povray_renderer.render(False)

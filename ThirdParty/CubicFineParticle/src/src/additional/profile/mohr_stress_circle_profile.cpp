@@ -41,7 +41,7 @@ void fj::MohrStressCircleProfile::endSimulationProfile()
         }
         
         
-        const std::string kFilename = "./log/particle" + std::to_string(i) + "_" + std::to_string(frameCount);
+        const std::string kFilename = "./particle" + std::to_string(i) + "_" + std::to_string(frameCount);
         std::ofstream output(kFilename + ".gnuplot");
         
         if (output.fail())

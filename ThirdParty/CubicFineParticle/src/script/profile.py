@@ -75,7 +75,7 @@ if __name__ == '__main__':
     commandOption = ''
     while i < argc:
         commandOption = commandOption + ' ' + argv[i]
-        if argv[i] == -collapse_curve:
+        if argv[i] == '-collapse_curve':
             target = argv[i+1]
         i += 1
     commandOption = commandOption + ' -output ' + os.getcwd()
