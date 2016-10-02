@@ -9,23 +9,25 @@
 #ifndef mohr_stress_circle_distribution_hpp
 #define mohr_stress_circle_distribution_hpp
 
-#include "simulation_profile.hpp"
+#include "fine_particle/additional/additional_procedure.hpp"
 
 namespace fj {
     class MohrStressCircleDistribution;
 }
 
-class fj::MohrStressCircleDistribution : public fj::SimulationProfile
+class fj::MohrStressCircleDistribution : public fj::AdditionalProcedure
 {
-    typedef fj::SimulationProfile Super;
+    typedef fj::AdditionalProcedure Super;
 public:
-    MohrStressCircleDistribution()
-    : Super(Priority::kI_dont_care)
+    MohrStressCircleDistribution() = delete;
+    ~MohrStressCircleDistribution() = default;
+
+    MohrStressCircleDistribution(const fj::FineParticleWorld& world)
+    : Super(Priority::kI_dont_care, world)
     {
         
     }
-    ~MohrStressCircleDistribution() = default;
-    
+
     void startSimulationProfile()override;
     
     void endSimulationProfile()override;

@@ -12,29 +12,30 @@
 #include <chrono>
 #include <limits>
 #include <string>
-#include "simulation_profile.hpp"
+#include "fine_particle/additional/additional_procedure.hpp"
 
 namespace fj {
     class SimulationTimeProfile;
 }
 
-class fj::SimulationTimeProfile : public fj::SimulationProfile
+class fj::SimulationTimeProfile : public fj::AdditionalProcedure
 {
-    typedef fj::SimulationProfile Super;
+    typedef fj::AdditionalProcedure Super;
     typedef std::chrono::system_clock::time_point time_point;
     typedef long long MilliSecTime;
 public:
-    SimulationTimeProfile()
-    : Super(Priority::kAbsolutelyLast)
+    SimulationTimeProfile() = delete;
+    virtual~SimulationTimeProfile() = default;
+    
+    SimulationTimeProfile(const fj::FineParticleWorld& world)
+    : Super(Priority::kAbsolutelyLast, world)
     , m_average(0)
     , m_max(0)
     , m_min(std::numeric_limits<MilliSecTime>::infinity())
     {
         
     }
-    
-    virtual~SimulationTimeProfile() = default;
-    
+
     virtual void startSimulationProfile()override;
     
     virtual void endSimulationProfile()override;

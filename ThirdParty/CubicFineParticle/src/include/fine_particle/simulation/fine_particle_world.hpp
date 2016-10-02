@@ -47,9 +47,12 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include "fine_particle/additional/additional_procedure.hpp"
+#include "fine_particle/additional/profile/mohr_stress_circle_profile.hpp"
+#include "fine_particle/additional/povray/povray_output.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
-#include "fine_particle/simulation/profile/simulation_profile.hpp"
 #include "fine_particle/simulation/bullet_algorithm/fine_particle_simulation_collision_configuration.hpp"
+
 
 namespace fj {
     class Particle;
@@ -134,10 +137,24 @@ public:
 
     
     //------------------ Profiling -----------------------------//
-    /** プロファイル処理を追加する
+    /** 追加処理を追加する. テンプレート引数が fj::AdditionalProcedure を継承していないとコンパイルエラーになる.
      * @pre プロファイルが fj::SimulationProfile::Priority 順に並んでいる.
      * @post プロファイルが fj::SimulationProfile::Priority 順に並んでいる.*/
-    void addProfileSystem(std::unique_ptr<fj::SimulationProfile> profile);
+    template<class T>
+    T*const addProfileSystem()
+    {
+        std::unique_ptr<T> additionalProcedure(new T(*this));
+        T*const ptr = additionalProcedure.get();
+        
+            // 挿入箇所を探索
+            const auto at = std::find_if(m_profiles.begin(), m_profiles.end()
+                                         , [&](std::unique_ptr<fj::AdditionalProcedure>& containedProfile){
+                                             return additionalProcedure->getPriorityAdUInt() <= containedProfile->getPriorityAdUInt();
+                                         });
+        
+        m_profiles.insert(at, std::move(additionalProcedure));
+        return ptr;
+    }
     
 private:
 
@@ -187,12 +204,23 @@ private:
     
     void terminateProfiles();
     
+    
+    static void IncrementSimulationStep()
+    {
+        ++s_simulationStep;
+    }
+
 public:
+    static unsigned int GetSimulationStep()
+    {
+        return s_simulationStep;
+    }
+    
     const std::vector<std::unique_ptr<fj::Particle>>& getParticles()const
     {
         return std::cref(m_particles);
     }
-    
+
     
     
     
@@ -210,9 +238,9 @@ private:
     
     std::vector<std::unique_ptr<fj::Particle>> m_particles;
 
-    std::vector<std::unique_ptr<fj::SimulationProfile>> m_profiles;
+    std::vector<std::unique_ptr<fj::AdditionalProcedure>> m_profiles;
 
-    
+    static unsigned int s_simulationStep;
     
     
     //---------------- Bullet Physicsのフレームワークを利用するためのインスタンス ----------------------//

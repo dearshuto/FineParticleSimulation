@@ -12,9 +12,25 @@
 #include <string>
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
-#include "fine_particle/povray/povray_output.hpp"
+#include "fine_particle/additional/povray/povray_output.hpp"
 
-bool fj::POVrayOutput::saveToFile(const std::string &filename)const
+void fj::POVRayOutput::startSimulationProfile()
+{
+    
+}
+
+void fj::POVRayOutput::endSimulationProfile()
+{
+    const std::string kFilename = std::to_string(fj::FineParticleWorld::GetSimulationStep()) + ".pov";
+    saveToFile(kFilename);
+}
+
+void fj::POVRayOutput::terminate()
+{
+    
+}
+
+bool fj::POVRayOutput::saveToFile(const std::string &filename)const
 {
     std::ofstream output(filename);
     
@@ -24,13 +40,7 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
         return false;
     }
     
-    const auto kWorld = m_world.lock();
-    if ( !kWorld )
-    {
-        std::cout << "The registerd world instance is invalid" << std::endl;
-        return false;
-    }
-    
+    const auto& kWorld = getFineParticleWorld();
     const auto& kPosition = getCameraInformation().Location;
     const auto& kLookAt = getCameraInformation().LookAt;
     
@@ -92,7 +102,7 @@ bool fj::POVrayOutput::saveToFile(const std::string &filename)const
     POV += "    finish{phong 1 reflection 0.3}";
     POV += "}";
     
-    for (const auto& particle : kWorld->getParticles())
+    for (const auto& particle : kWorld.getParticles())
     {
         btTransform trans;
         particle->getMotionState()->getWorldTransform(trans);

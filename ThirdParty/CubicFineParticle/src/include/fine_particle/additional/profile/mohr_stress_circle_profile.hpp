@@ -9,23 +9,24 @@
 #ifndef mohr_stress_circle_profile_hpp
 #define mohr_stress_circle_profile_hpp
 
-#include "simulation_profile.hpp"
-
+#include "fine_particle/additional/additional_procedure.hpp"
 
 namespace fj {
     class MohrStressCircleProfile;
 }
 
-class fj::MohrStressCircleProfile : public fj::SimulationProfile
+class fj::MohrStressCircleProfile : public fj::AdditionalProcedure
 {
-    typedef fj::SimulationProfile Super;
+    typedef fj::AdditionalProcedure Super;
 public:
-    MohrStressCircleProfile()
-    : Super(Priority::kI_dont_care)
+    MohrStressCircleProfile() = delete;
+    ~MohrStressCircleProfile() = default;
+
+    MohrStressCircleProfile(const fj::FineParticleWorld& world)
+    : Super(Priority::kI_dont_care, world)
     {
         
     }
-    ~MohrStressCircleProfile() = default;
     
     void startSimulationProfile()override;
     
