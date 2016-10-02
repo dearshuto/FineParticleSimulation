@@ -155,6 +155,9 @@ private:
 
     void applyTangentialComponentContactForce(const FineParticlesContactInfo& contactInfo)const;
 
+    /** とりあえず2つの粒子のダッシュポッド強度の平均をとる */
+    btScalar computeDashpodEnvelope(const fj::Particle& particle1, const fj::Particle& particle2)const;
+    
     /** 換算質量を求める 
      * @pre particle1, particle2の両方の質量が生の値をもつ
      */
