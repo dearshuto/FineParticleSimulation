@@ -17,15 +17,16 @@
 
 int main(int argc, char** argv)
 {
-    std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
+    // デストラクタの時間を測定したいので, メモリ解放を管理しやすいスマートポインタを利用する
+    std::unique_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
     world->setGravity( btVector3(0, -9.8, 0) );
-
-    auto output = world->addProfileSystem<fj::POVRayOutput>(fj::AdditionalProcedure::Target::kPOVRayOutput);
+    
+        // レンダリング
+    auto output = world->addProfileSystem<fj::POVRayOutput>();
     auto& location =  output->getCameraInformationPtr()->Location;
     location.X = -45;
     location.Y = 45;
     location.Z = 45;
-   
     
     // 床
     std::unique_ptr<btCollisionShape> groundShape(new btBoxShape( btVector3(btScalar(1000), btScalar(10), btScalar(1000))));

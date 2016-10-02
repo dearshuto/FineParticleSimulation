@@ -20,9 +20,8 @@
 
 int main(int argc, char** argv)
 {
-    std::shared_ptr<fj::FineParticleWorld> world(new fj::FineParticleWorld());
-    std::weak_ptr<fj::FineParticleWorld> worldWeakPtr(world);
-    world->setGravity( btVector3(0, -9.8, 0) );
+    fj::FineParticleWorld world;
+    world.setGravity( btVector3(0, -9.8, 0) );
 
     unsigned int simulationStep = 50;
     // 引数に何かしらが渡ってきたらプロファイル設定をおこなう
@@ -76,7 +75,7 @@ int main(int argc, char** argv)
 
         if (commandOption.end() != iterator)
         {
-            auto timeProfile = world->addProfileSystem<fj::SimulationTimeProfile>(fj::AdditionalProcedure::Target::kSimulationTimeProfile);
+            auto timeProfile = world.addProfileSystem<fj::SimulationTimeProfile>();
             timeProfile->setOutputDirectory(outputDirectory);
             std::cout << "Min, Max, Average profile" << std::endl;
         }
@@ -88,7 +87,7 @@ int main(int argc, char** argv)
                                 });
         if (commandOption.end() != iterator)
         {
-            auto distribution = world->addProfileSystem<fj::MohrStressCircleDistribution>(fj::AdditionalProcedure::Target::kMohrStressCircleDistrubution);
+            auto distribution = world.addProfileSystem<fj::MohrStressCircleDistribution>();
             distribution->setGraph(0, 10, 0.25);
             distribution->setOutputDirectory(outputDirectory);
             std::cout << "Stress Distribution" << std::endl;
@@ -106,7 +105,7 @@ int main(int argc, char** argv)
             try {
                 const auto filter = std::stoi( *(++iterator) );
                 
-                auto mohrStressCircleProfile = world->addProfileSystem<fj::MohrStressCircleProfile>(fj::AdditionalProcedure::Target::kMohrStressCircleProfiler);
+                auto mohrStressCircleProfile = world.addProfileSystem<fj::MohrStressCircleProfile>();
                 mohrStressCircleProfile->setFilter( std::function<bool(const int)>([filter](const int index){return index == filter;} ) );
                 mohrStressCircleProfile->setOutputDirectory(outputDirectory);
                 std::cout << "Chase at " << filter << std::endl;
@@ -130,8 +129,8 @@ int main(int argc, char** argv)
     std::unique_ptr<btRigidBody> body(new btRigidBody(rbInfo0));
     body->setRollingFriction(1);
     body->setFriction(1);
-    world->addRigidBody( std::move(body));
-    world->SpringK = 5;
+    world.addRigidBody( std::move(body));
+    world.SpringK = 5;
     
     // 粒子生成
     for (int i = 0; i < 10; i++){
@@ -146,7 +145,7 @@ int main(int argc, char** argv)
                 position += btVector3(0, 1, 0);
                 
                 std::unique_ptr<fj::Particle> particle = fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position);
-                world->addParticle(std::move(particle));
+                world.addParticle(std::move(particle));
             }
         }
     }
@@ -155,10 +154,10 @@ int main(int argc, char** argv)
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
     for (int i = 0; i < simulationStep; i++)
     {
-        world->stepSimulation(1.0/480.0);
+        world.stepSimulation(1.0/480.0);
     }
     
-    world->terminate();
+    world.terminate();
     
     return 0;
 }

@@ -25,14 +25,6 @@ protected:
         kAbsolutelyLast,
     };
 public:
-    enum  class Target
-    {
-        kPOVRayOutput,
-        kMohrStressCircleProfiler,
-        kMohrStressCircleDistrubution,
-        kSimulationTimeProfile,
-    };
-public:
     
     AdditionalProcedure(const Priority priority, const fj::FineParticleWorld& world, const std::string& outputDirectory = "./")
     : m_priority(priority)

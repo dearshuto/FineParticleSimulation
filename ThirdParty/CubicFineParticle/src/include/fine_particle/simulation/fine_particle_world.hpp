@@ -137,11 +137,11 @@ public:
 
     
     //------------------ Profiling -----------------------------//
-    /** プロファイル処理を追加する
+    /** 追加処理を追加する. テンプレート引数が fj::AdditionalProcedure を継承していないとコンパイルエラーになる.
      * @pre プロファイルが fj::SimulationProfile::Priority 順に並んでいる.
      * @post プロファイルが fj::SimulationProfile::Priority 順に並んでいる.*/
     template<class T>
-    T*const addProfileSystem(const fj::AdditionalProcedure::Target target)
+    T*const addProfileSystem()
     {
         std::unique_ptr<T> additionalProcedure(new T(*this));
         T*const ptr = additionalProcedure.get();
