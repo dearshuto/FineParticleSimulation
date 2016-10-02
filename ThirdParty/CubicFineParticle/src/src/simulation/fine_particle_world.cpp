@@ -91,8 +91,9 @@ void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticles
     const btVector3 kRelativeVelocity12 = particle2->getLinearVelocity() - particle1->getLinearVelocity();
     const btVector3 kRelativeVelocity21 = -kRelativeVelocity12;
     const auto kReducedMass = computeReducedMass(std::cref(*particle1), std::cref(*particle2));
+    const auto kDashpodEnvelope = computeReducedMass(*particle1, *particle2);
     
-    const auto kEta = -2.0 * DashpodEnvelop * std::log(E) * std::sqrt(
+    const auto kEta = -2.0 * kDashpodEnvelope * std::log(E) * std::sqrt(
                                                    (kReducedMass * SpringK)
                                                      / (std::pow(kPI, 2.0) * std::pow(std::log(E), 2.0))
                                                    );
@@ -100,6 +101,14 @@ void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticles
     particle1->addContactForce(kEta * kRelativeVelocity21);
     particle2->addContactForce(kEta * kRelativeVelocity12);
 
+}
+
+btScalar fj::FineParticleWorld::computeDashpodEnvelope(const fj::Particle &particle1, const fj::Particle &particle2)const
+{
+    const auto& kRheorogyParameter1 = particle1.getRheorogyModelParameter();
+    const auto& kRheorogyParameter2 = particle2.getRheorogyModelParameter();
+
+    return (kRheorogyParameter1.DashpodEnvelope + kRheorogyParameter2.DashpodEnvelope) / 2.0;
 }
 
 void fj::FineParticleWorld::applyTangentialComponentContactForce(const FineParticlesContactInfo& contactInfo)const
