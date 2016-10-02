@@ -57,6 +57,8 @@ int main(int argc, char** argv)
                 position += btVector3(0, 1, 0);
                 
                 std::unique_ptr<fj::Particle> particle = fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position);
+                particle->getWarrenSpringCurvePtr()->getParameterPtr()->Adhesion = 2;
+                particle->getWarrenSpringCurvePtr()->getParameterPtr()->SheerIndex = 5;
                 world->addParticle(std::move(particle));
             }
         }

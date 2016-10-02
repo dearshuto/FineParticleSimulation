@@ -141,7 +141,12 @@ public:
     {
         return getFineParticleCollapseFactor().WarrenSpringCurve;
     }
-    
+
+    fj::WarrenSpringCurve* getWarrenSpringCurvePtr()
+    {
+        return &(getFineParticleCollapseFactorPtr()->WarrenSpringCurve);
+    }
+
     const fj::MohrStressCircle& getMohrStressCircle()const
     {
         return getFineParticleCollapseFactor().MohrStressCircle;
