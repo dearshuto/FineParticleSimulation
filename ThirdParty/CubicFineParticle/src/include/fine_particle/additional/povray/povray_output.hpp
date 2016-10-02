@@ -73,7 +73,6 @@ public:
     }
 
 private:
-    const std::weak_ptr<fj::FineParticleWorld> m_world;
     
     CameraInfomation m_cameraInfomation;
 };

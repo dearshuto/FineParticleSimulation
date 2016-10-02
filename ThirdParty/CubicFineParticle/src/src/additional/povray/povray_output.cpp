@@ -40,13 +40,7 @@ bool fj::POVRayOutput::saveToFile(const std::string &filename)const
         return false;
     }
     
-    const auto kWorld = m_world.lock();
-    if ( !kWorld )
-    {
-        std::cout << "The registerd world instance is invalid" << std::endl;
-        return false;
-    }
-    
+    const auto& kWorld = getFineParticleWorld();
     const auto& kPosition = getCameraInformation().Location;
     const auto& kLookAt = getCameraInformation().LookAt;
     
@@ -108,7 +102,7 @@ bool fj::POVRayOutput::saveToFile(const std::string &filename)const
     POV += "    finish{phong 1 reflection 0.3}";
     POV += "}";
     
-    for (const auto& particle : kWorld->getParticles())
+    for (const auto& particle : kWorld.getParticles())
     {
         btTransform trans;
         particle->getMotionState()->getWorldTransform(trans);
