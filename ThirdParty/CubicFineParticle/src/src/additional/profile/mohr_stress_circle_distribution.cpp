@@ -18,22 +18,23 @@ void fj::MohrStressCircleDistribution::startSimulationProfile()
 
 void fj::MohrStressCircleDistribution::endSimulationProfile()
 {
-    static unsigned int frame = 0;
-    
+
+    const auto& frame = fj::FineParticleWorld::GetSimulationStep();
     const auto& world = getFineParticleWorld();
     
     std::vector<unsigned int> data;
     
-    data.resize(( (m_max - m_min)/m_duration ));
+    data.resize(( (m_max - m_min)/m_duration ) + 1);
     std::fill(data.begin(), data.end(), 0);
     
     for (int i = 0; i < world.getParticles().size(); i++)
     {
         const auto& particle = world.getParticles()[i];
         const float kRadius = particle->getMohrStressCircle().getRadius();
-        const int kCell = static_cast<int>(kRadius / m_duration);
+        const auto kClamp = std::max(m_min, std::min(kRadius, m_max));
+        const int kCell = static_cast<int>(kClamp / m_duration);
         
-        ++data[kCell];
+        ++(data[kCell]);
     }
     
     std::ofstream output("distribution_" + std::to_string(frame) + ".data");
@@ -47,8 +48,6 @@ void fj::MohrStressCircleDistribution::endSimulationProfile()
     command << "set terminal png" << std::endl;
     command << "set output \"distribution_" << frame << ".png\"" << std::endl;
     command << "plot \"distribution_" << frame << ".data\" using 1:2 with lines" << std::endl;
-    
-    ++frame;
 }
 
 void fj::MohrStressCircleDistribution::terminate()

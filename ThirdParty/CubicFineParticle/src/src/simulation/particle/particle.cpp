@@ -46,7 +46,7 @@ void fj::Particle::collapse()
 {
     const btVector3 kContactForceSum = std::accumulate(std::begin(getContactForceContainer()), std::end(getContactForceContainer()), btVector3(0, 0, 0)/*初期値*/);
     applyCentralForce(kContactForceSum);
-    getRheorogyModelParameterPtr()->DashpodEnvelope = 1.0;
+    getRheorogyModelParameterPtr()->DashpodEnvelope = 0.0;
 }
 
 void fj::Particle::lockWithFriction()
