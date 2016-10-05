@@ -19,6 +19,11 @@ ThirdParty/CubicFineParticle/Libraries/*
 *.log
 *.mov
 *.mp4
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.pdf
 ThirdParty/CubicFineParticle/src/bin
 ThirdParty/CubicFineParticle/src/lib
 ThirdParty/CubicFineParticle/src/build
