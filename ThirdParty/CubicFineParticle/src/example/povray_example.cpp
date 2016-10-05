@@ -49,15 +49,15 @@ int main(int argc, char** argv)
         for (int j = 0; j < 10; j++){
             for (int k = 0; k < 10; k++)
             {
-                btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
+                btVector3 position = btVector3(i, j, k);
                 btMatrix3x3 matrix;
 
-                matrix.setEulerZYX(45, 45, 45);
-                position = matrix * position;
-                position += btVector3(0, 1, 0);
+//                matrix.setEulerZYX(45, 45, 45);
+//                position = matrix * position;
+                position += btVector3(0, 0.6, 0);
                 
                 std::unique_ptr<fj::Particle> particle = fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position);
-                particle->getWarrenSpringCurvePtr()->getParameterPtr()->Adhesion = 2;
+                particle->getWarrenSpringCurvePtr()->getParameterPtr()->Adhesion = 5.5;
                 particle->getWarrenSpringCurvePtr()->getParameterPtr()->SheerIndex = 5;
                 world->addParticle(std::move(particle));
             }
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     for (int i = 0; i < kStep; i++)
     {
 		simulationStart = std::chrono::system_clock::now();
-        world->stepSimulation(1.0/120.0);
+        world->stepSimulation(1.0/480.0);
 		simulationEnd = std::chrono::system_clock::now();
 		simulationTime = simulationEnd - simulationStart;
 

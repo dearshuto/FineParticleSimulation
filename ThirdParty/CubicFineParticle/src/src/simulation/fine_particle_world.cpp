@@ -180,7 +180,6 @@ void fj::FineParticleWorld::updateParticleCollapse(const btScalar timestep)
 
 bool fj::FineParticleWorld::shouldCollapse(const fj::Particle &particle)const
 {
-    // とりあえず常に崩壊
     const auto& kMohrStressCircle = particle.getMohrStressCircle();
     const auto kWaarenSpringCurve = particle.getWarrenSpringCurve();
     std::function<bool(double distance)> func = ([&](const double distance){
