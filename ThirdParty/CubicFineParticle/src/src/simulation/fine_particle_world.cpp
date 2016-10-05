@@ -99,7 +99,7 @@ void fj::FineParticleWorld::applyNormalComponentContactForce(const FineParticles
     const btVector3 kRelativeVelocity12 = particle2->getLinearVelocity() - particle1->getLinearVelocity();
     const btVector3 kRelativeVelocity21 = -kRelativeVelocity12;
     const auto kReducedMass = computeReducedMass(std::cref(*particle1), std::cref(*particle2));
-    const auto kDashpodEnvelope = computeReducedMass(*particle1, *particle2);
+    const auto kDashpodEnvelope = computeDashpodEnvelope(*particle1, *particle2);
     
     const auto kEta = -2.0 * kDashpodEnvelope * std::log(E) * std::sqrt(
                                                    (kReducedMass * SpringK)
