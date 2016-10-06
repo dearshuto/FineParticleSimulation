@@ -63,7 +63,7 @@ void fj::Particle::lockWithFriction()
 //    {
 //        setLinearVelocity(btVector3(0, 0, 0));
 //    }
-    getRheorogyModelParameterPtr()->DashpodEnvelope = 50.0;
+    getRheorogyModelParameterPtr()->DashpodEnvelope = 30.0;
 }
 
 void fj::Particle::clearContactForce()

@@ -24,9 +24,9 @@ int main(int argc, char** argv)
         // レンダリング
     auto output = world->addProfileSystem<fj::POVRayOutput>();
     auto& location =  output->getCameraInformationPtr()->Location;
-    location.X = -45;
-    location.Y = 45;
-    location.Z = 45;
+    location.X = -15;
+    location.Y = 25;
+    location.Z = 15;
     
     // 床
     std::unique_ptr<btCollisionShape> groundShape(new btBoxShape( btVector3(btScalar(1000), btScalar(10), btScalar(1000))));
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
                 position += btVector3(0, 0.6, 0);
                 
                 std::unique_ptr<fj::Particle> particle = fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position);
-                particle->getWarrenSpringCurvePtr()->getParameterPtr()->Adhesion = 5.5;
+                particle->getWarrenSpringCurvePtr()->getParameterPtr()->Adhesion = 2.0;
                 particle->getWarrenSpringCurvePtr()->getParameterPtr()->SheerIndex = 5;
                 world->addParticle(std::move(particle));
             }
@@ -84,12 +84,12 @@ int main(int argc, char** argv)
     const double kE = (argc < 3) ? 1 : std::atoi(argv[2]);
 
     //ぶつけてみる
-    std::unique_ptr<btCollisionShape> groundShape_(new btSphereShape(3.0));
+    std::unique_ptr<btCollisionShape> groundShape_(new btSphereShape(1.5));
     btScalar mass_(10.5);
     btVector3 localInertia_(0,0,0);
     btTransform groundTransform_;
     groundTransform_.setIdentity();
-    groundTransform_.setOrigin(btVector3(7, 15,3));
+    groundTransform_.setOrigin(btVector3(2, 12,8));
     std::unique_ptr<btDefaultMotionState> myMotionState_(new btDefaultMotionState(groundTransform_));
     btRigidBody::btRigidBodyConstructionInfo rbInfo_(mass_,myMotionState_.get(),groundShape_.get(),localInertia_);
     std::unique_ptr<btRigidBody> body_(new btRigidBody(rbInfo_));
