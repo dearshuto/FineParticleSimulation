@@ -182,14 +182,19 @@ bool fj::FineParticleWorld::shouldCollapse(const fj::Particle &particle)const
 {
     const auto& kMohrStressCircle = particle.getMohrStressCircle();
     const auto kWaarenSpringCurve = particle.getWarrenSpringCurve();
-    std::function<bool(double distance)> func = ([&](const double distance){
-        return distance < kMohrStressCircle.getRadius();
-    });
+//    std::function<bool(double distance)> func = ([&](const double distance){
+//        return distance < kMohrStressCircle.getRadius();
+//    });
+//    
+//    const auto kClosestPoint = fj::NewtonMethod::GetInstance().computeClosestPoint(kWaarenSpringCurve, kMohrStressCircle, &func);
+//    
+//    // どこかしらに近傍が存在していれば崩壊
+//    return std::isfinite(kClosestPoint.X);
     
-    const auto kClosestPoint = fj::NewtonMethod::GetInstance().computeClosestPoint(kWaarenSpringCurve, kMohrStressCircle, &func);
-    
-    // どこかしらに近傍が存在していれば崩壊
-    return std::isfinite(kClosestPoint.X);
+    // モール応力円の中心の真上にある曲線上の点で判定する
+    // 半径以下なら衝突！
+    const auto kContactPointY = kWaarenSpringCurve.compute( kMohrStressCircle.getCenter().X );
+    return kContactPointY < kMohrStressCircle.getRadius();
 }
 
 void fj::FineParticleWorld::updateAllObjectTransform(const btScalar timestep)

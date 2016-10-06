@@ -33,7 +33,7 @@ def render(withMovie = True):
     povFile = glob.glob('./*.pov')
     if len(povFile) > 0:
         for file in povFile:
-            os.system('povray ' + file)
+            os.system('povray +W400 +H300 ' + file)
 
         # distributionの動画作成
         if withMovie:

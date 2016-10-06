@@ -152,6 +152,19 @@ int main(int argc, char** argv)
         }
     }
     
+    // ぶつけてみる
+    std::unique_ptr<btCollisionShape> groundShape_(new btSphereShape(3.0));
+    btScalar mass_(10.5);
+    btVector3 localInertia_(0,0,0);
+    btTransform groundTransform_;
+    groundTransform_.setIdentity();
+    groundTransform_.setOrigin(btVector3(7,15,3));
+    std::unique_ptr<btDefaultMotionState> myMotionState_(new btDefaultMotionState(groundTransform_));
+    btRigidBody::btRigidBodyConstructionInfo rbInfo_(mass_,myMotionState_.get(),groundShape.get(),localInertia_);
+    std::unique_ptr<btRigidBody> body_(new btRigidBody(rbInfo_));
+    body_->setRollingFriction(1);
+    body_->setFriction(1);
+    world.addRigidBody( std::move(body_));
     
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
     for (int i = 0; i < simulationStep; i++)
