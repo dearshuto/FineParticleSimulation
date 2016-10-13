@@ -15,9 +15,7 @@ namespace fj {
     class FineParticleShape;
 }
 
-/**
- * Bullet Physicsのフレームワークで使用される形状を粉体粒子用にカスタマイズしたもの
- */
+/** Bullet Physicsのフレームワークで使用される形状を粉体粒子用にカスタマイズしたもの */
 class fj::FineParticleShape : public btSphereShape
 {
     typedef btSphereShape Super;

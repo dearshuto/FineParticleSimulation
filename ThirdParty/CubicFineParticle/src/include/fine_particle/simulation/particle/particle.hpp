@@ -22,6 +22,7 @@ namespace fj {
     class Particle;
 }
 
+/** ズバリ粒子 */
 class fj::Particle : public btRigidBody
 {
 private:

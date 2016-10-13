@@ -18,10 +18,8 @@ namespace fj {
     class DiscritizedParticleShape;
 }
 
-/**
- * 粉体粒子を離散化した形状を提供する
- * 離散化形状は法線の集合で表される.
- */
+/** 粉体粒子を離散化した形状を提供する
+ * 離散化形状は法線の集合で表される. */
 class fj::DiscritizedParticleShape
 {
 public:

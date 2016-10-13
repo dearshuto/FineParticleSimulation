@@ -15,6 +15,7 @@ namespace fj {
     class MohrStressCircleDistribution;
 }
 
+/** モールの応力円の半径の分布をプロファイリングする. gnuplotのコマンドとして書き出す */
 class fj::MohrStressCircleDistribution : public fj::AdditionalProcedure
 {
     typedef fj::AdditionalProcedure Super;
