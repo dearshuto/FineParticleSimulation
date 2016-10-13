@@ -46,20 +46,17 @@ void fj::Particle::collapse()
 {
     const btVector3 kContactForceSum = std::accumulate(std::begin(getContactForceContainer()), std::end(getContactForceContainer()), btVector3(0, 0, 0)/*初期値*/);
     applyCentralForce(kContactForceSum);
+    getRheorogyModelParameterPtr()->DashpodEnvelope = 0.0;
 }
 
 void fj::Particle::lockWithFriction()
 {
-    // 速度を奪うことで摩擦力による拘束を表現する.
-    // しかし, これだと接触力がいっさいない場合でも粒子の動きが止まってしまう
-    // これは不自然なので, 接触力の有無を考慮する
+    // ダッシュポッドによる拘束力を強くして粒子の動きにロックをかける
     
-    clearForces();
-    
-    if ( !getMohrStressCircle().getContactForceContainer().empty() )
-    {
-        setLinearVelocity(btVector3(0, 0, 0));
-    }
+    constexpr float kInfinityDashpod = 50.0;
+    const btVector3 kContactForceSum = std::accumulate(std::begin(getContactForceContainer()), std::end(getContactForceContainer()), btVector3(0, 0, 0)/*初期値*/);
+    applyCentralForce(kContactForceSum);
+    getRheorogyModelParameterPtr()->DashpodEnvelope = kInfinityDashpod;
 }
 
 void fj::Particle::clearContactForce()

@@ -24,9 +24,9 @@ int main(int argc, char** argv)
         // レンダリング
     auto output = world->addProfileSystem<fj::POVRayOutput>();
     auto& location =  output->getCameraInformationPtr()->Location;
-    location.X = -45;
-    location.Y = 45;
-    location.Z = 45;
+    location.X = -15;
+    location.Y = 25;
+    location.Z = 15;
     
     // 床
     std::unique_ptr<btCollisionShape> groundShape(new btBoxShape( btVector3(btScalar(1000), btScalar(10), btScalar(1000))));
@@ -49,14 +49,16 @@ int main(int argc, char** argv)
         for (int j = 0; j < 10; j++){
             for (int k = 0; k < 10; k++)
             {
-                btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
+                btVector3 position = btVector3(i, j, k);
                 btMatrix3x3 matrix;
 
-                matrix.setEulerZYX(45, 45, 45);
-                position = matrix * position;
-                position += btVector3(0, 1, 0);
+//                matrix.setEulerZYX(45, 45, 45);
+//                position = matrix * position;
+                position += btVector3(0, 0.6, 0);
                 
                 std::unique_ptr<fj::Particle> particle = fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position);
+                particle->getWarrenSpringCurvePtr()->getParameterPtr()->Adhesion = 5.0;
+                particle->getWarrenSpringCurvePtr()->getParameterPtr()->SheerIndex = 5;
                 world->addParticle(std::move(particle));
             }
         }
@@ -80,12 +82,27 @@ int main(int argc, char** argv)
     // 引数で渡された値が数字以外だったときの処理は未定義
     const int kStep = (argc < 2) ? 1000 : std::atoi(argv[1]);
     const double kE = (argc < 3) ? 1 : std::atoi(argv[2]);
+
+    //ぶつけてみる
+    std::unique_ptr<btCollisionShape> groundShape_(new btSphereShape(1.5));
+    btScalar mass_(10.5);
+    btVector3 localInertia_(0,0,0);
+    btTransform groundTransform_;
+    groundTransform_.setIdentity();
+    groundTransform_.setOrigin(btVector3(2, 12,8));
+    std::unique_ptr<btDefaultMotionState> myMotionState_(new btDefaultMotionState(groundTransform_));
+    btRigidBody::btRigidBodyConstructionInfo rbInfo_(mass_,myMotionState_.get(),groundShape_.get(),localInertia_);
+    std::unique_ptr<btRigidBody> body_(new btRigidBody(rbInfo_));
+    body_->setRollingFriction(1);
+    body_->setFriction(1);
+    world->addRigidBody( std::move(body_));
+
     
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
     for (int i = 0; i < kStep; i++)
     {
 		simulationStart = std::chrono::system_clock::now();
-        world->stepSimulation(1.0/120.0);
+        world->stepSimulation(1.0/480.0);
 		simulationEnd = std::chrono::system_clock::now();
 		simulationTime = simulationEnd - simulationStart;
 

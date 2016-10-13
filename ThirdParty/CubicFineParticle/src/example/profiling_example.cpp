@@ -137,19 +137,34 @@ int main(int argc, char** argv)
         for (int j = 0; j < 10; j++){
             for (int k = 0; k < 10; k++)
             {
-                btVector3 position = btVector3(i, 1.0 + float(j)*1.1, k);
+                btVector3 position = btVector3(i, j, k);
                 btMatrix3x3 matrix;
 
-                matrix.setEulerZYX(45, 45, 45);
-                position = matrix * position;
-                position += btVector3(0, 1, 0);
+//                matrix.setEulerZYX(45, 45, 45);
+//                position = matrix * position;
+                position += btVector3(0, 0.6, 0);
                 
                 std::unique_ptr<fj::Particle> particle = fj::Particle::generateParticle( fj::DiscritizedParticleShape::ShapeType::kCube, position);
+                particle->getWarrenSpringCurvePtr()->getParameterPtr()->Adhesion = 5.0;
+                particle->getWarrenSpringCurvePtr()->getParameterPtr()->SheerIndex = 5;
                 world.addParticle(std::move(particle));
             }
         }
     }
     
+    // ぶつけてみる
+    std::unique_ptr<btCollisionShape> groundShape_(new btSphereShape(1.5));
+    btScalar mass_(10.5);
+    btVector3 localInertia_(0,0,0);
+    btTransform groundTransform_;
+    groundTransform_.setIdentity();
+    groundTransform_.setOrigin(btVector3(2,12,8));
+    std::unique_ptr<btDefaultMotionState> myMotionState_(new btDefaultMotionState(groundTransform_));
+    btRigidBody::btRigidBodyConstructionInfo rbInfo_(mass_,myMotionState_.get(),groundShape.get(),localInertia_);
+    std::unique_ptr<btRigidBody> body_(new btRigidBody(rbInfo_));
+    body_->setRollingFriction(1);
+    body_->setFriction(1);
+    world.addRigidBody( std::move(body_));
     
     // シミュレーションを進め, かかった時間を出力し, シミュレーション結果をpovray形式で吐き出す
     for (int i = 0; i < simulationStep; i++)
