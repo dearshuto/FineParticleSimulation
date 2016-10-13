@@ -15,6 +15,8 @@ namespace fj {
     class MohrStressCircleProfile;
 }
 
+/** n番目に生成された粒子の崩壊曲線を可視化する. gnuplotで描画できる形式で書き出す.
+ * 本来なら複数の粒子を追跡できるようにしたいが, とりあえず1つの粒子だけ*/
 class fj::MohrStressCircleProfile : public fj::AdditionalProcedure
 {
     typedef fj::AdditionalProcedure Super;

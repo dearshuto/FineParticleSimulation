@@ -17,10 +17,8 @@ namespace fj {
     class POVRayOutput;
 }
 
-/**
- * シーンをPOV-Ray形式に変換する.
- * x-z平面に乗っている無限平面と粒子をレンダリングするシーンを出力する.
- */
+/** シーンをPOV-Ray形式で出力する.
+ * x-z平面に乗っている無限平面と粒子をレンダリングするシーンを出力する. */
 class fj::POVRayOutput : public fj::AdditionalProcedure
 {
 private:

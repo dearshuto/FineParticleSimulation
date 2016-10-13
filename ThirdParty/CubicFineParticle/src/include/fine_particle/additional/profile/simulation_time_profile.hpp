@@ -18,6 +18,7 @@ namespace fj {
     class SimulationTimeProfile;
 }
 
+/** シミュレーションの開始から終了までの間で, 1フレームのシミュレーション時間を計測する */
 class fj::SimulationTimeProfile : public fj::AdditionalProcedure
 {
     typedef fj::AdditionalProcedure Super;

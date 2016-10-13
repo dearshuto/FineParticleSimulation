@@ -16,6 +16,7 @@ namespace fj {
     class AdditionalProcedure;
 }
 
+/** fj::FineParticleWorld::stepSimulation から呼ばれる処理 */
 class fj::AdditionalProcedure
 {
 protected:
@@ -33,11 +34,13 @@ public:
     {
         
     }
-    
+     /** シミュレーションが始まる前に呼ばれる */
     virtual void startSimulationProfile() = 0;
     
+    /** シミュレーションが終わると呼ばれる*/
     virtual void endSimulationProfile() = 0;
     
+    /** fj::FineParticleWorld::terminate で呼ばれる */
     virtual void terminate() = 0;
     
     unsigned int getPriorityAdUInt()const
