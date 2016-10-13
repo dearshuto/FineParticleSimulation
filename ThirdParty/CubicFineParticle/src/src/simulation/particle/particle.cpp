@@ -12,7 +12,6 @@
 
 #include "fine_particle/simulation/fine_particle_world.hpp"
 #include "fine_particle/simulation/mohr_stress_circle.hpp"
-#include "fine_particle/simulation/particle/collapse_detector.hpp"
 #include "fine_particle/simulation/particle/fine_particle_shape.hpp"
 #include "fine_particle/simulation/particle/particle.hpp"
 
@@ -30,46 +29,39 @@ std::unique_ptr<fj::Particle> fj::Particle::generateParticle(const fj::Discritiz
     std::unique_ptr<fj::Particle> particle(new fj::Particle(type, rbInfo, std::move(myMotionState)));
     particle->setRollingFriction(1);
     particle->setFriction(1);
-
     return particle;
 }
 
-void fj::Particle::init()
+void fj::Particle::updateCollapseStatus()
 {
-    // アップキャストするために自分の情報をもたせておく
-    m_internalType = btCollisionObject::CO_RIGID_BODY | btCollisionObject::CO_USER_TYPE;
-}
-
-bool fj::Particle::isCollapse()const
-{
-    const auto& kCollapseDetector = m_collapseDetector.lock();
-    
-    if (kCollapseDetector)
-    {
-        return kCollapseDetector->shouldCallapse( std::cref(*this) );
-    }
-    else
-    {
-        return true;
-    }
-    
-    return true;
+    getMohrStressCirclePtr()->rebuildMohrCircle( Super::getWorldTransform().getRotation() );
 }
 
 void fj::Particle::addContactForce(const btVector3& contactForce)
 {
-    m_contactForceContainer.push_back(contactForce);
+    getMohrStressCirclePtr()->addContactForce(contactForce);
 }
 
-void fj::Particle::applyContactForce()
+void fj::Particle::collapse()
 {
-    const btVector3 kContactForceSum = std::accumulate(std::begin(m_contactForceContainer), std::end(m_contactForceContainer), btVector3(0, 0, 0)/*初期値*/);
+    const btVector3 kContactForceSum = std::accumulate(std::begin(getContactForceContainer()), std::end(getContactForceContainer()), btVector3(0, 0, 0)/*初期値*/);
     applyCentralForce(kContactForceSum);
+    getRheorogyModelParameterPtr()->DashpodEnvelope = 0.0;
+}
+
+void fj::Particle::lockWithFriction()
+{
+    // ダッシュポッドによる拘束力を強くして粒子の動きにロックをかける
+    
+    constexpr float kInfinityDashpod = 50.0;
+    const btVector3 kContactForceSum = std::accumulate(std::begin(getContactForceContainer()), std::end(getContactForceContainer()), btVector3(0, 0, 0)/*初期値*/);
+    applyCentralForce(kContactForceSum);
+    getRheorogyModelParameterPtr()->DashpodEnvelope = kInfinityDashpod;
 }
 
 void fj::Particle::clearContactForce()
 {
-    m_contactForceContainer.clear();
+    getMohrStressCirclePtr()->clearContactForce();
 }
 
 btScalar fj::Particle::getRadius()const

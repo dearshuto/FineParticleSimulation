@@ -13,62 +13,68 @@
 #include <tuple>
 #include <vector>
 #include <btBulletDynamicsCommon.h>
+#include "fine_particle/simulation/particle/discritized_particle_shape.hpp"
+#include "fine_particle/shape_2d/circle.hpp"
+#include "fine_particle/shape_2d/warren_spring_curve.hpp"
 
 namespace fj {
-    struct WarrenSpringParameter
-    {
-        WarrenSpringParameter()
-        : SheerIndex(1)
-        , Adhesion(1)
-        , Collapsibility(1)
-        {
-            
-        }
-        
-        double SheerIndex; //剪断指数→粉体崩壊曲線の曲率に対応する
-        double Adhesion; // 粘着力→大きいほど崩壊しにくくなる. 粉体崩壊曲線のτ切片に対応する.
-        double Collapsibility; //垂直応力を大きくしたときの崩壊のしやすさ。粉体崩壊曲線の傾きに対応する.
-    };
-    
     class MohrStressCircle;
 }
 
-class fj::MohrStressCircle
+/** モール応力円 */
+class fj::MohrStressCircle : public fj::Circle
 {
-    typedef std::array<btScalar, 2> Position2D;
-    
+    typedef fj::Circle Super;
+    typedef std::vector<btVector3> ContactForceContainer;
+    typedef std::vector<btScalar> NormalStressContainer;
 public:
-    MohrStressCircle() = default;
+    MohrStressCircle() = delete;
     ~MohrStressCircle() = default;
     
-    MohrStressCircle(const size_t size)
-    : m_normalStress(size)
+    MohrStressCircle(const fj::DiscritizedParticleShape::ShapeType shapeType)
+    : m_discretizedShapeType(shapeType)
     {
-        
+
     }
     
-    void addNormalStress(const double normalStress);
+    /** @param normalStress 有限な値である力*/
+    void addContactForce(const btVector3& normalStress);
     
-    void rebuildMohrCircle();
+    /** モール応力円の中心と半径を再計算する.*/
+    void rebuildMohrCircle(const btQuaternion& rotateMatrix);
     
-    bool hasIntersectionPoint(const fj::WarrenSpringParameter warrenSpringParameter)const;
+    void clearContactForce();
     
     const Position2D& getCenter()const
     {
-        return m_center;
+        return Super::Center;
     }
 
+    const ContactForceContainer& getContactForceContainer()const
+    {
+        return m_contactForce;
+    }
+    
+    const fj::DiscritizedParticleShape::ShapeType getDiscretizedShapeType()const
+    {
+        return m_discretizedShapeType;
+    }
+    
     const btScalar getRadius()const
     {
-        return m_radius;
+        return Super::Radius;
     }
     
 private:
-    Position2D m_center;
+    void rebuildCircleCenterAndRadius(const btQuaternion& rotateMatrix);
     
-    btScalar m_radius;
+    NormalStressContainer computeNormalStress(const btQuaternion& rotateMatrix)const;
     
-    std::vector<double> m_normalStress;
+private:
+    /** 接触している粒子から受けてる力. 1つの接触につき1つの力が保持される. */
+    ContactForceContainer m_contactForce;
+    
+    fj::DiscritizedParticleShape::ShapeType m_discretizedShapeType;
 };
 
 #endif /* mohr_stress_circle_hpp */

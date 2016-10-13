@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "FineParticle.h"
+#include <fstream>
 #include "fine_particle/simulation/particle/collapse_detector.hpp"
+#include "fine_particle/simulation/profile/simulation_time_profile.hpp"
 #include "FineParticleEmitter.h"
 
 
@@ -31,10 +33,14 @@ void AFineParticleEmitter::BeginPlay()
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, m_planeMotionState.get(), m_plane.get(),localInertia);
     std::unique_ptr<btRigidBody> plane(new btRigidBody(rbInfo));
     
-    m_world.addRigidBody(std::move(plane), fj::CollisionGroup::kRigid, fj::CollisionFiltering::kRigid);
+    m_world.addRigidBody(std::move(plane));
 
     
     m_collapseDetector = std::make_shared<fj::Particle::CollapseDetector>();
+
+	// Simulation Profiling
+	FString dir = FPaths::GameDir();
+	m_world.addProfileSystem( std::make_unique<fj::SimulationTimeProfile>(TCHAR_TO_ANSI(*dir)) );
 }
 
 // Called every frame
@@ -47,7 +53,7 @@ void AFineParticleEmitter::Tick( float DeltaTime )
         m_world.stepSimulation(SimulationTimeStep);
         
     }
-    
+
     synchronizeRenderParticlePosition();
 }
 
@@ -79,10 +85,20 @@ void AFineParticleEmitter::CreateParticle(const FVector& position)
     visibleParticle->setRadius( 10 * particle->getRadius() );
     
     m_particles.Push(visibleParticle);
-    m_world.addParticle( std::move(particle), fj::CollisionGroup::kRigidParticle, fj::CollisionFiltering::kRigidParticle );
+    m_world.addParticle( std::move(particle) );
+}
+
+void AFineParticleEmitter::Terminate()
+{
+	m_world.terminate();
 }
 
 void AFineParticleEmitter::SetSimulationSpringK(const float SimulationSpringK)
 {
-    m_world.kSpringK = SimulationSpringK;
+    m_world.SpringK = SimulationSpringK;
+}
+
+void AFineParticleEmitter::SetDashpodEnvelop(const float DashpodEnvelop)
+{
+	m_world.DashpodEnvelop = DashpodEnvelop;
 }

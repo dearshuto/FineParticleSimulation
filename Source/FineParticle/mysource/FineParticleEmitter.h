@@ -27,10 +27,16 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Actor")
     void CreateParticle(const FVector& Position);
     
+	UFUNCTION(BlueprintCallable, Category = "Actor")
+	void Terminate();
+
 public:
     UFUNCTION(BlueprintCallable, Category = "Actor")
     void SetSimulationSpringK(const float SimulationSpringK);
     
+	UFUNCTION(BlueprintCallable, Category = "Actor")
+	void SetDashpodEnvelop(const float DashpodEnvelop);
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Edit")
     float SimulationTimeStep;
 
